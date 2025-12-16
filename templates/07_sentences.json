@@ -1,0 +1,64 @@
+{
+  "category_id": "07_sentences",
+  "category_name": "משפטים",
+  "category_name_english": "Sentences",
+  "description": "Example sentences using the word in various contexts and complexity levels",
+  "target_items": 2000,
+  "item_types": [
+    "simple_sentence",
+    "compound_sentence",
+    "complex_sentence",
+    "question_sentence",
+    "command_sentence",
+    "exclamatory_sentence",
+    "negative_sentence",
+    "conditional_sentence",
+    "descriptive_sentence",
+    "narrative_sentence"
+  ],
+  "item_template": {
+    "id": "{word}_07_sentences_{index}",
+    "word": "{word}",
+    "category": "07_sentences",
+    "type": "",
+    "content": {
+      "sentence": "",
+      "sentence_type": "",
+      "word_position": "",
+      "context": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "word_count": 0,
+    "sentence_structure": "",
+    "topic": "",
+    "tuki_reads": "",
+    "visual_scene": "",
+    "fill_in_blank_version": "",
+    "autism_adaptations": {
+      "clear_structure": true,
+      "concrete_content": true,
+      "relatable_context": true,
+      "visual_support": true
+    },
+    "variations": {
+      "simplified": "",
+      "standard": "",
+      "extended": ""
+    }
+  },
+  "generation_prompts": {
+    "simple": "צור משפטים פשוטים עם המילה '{word}' לילדים צעירים",
+    "contextual": "צור משפטים עם '{word}' בהקשרים שונים מחיי היומיום",
+    "graduated": "צור משפטים עם '{word}' ברמות קושי עולות"
+  },
+  "tuki_character": {
+    "introduction": "בוא נקרא משפטים יחד! כל משפט הוא הרפתקה!",
+    "reading_style": "איטי, ברור, עם הדגשה על המילה",
+    "interaction": "אתה רוצה לקרוא את המשפט איתי?",
+    "encouragement": "קראת את המשפט יפה מאוד!"
+  }
+}

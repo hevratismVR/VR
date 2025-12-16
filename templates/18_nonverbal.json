@@ -1,0 +1,64 @@
+{
+  "category_id": "18_nonverbal",
+  "category_name": "תקשורת לא מילולית",
+  "category_name_english": "Nonverbal Communication",
+  "description": "Non-verbal communication cues, body language, facial expressions, and gestures",
+  "target_items": 2000,
+  "item_types": [
+    "facial_expression",
+    "body_posture",
+    "gesture",
+    "eye_contact",
+    "personal_space",
+    "tone_of_voice",
+    "touch",
+    "proximity",
+    "orientation",
+    "appearance_cue"
+  ],
+  "item_template": {
+    "id": "{word}_18_nonverbal_{index}",
+    "word": "{word}",
+    "category": "18_nonverbal",
+    "type": "",
+    "content": {
+      "nonverbal_type": "",
+      "description": "",
+      "meaning": "",
+      "context": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "cue_type": "",
+    "body_part": "",
+    "emotion_connection": "",
+    "cultural_note": "",
+    "visual_example": "",
+    "tuki_shows": "",
+    "autism_adaptations": {
+      "explicit_teaching": true,
+      "visual_cards": true,
+      "practice_mirror": true,
+      "comfort_respect": true
+    },
+    "recognition_practice": {
+      "identify": "",
+      "interpret": "",
+      "respond": ""
+    }
+  },
+  "generation_prompts": {
+    "facial": "תאר הבעות פנים הקשורות לרגשות כשמשתמשים ב'{word}'",
+    "gestures": "תאר מחוות גוף שמלוות את המילה '{word}'",
+    "body": "הסבר שפת גוף בסיטואציות עם '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "גם בלי מילים אפשר לתקשר! טוקי יראה לך!",
+    "demonstration": "תסתכל על הפנים שלי... מה אני מרגיש?",
+    "mirror_activity": "בוא נעשה את הפרצוף הזה ביחד!",
+    "encouragement": "אתה קורא שפת גוף כמו מומחה!"
+  }
+}

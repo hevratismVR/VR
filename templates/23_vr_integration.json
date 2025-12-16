@@ -1,0 +1,72 @@
+{
+  "category_id": "23_vr_integration",
+  "category_name": "אינטגרציית VR",
+  "category_name_english": "VR Integration",
+  "description": "VR environment integration, 3D world scenarios, and immersive learning experiences",
+  "target_items": 2000,
+  "item_types": [
+    "vr_scene",
+    "interactive_object",
+    "avatar_interaction",
+    "spatial_navigation",
+    "gesture_input",
+    "voice_command",
+    "haptic_feedback",
+    "environmental_cue",
+    "social_scenario_vr",
+    "gamified_element"
+  ],
+  "item_template": {
+    "id": "{word}_23_vr_{index}",
+    "word": "{word}",
+    "category": "23_vr_integration",
+    "type": "",
+    "content": {
+      "vr_element": "",
+      "description": "",
+      "interaction_type": "",
+      "learning_objective": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 4,
+      "max": 12
+    },
+    "vr_environment": "",
+    "scene_description": "",
+    "interactive_elements": [],
+    "tuki_3d_appearance": "",
+    "spatial_audio": "",
+    "visual_effects": [],
+    "autism_adaptations": {
+      "sensory_controls": true,
+      "safe_space_option": true,
+      "predictable_environment": true,
+      "calm_mode_available": true,
+      "gradual_introduction": true
+    },
+    "vr_specific": {
+      "locomotion_type": "",
+      "interaction_method": "",
+      "comfort_settings": "",
+      "session_duration": ""
+    },
+    "learning_integration": {
+      "word_presentation": "",
+      "practice_opportunity": "",
+      "feedback_method": "",
+      "reward_system": ""
+    }
+  },
+  "generation_prompts": {
+    "scenes": "צור סצנות VR ללמידת המילה '{word}' בסביבה תלת-ממדית",
+    "interactions": "צור אינטראקציות VR עם חפצים הקשורים ל'{word}'",
+    "scenarios": "צור תרחישים חברתיים ב-VR לתרגול '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "ברוכים הבאים לעולם הוירטואלי של טוקי!",
+    "3d_presence": "טוקי עף סביבך בחלל התלת-ממדי",
+    "guidance": "בוא נחקור את העולם הזה יחד!",
+    "comfort": "אם זה יותר מדי, אפשר תמיד לצאת למקום שקט"
+  }
+}

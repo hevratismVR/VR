@@ -1,0 +1,66 @@
+{
+  "category_id": "19_teaching_strategies",
+  "category_name": "אסטרטגיות הוראה",
+  "category_name_english": "Teaching Strategies",
+  "description": "Teaching methods, therapeutic strategies, and intervention approaches",
+  "target_items": 2000,
+  "item_types": [
+    "aba_strategy",
+    "teacch_method",
+    "dir_floortime",
+    "social_thinking",
+    "visual_strategy",
+    "naturalistic_teaching",
+    "scripting",
+    "video_modeling",
+    "peer_mediated",
+    "self_monitoring"
+  ],
+  "item_template": {
+    "id": "{word}_19_teaching_{index}",
+    "word": "{word}",
+    "category": "19_teaching_strategies",
+    "type": "",
+    "content": {
+      "strategy_name": "",
+      "approach": "",
+      "implementation_steps": [],
+      "expected_outcome": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "therapeutic_approach": "",
+    "target_skill": "",
+    "materials_needed": [],
+    "setup": "",
+    "procedure": [],
+    "data_collection": "",
+    "generalization": "",
+    "tuki_implements": "",
+    "autism_specific": {
+      "evidence_based": true,
+      "individualized": true,
+      "family_involvement": true,
+      "natural_environment": true
+    },
+    "therapist_notes": {
+      "preparation": "",
+      "implementation": "",
+      "troubleshooting": ""
+    }
+  },
+  "generation_prompts": {
+    "aba": "צור פעילויות ABA ללימוד המילה '{word}'",
+    "visual": "צור אסטרטגיות תמיכה ויזואלית ללימוד '{word}'",
+    "naturalistic": "צור הזדמנויות טבעיות ללימוד '{word}' בשגרה יומית"
+  },
+  "tuki_character": {
+    "introduction": "טוקי יודע הרבה דרכים ללמד! בוא נמצא את הדרך שלך!",
+    "flexibility": "לא עבד ככה? ננסה דרך אחרת!",
+    "reinforcement": "אתה עושה עבודה נהדרת!",
+    "patience": "לאט לאט, צעד אחר צעד, אנחנו מתקדמים!"
+  }
+}

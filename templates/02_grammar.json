@@ -1,0 +1,65 @@
+{
+  "category_id": "02_grammar",
+  "category_name": "דקדוק",
+  "category_name_english": "Grammar",
+  "description": "Grammar rules, conjugations, tenses, and linguistic patterns",
+  "target_items": 2000,
+  "item_types": [
+    "conjugation",
+    "tense",
+    "gender_form",
+    "plural_form",
+    "verb_pattern",
+    "noun_declension",
+    "adjective_agreement",
+    "preposition_usage",
+    "sentence_structure",
+    "grammar_rule"
+  ],
+  "item_template": {
+    "id": "{word}_02_grammar_{index}",
+    "word": "{word}",
+    "category": "02_grammar",
+    "type": "",
+    "content": {
+      "base_form": "",
+      "conjugated_form": "",
+      "grammar_rule": "",
+      "explanation": ""
+    },
+    "tense": "",
+    "person": "",
+    "gender": "",
+    "number": "",
+    "binyan": "",
+    "pattern": "",
+    "difficulty": 1,
+    "age_range": {
+      "min": 4,
+      "max": 12
+    },
+    "tuki_says": "",
+    "visual_pattern": "",
+    "example_sentence": "",
+    "autism_adaptations": {
+      "color_coding": true,
+      "visual_tables": true,
+      "consistent_patterns": true,
+      "step_by_step": true
+    },
+    "related_forms": [],
+    "common_errors": [],
+    "correction_tips": []
+  },
+  "generation_prompts": {
+    "conjugation": "צור את כל הטיות המילה '{word}' בזמנים שונים עם הסברים פשוטים",
+    "gender": "הסבר את צורות הזכר והנקבה של '{word}' בצורה חזותית",
+    "plural": "הראה איך להפוך את '{word}' לרבים עם דוגמאות ברורות"
+  },
+  "tuki_character": {
+    "introduction": "היי! טוקי כאן ללמד אותך דקדוק! זה קל כשעושים את זה יחד!",
+    "teaching_method": "חוקים ברורים עם צבעים",
+    "encouragement": "מעולה! אתה מבין דקדוק עברי!",
+    "memory_aids": ["טבלאות צבעוניות", "חוקים מוזיקליים", "תבניות חזותיות"]
+  }
+}

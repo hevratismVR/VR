@@ -1,0 +1,65 @@
+{
+  "category_id": "13_pragmatics",
+  "category_name": "פרגמטיקה",
+  "category_name_english": "Pragmatics",
+  "description": "Pragmatic language use and social communication rules in context",
+  "target_items": 2000,
+  "item_types": [
+    "turn_taking",
+    "topic_maintenance",
+    "topic_initiation",
+    "topic_change",
+    "conversational_repair",
+    "indirect_meaning",
+    "context_reading",
+    "audience_awareness",
+    "register_switching",
+    "nonliteral_language"
+  ],
+  "item_template": {
+    "id": "{word}_13_pragmatics_{index}",
+    "word": "{word}",
+    "category": "13_pragmatics",
+    "type": "",
+    "content": {
+      "pragmatic_skill": "",
+      "context": "",
+      "example_dialogue": "",
+      "teaching_point": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 4,
+      "max": 12
+    },
+    "pragmatic_function": "",
+    "social_context": "",
+    "listener_perspective": "",
+    "appropriate_responses": [],
+    "inappropriate_responses": [],
+    "tuki_demonstrates": "",
+    "visual_cue": "",
+    "autism_adaptations": {
+      "explicit_rules": true,
+      "script_support": true,
+      "context_markers": true,
+      "practice_scenarios": true
+    },
+    "hidden_curriculum": {
+      "unwritten_rule": "",
+      "explicit_explanation": "",
+      "practice_opportunity": ""
+    }
+  },
+  "generation_prompts": {
+    "turn_taking": "צור דוגמאות ללקיחת תורות בשיחה עם המילה '{word}'",
+    "context": "הסבר איך להשתמש ב'{word}' בהקשרים שונים (בית, בית ספר, גן)",
+    "indirect": "הסבר משמעויות עקיפות של ביטויים עם '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "שיחה היא כמו משחק! יש חוקים! טוקי ילמד אותך!",
+    "demonstration": "תסתכל איך טוקי מדבר עם חברים...",
+    "rule_making": "הנה חוק חשוב בשיחה...",
+    "encouragement": "אתה לומד את חוקי השיחה! מדהים!"
+  }
+}

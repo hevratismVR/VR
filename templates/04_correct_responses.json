@@ -1,0 +1,64 @@
+{
+  "category_id": "04_correct_responses",
+  "category_name": "תגובות נכונות",
+  "category_name_english": "Correct Responses",
+  "description": "Correct responses and answers related to the word for modeling appropriate communication",
+  "target_items": 2000,
+  "item_types": [
+    "direct_answer",
+    "elaborated_answer",
+    "polite_response",
+    "contextual_response",
+    "social_response",
+    "emotional_response",
+    "informative_response",
+    "confirmatory_response",
+    "clarifying_response",
+    "agreement_response"
+  ],
+  "item_template": {
+    "id": "{word}_04_correct_{index}",
+    "word": "{word}",
+    "category": "04_correct_responses",
+    "type": "",
+    "content": {
+      "stimulus": "",
+      "correct_response": "",
+      "explanation": "",
+      "social_context": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "situation": "",
+    "speaker": "",
+    "tone": "",
+    "tuki_models": "",
+    "why_correct": "",
+    "alternative_correct_responses": [],
+    "autism_adaptations": {
+      "explicit_teaching": true,
+      "social_script": true,
+      "visual_cue_card": true,
+      "practice_opportunity": true
+    },
+    "reinforcement": {
+      "verbal_praise": "",
+      "visual_reward": "",
+      "social_reward": ""
+    }
+  },
+  "generation_prompts": {
+    "direct": "צור תגובות נכונות ישירות לשאלות על '{word}'",
+    "social": "צור תגובות חברתיות נאותות בסיטואציות שקשורות ל'{word}'",
+    "elaborated": "צור תגובות מורחבות שמשתמשות ב'{word}' בהקשרים שונים"
+  },
+  "tuki_character": {
+    "introduction": "בוא נלמד איך לענות נכון! טוקי יראה לך!",
+    "modeling": "טוקי מדגים תגובה נכונה",
+    "praise": "וואו! זו בדיוק התשובה הנכונה!",
+    "encouragement": "אתה לומד לתקשר כמו כוכב!"
+  }
+}

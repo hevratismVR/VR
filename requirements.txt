@@ -1,0 +1,23 @@
+# TalkSphere Hebrew Word Database Generator
+# Python Dependencies
+
+# Core API
+anthropic>=0.18.0
+
+# Excel Processing
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# Utilities
+tqdm>=4.65.0  # Progress bars
+python-dotenv>=1.0.0  # Environment variable management
+
+# Optional: For data validation
+jsonschema>=4.17.0
+
+# Optional: For advanced logging
+colorlog>=6.7.0
+
+# Optional: For parallel processing
+aiohttp>=3.8.0
+asyncio>=3.4.3

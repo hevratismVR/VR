@@ -1,0 +1,65 @@
+{
+  "category_id": "17_speech_acts",
+  "category_name": "מעשי דיבור",
+  "category_name_english": "Speech Acts",
+  "description": "Different speech acts: requests, commands, promises, apologies, compliments, and more",
+  "target_items": 2000,
+  "item_types": [
+    "request",
+    "command",
+    "promise",
+    "apology",
+    "compliment",
+    "greeting",
+    "farewell",
+    "invitation",
+    "refusal",
+    "offer"
+  ],
+  "item_template": {
+    "id": "{word}_17_speech_acts_{index}",
+    "word": "{word}",
+    "category": "17_speech_acts",
+    "type": "",
+    "content": {
+      "speech_act_type": "",
+      "example_phrase": "",
+      "context": "",
+      "expected_response": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "speech_act": "",
+    "illocutionary_force": "",
+    "politeness_level": "",
+    "formality": "",
+    "situation": "",
+    "tuki_demonstrates": "",
+    "response_options": [],
+    "autism_adaptations": {
+      "explicit_purpose": true,
+      "formula_phrases": true,
+      "context_markers": true,
+      "response_scripts": true
+    },
+    "variations": {
+      "formal": "",
+      "informal": "",
+      "child_friendly": ""
+    }
+  },
+  "generation_prompts": {
+    "requests": "צור דרכים מנומסות לבקש משהו עם המילה '{word}'",
+    "promises": "צור הבטחות והתחייבויות הקשורות ל'{word}'",
+    "apologies": "צור דרכים להתנצל בסיטואציות עם '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "יש הרבה דרכים לומר דברים! טוקי ילמד אותך!",
+    "politeness_model": "ככה מבקשים בנימוס...",
+    "practice": "בוא נתרגל איך לומר את זה...",
+    "encouragement": "אתה יודע לדבר יפה ובנימוס!"
+  }
+}

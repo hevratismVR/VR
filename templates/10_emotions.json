@@ -1,0 +1,66 @@
+{
+  "category_id": "10_emotions",
+  "category_name": "רגשות",
+  "category_name_english": "Emotions",
+  "description": "Emotional contexts and feelings associated with the word, supporting emotional literacy",
+  "target_items": 2000,
+  "item_types": [
+    "emotion_label",
+    "emotion_cause",
+    "emotion_expression",
+    "emotion_regulation",
+    "empathy_scenario",
+    "emotional_vocabulary",
+    "body_sensation",
+    "facial_expression",
+    "coping_strategy",
+    "emotional_connection"
+  ],
+  "item_template": {
+    "id": "{word}_10_emotions_{index}",
+    "word": "{word}",
+    "category": "10_emotions",
+    "type": "",
+    "content": {
+      "emotion": "",
+      "situation": "",
+      "body_feelings": "",
+      "expression": "",
+      "regulation_strategy": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "emotion_name": "",
+    "intensity_level": 1,
+    "triggers": [],
+    "physical_signs": [],
+    "facial_cues": [],
+    "tuki_feels": "",
+    "visual_emotion_scale": "",
+    "autism_adaptations": {
+      "concrete_descriptions": true,
+      "body_awareness": true,
+      "visual_scales": true,
+      "regulation_tools": true
+    },
+    "coping_tools": {
+      "calming": [],
+      "expressing": [],
+      "seeking_help": []
+    }
+  },
+  "generation_prompts": {
+    "emotions": "קשר רגשות שונים למילה '{word}' עם הסברים לילדים",
+    "body": "תאר איך הגוף מרגיש כשחווים רגשות הקשורים ל'{word}'",
+    "regulation": "צור אסטרטגיות לוויסות רגשי בהקשר של '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "לכל אחד יש רגשות! טוקי יעזור לך להבין אותם!",
+    "emotion_modeling": "גם טוקי מרגיש לפעמים ככה...",
+    "validation": "כל הרגשות בסדר - חשוב לדעת מה לעשות איתם",
+    "encouragement": "אתה מכיר את הרגשות שלך! זה מעולה!"
+  }
+}

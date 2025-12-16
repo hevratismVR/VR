@@ -1,0 +1,67 @@
+{
+  "category_id": "06_pronunciation",
+  "category_name": "הגייה",
+  "category_name_english": "Pronunciation",
+  "description": "Pronunciation guides, syllables, phonetic information, and articulation practice",
+  "target_items": 2000,
+  "item_types": [
+    "syllable_breakdown",
+    "phonetic_transcription",
+    "stress_pattern",
+    "articulation_guide",
+    "minimal_pairs",
+    "rhyming_words",
+    "sound_position",
+    "mouth_position",
+    "audio_example",
+    "practice_drill"
+  ],
+  "item_template": {
+    "id": "{word}_06_pronunciation_{index}",
+    "word": "{word}",
+    "category": "06_pronunciation",
+    "type": "",
+    "content": {
+      "word": "",
+      "syllables": [],
+      "phonetic": "",
+      "stress": "",
+      "practice_sentence": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "syllable_count": 0,
+    "stress_position": 0,
+    "sounds": [],
+    "articulation_points": [],
+    "tuki_demonstrates": "",
+    "visual_mouth_guide": "",
+    "audio_file_reference": "",
+    "autism_adaptations": {
+      "slow_pace": true,
+      "visual_mouth_model": true,
+      "repetition": true,
+      "tactile_cues": false
+    },
+    "practice": {
+      "isolation": "",
+      "syllable": "",
+      "word": "",
+      "sentence": ""
+    }
+  },
+  "generation_prompts": {
+    "breakdown": "פרק את המילה '{word}' להברות עם הדגשה והסבר",
+    "articulation": "תאר איך להגות את המילה '{word}' צעד אחר צעד",
+    "practice": "צור תרגילי הגייה למילה '{word}' לילדים"
+  },
+  "tuki_character": {
+    "introduction": "בוא נגיד את המילה יחד! טוקי יעזור לך!",
+    "demonstration": "תסתכל על המקור שלי! ככה אומרים את זה!",
+    "slow_motion": "נגיד את זה לאאאט...",
+    "encouragement": "יופי! אתה מגיה נהדר!"
+  }
+}
