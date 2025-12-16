@@ -284,39 +284,64 @@ class APIHandler:
         Returns:
             List of parsed items
         """
+        import re
+
         # Clean up response
         response = response.strip()
 
-        # Try to find JSON array in response
-        if response.startswith('['):
-            # Response is already a JSON array
-            return json.loads(response)
-
-        # Try to find JSON array within markdown code blocks
+        # Extract JSON from markdown code blocks first
         if '```json' in response:
             start = response.find('```json') + 7
             end = response.find('```', start)
             if end > start:
-                json_str = response[start:end].strip()
-                return json.loads(json_str)
-
-        if '```' in response:
+                response = response[start:end].strip()
+        elif '```' in response:
             start = response.find('```') + 3
             end = response.find('```', start)
             if end > start:
                 json_str = response[start:end].strip()
                 if json_str.startswith('['):
-                    return json.loads(json_str)
+                    response = json_str
 
         # Try to find array brackets
         start = response.find('[')
         end = response.rfind(']') + 1
         if start != -1 and end > start:
-            json_str = response[start:end]
-            return json.loads(json_str)
+            response = response[start:end]
 
-        # If all else fails, try to parse the whole response
-        return json.loads(response)
+        # Fix common JSON issues
+        # Remove trailing commas before ] or }
+        response = re.sub(r',(\s*[\]\}])', r'\1', response)
+        # Fix unescaped newlines in strings (replace with space)
+        response = re.sub(r'(?<!\\)\n(?!["\s\]\},])', ' ', response)
+
+        try:
+            return json.loads(response)
+        except json.JSONDecodeError as e:
+            # Try to salvage partial JSON - extract complete objects
+            items = []
+            # Find all complete JSON objects
+            depth = 0
+            start_idx = None
+            for i, char in enumerate(response):
+                if char == '{':
+                    if depth == 0:
+                        start_idx = i
+                    depth += 1
+                elif char == '}':
+                    depth -= 1
+                    if depth == 0 and start_idx is not None:
+                        try:
+                            obj_str = response[start_idx:i+1]
+                            obj = json.loads(obj_str)
+                            items.append(obj)
+                        except:
+                            pass
+                        start_idx = None
+            if items:
+                logger.info(f"Salvaged {len(items)} items from malformed JSON")
+                return items
+            raise e
 
     def get_stats(self) -> Dict[str, Any]:
         """Get API usage statistics."""
