@@ -1,0 +1,7147 @@
+{
+  "word": "אני",
+  "word_index": 0,
+  "category_id": "01_basic",
+  "category_name": "מידע בסיסי",
+  "generated_at": "2025-12-16T21:29:21.079599",
+  "items_count": 170,
+  "target_count": 2000,
+  "items": [
+    {
+      "id": "אני_01_basic_0",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים כשמדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה לומר משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' היא המילה הכי חשובה שלי!",
+      "visual_cue": "תמונה של ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי לאדם שמדבר על עצמו",
+        "simple_explanation": "כשאני רוצה לספר משהו על עצמי, אני מתחיל במילה 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "כשאני טוקי רוצה לספר על עצמי, אני אומר 'אני טוקי'!",
+      "visual_cue": "ילד עם חץ מצביע על עצמו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_2",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה סוג של מילה שנקרא 'כינוי גוף' - מילה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "במקום לומר 'טוקי אוהב לעוף', אני יכול לומר 'אני אוהב לעוף'!",
+      "visual_cue": "כרטיס עם המילה 'אני' בצבע כחול",
+      "example_usage": "אני רוצה לאכול",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "כינויי גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_3",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' מורכבת משתי הברות: א-ני",
+        "simple_explanation": "נחלק את המילה לחלקים קטנים: א... ני"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות!",
+      "visual_cue": "שתי עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני שמח",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_4",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה 'אני' כשמספרים על עצמנו",
+        "simple_explanation": "כל פעם שאני רוצה לספר משהו על עצמי, אני משתמש במילה 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "אני אוהב לעוף, אני אוהב זרעים, אני אוהב ילדים!",
+      "visual_cue": "ילד מדבר עם בועת דיבור",
+      "example_usage": "אני הולך לגן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת",
+          "ביטוי עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_5",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' היא אחת המילים הכי נפוצות בעברית",
+        "simple_explanation": "אנחנו משתמשים במילה 'אני' הרבה הרבה פעמים כל יום"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "אני אומר 'אני' הרבה פעמים ביום! זה נורמלי!",
+      "visual_cue": "גרף עם כוכבים שמראה שימוש תכוף",
+      "example_usage": "אני קם, אני אוכל, אני משחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שכיחות",
+          "שפה יומיומית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_6",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' היא מילה קלה מאוד",
+        "simple_explanation": "זו אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה כמו לעוף! כולם יכולים ללמוד אותה!",
+      "visual_cue": "כוכב ירוק עם הכיתוב 'קל'",
+      "example_usage": "אני יכול!",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "רמת קושי",
+          "למידה בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_7",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "תמונה של אדם מצביע על עצמו מייצגת את המילה 'אני'",
+        "simple_explanation": "כשרואים מישהו מצביע על עצמו, זה אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "תראה! אני מצביע על עצמי ואומר 'אני'!",
+      "visual_cue": "תמונה של טוקי מצביע על עצמו עם כנף",
+      "example_usage": "אני כאן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תמיכה חזותית",
+          "תנועות גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_100",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שבה אני מתייחס לעצמי",
+        "simple_explanation": "כשאני רוצה לדבר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא רלוונטי",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי התוכי! המילה 'אני' זה כשאני מדבר על עצמי!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_101",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה אני! כשאני רוצה לספר משהו על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא רלוונטי",
+      "number": "יחיד",
+      "tuki_says": "כשאני טוקי רוצה לדבר על עצמי, אני אומר 'אני טוקי'!",
+      "visual_cue": "תמונה של ילד עם חץ שמצביע עליו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות אישית",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_102",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "מילה שעוזרת לי לדבר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא רלוונטי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כינוי גוף - זה אומר שהיא עוזרת לנו לדבר על עצמנו!",
+      "visual_cue": "כרטיס עם המילה 'כינוי גוף'",
+      "example_usage": "אני רוצה מים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "יסודי",
+        "related_themes": [
+          "דקדוק",
+          "חלקי דיבור"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_103",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות",
+        "simple_explanation": "א-ני - שתי הברות קצרות"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא רלוונטי",
+      "number": "יחיד",
+      "tuki_says": "בוא נחלק את המילה 'אני' להברות: א-ני! שתי הברות קצרות!",
+      "visual_cue": "המילה מחולקת לשתי הברות בצבעים שונים",
+      "example_usage": "א-ני אוהב צבעים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "יסודי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_104",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים בתחילת משפט כשמדברים על עצמנו",
+        "simple_explanation": "אני תמיד בתחילת המשפט כשאני מספר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא רלוונטי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' באה בתחילת המשפט כשאני מספר משהו על עצמי!",
+      "visual_cue": "משפט עם 'אני' מודגש בתחילה",
+      "example_usage": "אני אוכל תפוח",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "מבנה משפט",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_105",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה נפוצה מאוד בשפה העברית",
+        "simple_explanation": "אני משתמש במילה 'אני' הרבה כל יום"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא רלוונטי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא מאוד נפוצה! אנחנו משתמשים בה הרבה כל יום!",
+      "visual_cue": "גרף שמראה כמה פעמים אומרים 'אני' ביום",
+      "example_usage": "אני רוצה, אני יכול, אני אוהב",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "יסודי",
+        "related_themes": [
+          "שכיחות מילים",
+          "שימוש יומיומי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_106",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ובסיסית לילדים",
+        "simple_explanation": "זו אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא רלוונטי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה מאוד! זו אחת המילים הראשונות שכל ילד לומד!",
+      "visual_cue": "כוכב עם המספר 1 - קל מאוד",
+      "example_usage": "אני כאן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "מילים ראשונות",
+          "למידה בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_107",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "ילד מצביע על עצמו",
+        "simple_explanation": "כשאני אומר 'אני', אני מצביע על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא רלוונטי",
+      "number": "יחיד",
+      "tuki_says": "כשאני אומר 'אני', אני מצביע על עצמי ככה! תראה!",
+      "visual_cue": "תמונה של ילד מצביע על עצמו עם חיוך",
+      "example_usage": "אני (מצביע על עצמי) רעב",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תמיכה חזותית",
+          "שפת גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_200",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים כשמדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה לספר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' היא המילה הכי חשובה - היא מספרת על מי אתה!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_201",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "המילה שאני אומר כשאני מדבר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "כשאני טוקי רוצה לספר עליי, אני אומר 'אני טוקי'!",
+      "visual_cue": "טוקי מצביע על עצמו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_202",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים כשמספרים על עצמנו",
+        "simple_explanation": "כל פעם שאני רוצה לספר משהו על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "אני אוהב להגיד 'אני' כשאני מספר על הדברים שאני אוהב!",
+      "visual_cue": "ילד מספר על עצמו",
+      "example_usage": "אני אוכל ארוחת בוקר",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "יומיום",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_203",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שלי",
+        "simple_explanation": "אני זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "אני זה המילה הכי מיוחדת - היא שלך! רק אתה יכול להגיד 'אני' על עצמך!",
+      "visual_cue": "ילד עם חץ שמצביע עליו",
+      "example_usage": "אני גבוה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "עצמי",
+          "זהות אישית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_204",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "שתי הברות: א-ני",
+        "simple_explanation": "המילה 'אני' מורכבת משני חלקים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות קצרות וקלות!",
+      "visual_cue": "שתי ידיים מכות כפיים",
+      "example_usage": "א-ני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_205",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה נפוצה מאוד",
+        "simple_explanation": "אנחנו אומרים 'אני' הרבה פעמים כל יום"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כמו חבר טוב - היא איתנו כל הזמן!",
+      "visual_cue": "כוכבים מסביב למילה",
+      "example_usage": "אני אוהב, אני רוצה, אני יכול",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שכיחות",
+          "יומיום"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_206",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "ילד מצביע על עצמו",
+        "simple_explanation": "התמונה שלי מראה ילד שמצביע על עצמו"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "תראה! כשאני רוצה להראות 'אני', אני מצביע על עצמי ככה!",
+      "visual_cue": "איור של ילד מצביע על החזה שלו",
+      "example_usage": "אני כאן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "חזותי",
+          "גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_207",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה מאוד",
+        "simple_explanation": "זאת אחת המילים הראשונות שלומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כל כך קלה! גם ילדים קטנים יודעים אותה!",
+      "visual_cue": "פרח קל שעף באוויר",
+      "example_usage": "אני יודע להגיד 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "קלות",
+          "למידה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_208",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף",
+        "simple_explanation": "'אני' זה סוג מיוחד של מילה שנקרא כינוי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 6,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כינוי - זה אומר שהיא מחליפה את השם שלך!",
+      "visual_cue": "תג שם שמתחלף",
+      "example_usage": "במקום 'דני אוהב', אני אומר 'אני אוהב'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי-בינוני",
+        "related_themes": [
+          "דקדוק",
+          "כינויים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_300",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאדם אומר כשהוא מדבר על עצמו",
+        "simple_explanation": "כשאני רוצה לומר משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ללא מגדר",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי התוכי! המילה 'אני' היא המילה הכי חשובה - כי היא מדברת עליך!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות עצמית",
+          "תקשורת בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_301",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שמציינת את האדם שמדבר",
+        "simple_explanation": "אני - זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ללא מגדר",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי, ואתה מי שאתה! כל אחד אומר 'אני' על עצמו!",
+      "visual_cue": "מראה עם ילד מסתכל על עצמו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות עצמית",
+          "הבנת עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_302",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "המילה 'אני' היא כינוי - מילה שמחליפה את השם שלך"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ללא מגדר",
+      "number": "יחיד",
+      "tuki_says": "במקום לומר את השם שלך כל פעם, אתה יכול לומר 'אני'!",
+      "visual_cue": "כרטיס עם המילה 'אני' וחץ לילד",
+      "example_usage": "במקום 'דני אוכל', אומרים 'אני אוכל'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "כינויים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_303",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות",
+        "simple_explanation": "א-ני - שתי הברות קצרות וקלות"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ללא מגדר",
+      "number": "יחיד",
+      "tuki_says": "בוא נמחא כפיים! א-ני! שתי הברות קלות!",
+      "visual_cue": "שתי כפות ידיים למחיאות כפיים",
+      "example_usage": "א-ני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_304",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים כשרוצים לספר על עצמנו",
+        "simple_explanation": "אני אוכל, אני שותה, אני משחק - כל פעם שמדברים על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ללא מגדר",
+      "number": "יחיד",
+      "tuki_says": "כל פעם שאתה רוצה לספר משהו על עצמך, תתחיל עם 'אני'!",
+      "visual_cue": "ילד עם בועת דיבור שכותב בה 'אני'",
+      "example_usage": "אני אוהב גלידה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת",
+          "ביטוי עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_305",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה הכי שכיחה בשפה העברית",
+        "simple_explanation": "המילה 'אני' היא המילה שהכי הרבה משתמשים בה"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 6,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ללא מגדר",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כמו כוכב - כולם משתמשים בה כל הזמן!",
+      "visual_cue": "כוכב זוהר עם המילה 'אני'",
+      "example_usage": "אני הולך, אני רואה, אני שומע",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שכיחות מילים",
+          "חשיבות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_306",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה מאוד ללמידה",
+        "simple_explanation": "המילה 'אני' היא אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ללא מגדר",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כמו המילה הראשונה שלך - קלה וחשובה!",
+      "visual_cue": "מדרגות עם 'אני' במדרגה הראשונה",
+      "example_usage": "אני רוצה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "למידה ראשונית",
+          "קלות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_307",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מיוצג על ידי ילד מצביע על עצמו",
+        "simple_explanation": "התמונה של 'אני' היא ילד שמצביע על עצמו עם האצבע"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ללא מגדר",
+      "number": "יחיד",
+      "tuki_says": "כשאתה רואה ילד מצביע על עצמו, זה אומר 'אני'!",
+      "visual_cue": "ילד מצביע על החזה שלו באצבע",
+      "example_usage": "אני כאן! (מצביע על עצמו)",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "ייצוג חזותי",
+          "שפת גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_400",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שבה אני מתאר את עצמי",
+        "simple_explanation": "כשאני רוצה לדבר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אנכי",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי התוכי! המילה 'אני' מאוד חשובה - זו הדרך שלנו לדבר על עצמנו!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_401",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "הכינוי שמתאר את האדם שמדבר",
+        "simple_explanation": "אני זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אנכי",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "תראה! אני טוקי אומר 'אני טוקי', ואתה יכול לומר 'אני' ואחרי זה את השם שלך!",
+      "visual_cue": "מראה עם ילד מסתכל על עצמו",
+      "example_usage": "אני גבוה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות עצמית",
+          "תיאור עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_402",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "המילה 'אני' היא כינוי - מילה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אנכי",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כינוי מיוחד! במקום לומר 'טוקי רוצה אוכל', אני אומר 'אני רוצה אוכל'!",
+      "visual_cue": "כרטיס עם המילה 'אני' בצבע כחול",
+      "example_usage": "אני שמח",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי-בינוני",
+        "related_themes": [
+          "דקדוק",
+          "כינויים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_403",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' מורכבת משתי הברות",
+        "simple_explanation": "א-ני - שתי הברות קצרות וקלות"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אנכי",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "בוא נחלק את המילה יחד! א - ני! שתי הברות קטנות וחמודות!",
+      "visual_cue": "שתי עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני רוצה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_404",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "root",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "השורש של 'אני' הוא 'אנכי'",
+        "simple_explanation": "המילה 'אני' באה מהמילה הישנה 'אנכי'"
+      },
+      "difficulty": 3,
+      "age_range": {
+        "min": 8,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אנכי",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "זה מעניין! המילה 'אני' באה ממילה עתיקה 'אנכי' - זו אותה מילה רק יותר קצרה!",
+      "visual_cue": "עץ עם שורשים - השורש כתוב 'אנכי'",
+      "example_usage": "אנכי = אני (בעבר)",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "מתקדם",
+        "related_themes": [
+          "היסטוריה",
+          "שורשים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_405",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה 'אני' כשמדברים על עצמנו",
+        "simple_explanation": "כל פעם שאני רוצה לספר משהו על עצמי, אני מתחיל עם 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אנכי",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "כשאני רוצה לספר לך משהו על עצמי, אני תמיד מתחיל עם 'אני'! נסה גם אתה!",
+      "visual_cue": "בועת דיבור עם 'אני' בתחילה",
+      "example_usage": "אני אוכל, אני ישן, אני משחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שימוש יומיומי",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_406",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' היא אחת המילים הנפוצות ביותר בעברית",
+        "simple_explanation": "אנחנו אומרים 'אני' הרבה פעמים כל יום"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 6,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אנכי",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' מאוד חשובה! אנחנו משתמשים בה כל הזמן כשאנחנו מדברים!",
+      "visual_cue": "גרף עם עמודות גבוהות מראה שכיחות",
+      "example_usage": "אני אומר 'אני' הרבה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי-בינוני",
+        "related_themes": [
+          "שכיחות",
+          "חשיבות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_407",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' קלה ללמידה - רמת קושי 1",
+        "simple_explanation": "זו אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אנכי",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' מאוד קלה! זו מהמילים הראשונות שכל ילד לומד לומר!",
+      "visual_cue": "כוכב אחד - רמת קושי נמוכה",
+      "example_usage": "אני - מילה קלה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "קלות למידה",
+          "מילים ראשונות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_500",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שבה אדם מתייחס לעצמו",
+        "simple_explanation": "המילה שאני אומר כשאני מדבר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' היא המילה שאני אומר כשאני מדבר על עצמי!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני שמח, אני רוצה לשחק, אני אוהב",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_501",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "כשאני רוצה להגיד משהו על עצמי, אני מתחיל עם 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "כשאני רוצה לספר על עצמי, אני אומר 'אני טוקי'!",
+      "visual_cue": "תמונה של ילד עם חץ המצביע עליו",
+      "example_usage": "אני גדול, אני קטן, אני לומד",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק בסיסי",
+          "זהות אישית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_502",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה כינוי - מילה קטנה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "'אני' זה כינוי גוף! במקום להגיד 'טוקי רוצה', אני אומר 'אני רוצה'!",
+      "visual_cue": "כרטיס עם המילה 'כינוי גוף'",
+      "example_usage": "אני במקום השם שלי",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "יסודי",
+        "related_themes": [
+          "דקדוק",
+          "חלקי דיבור"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_503",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "שתי הברות: א-ני",
+        "simple_explanation": "המילה 'אני' מורכבת משני חלקים קטנים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שני חלקים קטנים!",
+      "visual_cue": "שני עיגולים עם האותיות א ו-ני",
+      "example_usage": "מחלקים את המילה להברות",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_504",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים כשמדברים על עצמנו",
+        "simple_explanation": "אני אומר 'אני' כשאני רוצה לספר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 10
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "כשאני רוצה לספר על עצמי, אני מתחיל עם 'אני'!",
+      "visual_cue": "ילד מדבר עם בועת דיבור",
+      "example_usage": "אני שמח, אני עייף, אני רעב",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת",
+          "רגשות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_505",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה נפוצה מאוד בעברית",
+        "simple_explanation": "זו אחת המילים שהכי הרבה משתמשים בהן"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 6,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא מילה מאוד חשובה! אנחנו משתמשים בה הרבה!",
+      "visual_cue": "כוכבים המציינים חשיבות",
+      "example_usage": "מילה בסיסית ונפוצה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "מילים נפוצות",
+          "חשיבות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_506",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ובסיסית",
+        "simple_explanation": "זו מילה קלה שכל ילד יכול ללמוד"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה מאוד! כל ילד יכול ללמוד אותה!",
+      "visual_cue": "פרח ירוק המציין 'קל'",
+      "example_usage": "מילה למתחילים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "למידה",
+          "התחלה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_507",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "ילד מצביע על עצמו",
+        "simple_explanation": "אני יכול לראות את המילה 'אני' כשמישהו מצביע על עצמו"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "תראה! כשאני מצביע על עצמי, זה אומר 'אני'!",
+      "visual_cue": "איור של ילד מצביע על החזה שלו",
+      "example_usage": "תנועת יד המצביעה על העצמי",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תמיכה חזותית",
+          "תנועה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_508",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שלי",
+        "simple_explanation": "כשאני רוצה לדבר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 7
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "פשוט מאוד! 'אני' זה אני! המילה שלי!",
+      "visual_cue": "פרצוף מחייך עם המילה 'אני'",
+      "example_usage": "הסבר פשוט לילדים קטנים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "פשטות",
+          "הבנה בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_600",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאני אומר כשאני מדבר על עצמי",
+        "simple_explanation": "כשאני רוצה לומר משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' היא המילה שאתה אומר כשאתה מדבר על עצמך!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_601",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי הגוף הראשון - מי שמדבר",
+        "simple_explanation": "המילה 'אני' זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי אוהב ללמד! ואתה? אתה יכול לומר 'אני אוהב...' ולהשלים!",
+      "visual_cue": "מראה עם ילד מסתכל על עצמו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות עצמית",
+          "ביטוי רגשות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_602",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה סוג של מילה שנקרא 'כינוי גוף' - היא מחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כינוי גוף! במקום לומר 'טוקי רוצה בננה', אני אומר 'אני רוצה בננה'!",
+      "visual_cue": "כרטיסיה עם המילה 'כינוי גוף'",
+      "example_usage": "במקום 'דני אוכל' - 'אני אוכל'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי-בינוני",
+        "related_themes": [
+          "דקדוק בסיסי",
+          "מבנה משפט"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_603",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' מורכבת משתי הברות",
+        "simple_explanation": "א-ני. שתי הברות קצרות ופשוטות"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 10
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "בוא נחלק את המילה 'אני'! א... ני! שתי הברות פשוטות!",
+      "visual_cue": "המילה מחולקת עם קו: א-ני",
+      "example_usage": "נחלק יחד: א-ני, א-ני!",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_604",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה 'אני' כשמדברים על עצמנו",
+        "simple_explanation": "כל פעם שאני רוצה לספר משהו על עצמי, אני מתחיל עם 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "אני משתמש במילה 'אני' כשאני מספר עליי! אני טוקי, אני אוהב זרעים!",
+      "visual_cue": "ילד מדבר ובועת דיבור עם 'אני'",
+      "example_usage": "אני אוהב לשחק, אני רעב, אני עייף",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת יומיומית",
+          "ביטוי צרכים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_605",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' היא מהמילים הכי נפוצות בעברית",
+        "simple_explanation": "אנחנו אומרים 'אני' הרבה מאוד כל יום"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 6,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כמו הזרע הכי חשוב! אנחנו משתמשים בה הרבה כל יום!",
+      "visual_cue": "גרף עם המילה 'אני' בראש הרשימה",
+      "example_usage": "ספור כמה פעמים אתה אומר 'אני' היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בינוני",
+        "related_themes": [
+          "סטטיסטיקה בסיסית",
+          "שימוש בשפה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_606",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' היא מהמילים הכי קלות ללמידה",
+        "simple_explanation": "זאת אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא קלה ופשוטה! גם אפרוחים קטנים יכולים ללמוד אותה!",
+      "visual_cue": "כוכב ירוק עם הכיתוב 'קל'",
+      "example_usage": "המילה הראשונה שלי הייתה 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "למידה ראשונית",
+          "מילים בסיסיות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_607",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' מיוצגת על ידי ילד מצביע על עצמו",
+        "simple_explanation": "כשאני רואה ילד מצביע על עצמו, אני חושב על המילה 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 10
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "תסתכל! כשאני מצביע על עצמי ככה, זה אומר 'אני'!",
+      "visual_cue": "תמונה של ילד מצביע על עצמו עם חיוך",
+      "example_usage": "הצבע על עצמך ואמור 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תמיכה חזותית",
+          "שפת גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_700",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים כשמדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה להגיד משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' זה כשאתה מדבר על עצמך!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_701",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי הגוף הראשון יחיד",
+        "simple_explanation": "זה אני! המילה שמציינת אותי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "כשאני אומר 'אני טוקי', אני מדבר על עצמי!",
+      "visual_cue": "תוכי מצביע על עצמו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דיבור",
+          "זהות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_702",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה בתחילת משפט על עצמנו",
+        "simple_explanation": "אני תמיד בתחילת המשפט כשמדברים על עצמנו"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "תראה! אני אוהב לאכול זרעים - המילה 'אני' בתחילת המשפט!",
+      "visual_cue": "חץ מצביע על תחילת משפט",
+      "example_usage": "אני רוצה לשתות מים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "משפט"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_703",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות",
+        "simple_explanation": "א-ני - שתי הברות קצרות"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות!",
+      "visual_cue": "שתי עיגולים עם האותיות",
+      "example_usage": "א-ני גדול",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_704",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "תמונה של ילד מצביע על עצמו",
+        "simple_explanation": "כשרואים מישהו מצביע על עצמו, זה 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "תראה! אני מצביע על עצמי כשאומר 'אני'!",
+      "visual_cue": "איור של דמות מצביעה על עצמה",
+      "example_usage": "אני כאן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "חזותי",
+          "מחוות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_705",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה הכי חשובה שלי",
+        "simple_explanation": "כל אחד אומר 'אני' כשמדבר על עצמו"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי, אתה תגיד 'אני' עם השם שלך!",
+      "visual_cue": "כרטיס שם עם המילה אני",
+      "example_usage": "אני נקרא דני",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שם",
+          "זהות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_706",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה שמשתמשים בה הרבה מאוד",
+        "simple_explanation": "אני אומר 'אני' הרבה פעמים ביום"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "אני אומר 'אני' המון פעמים! זה נורמלי!",
+      "visual_cue": "כוכבים רבים סביב המילה",
+      "example_usage": "אני רעב, אני צמא, אני עייף",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שימוש",
+          "תדירות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_707",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ללמידה",
+        "simple_explanation": "אני זו אחת המילים הראשונות שלומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "איזה כיף! 'אני' זו מילה קלה ללמידה!",
+      "visual_cue": "פרח ירוק (קל)",
+      "example_usage": "אני יכול להגיד 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "למידה",
+          "קושי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_708",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "אני זה סוג מיוחד של מילה שנקרא כינוי גוף"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "אני זה כינוי גוף - מילה מיוחדת שמחליפה את השם שלנו!",
+      "visual_cue": "תווית עם הכיתוב 'כינוי גוף'",
+      "example_usage": "אני (במקום השם שלי) אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "חלקי דיבור"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_800",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאנחנו אומרים כשאנחנו מדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה להגיד משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "נייטרלי",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי התוכי! המילה 'אני' זה כשאתה מדבר על עצמך!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני רוצה לשחק, אני אוהב גלידה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_801",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד - מתייחס לדובר עצמו",
+        "simple_explanation": "אני זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "כל המינים",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי, ואתה מי? אתה יכול להגיד 'אני' ואז השם שלך!",
+      "visual_cue": "אצבע מצביעה על הילד",
+      "example_usage": "אני שמח, אני עצוב, אני רעב",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות אישית",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_802",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "מילה שעוזרת לנו להגיד על עצמנו"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "נייטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כינוי גוף! זה אומר שהיא מחליפה את השם שלך!",
+      "visual_cue": "כרטיס עם המילה 'אני'",
+      "example_usage": "במקום 'דני רוצה' - 'אני רוצה'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "חלקי דיבור"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_803",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מחולק לשתי הברות: א-ני",
+        "simple_explanation": "המילה 'אני' מורכבת משני חלקים: א + ני"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "נייטרלי",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות, שני כפיים!",
+      "visual_cue": "שני עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני רו-צה ללמוד",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי-בינוני",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_804",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים כשמדברים על עצמנו",
+        "simple_explanation": "אני אומר 'אני' כשאני מספר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "נייטרלי",
+      "number": "יחיד",
+      "tuki_says": "כשאני רוצה לספר עליי, אני מתחיל עם 'אני'!",
+      "visual_cue": "ילד מדבר ובועת דיבור עם 'אני'",
+      "example_usage": "אני אוהב פיצה, אני בן 6",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת יומיומית",
+          "הבעה עצמית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_805",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה שכיחה מאוד בעברית",
+        "simple_explanation": "המילה 'אני' היא מהמילים הכי חשובות שיש"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "נייטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא מילה מאוד חשובה! אנחנו משתמשים בה כל יום!",
+      "visual_cue": "כוכב זהב עם המילה 'אני'",
+      "example_usage": "אני משתמש במילה 'אני' הרבה פעמים ביום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "מילים שכיחות",
+          "יסודות השפה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_806",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ובסיסית",
+        "simple_explanation": "זאת מילה קלה שכל ילד יכול ללמוד"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "נייטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה ללמידה! כל ילד יכול ללמוד אותה!",
+      "visual_cue": "פרח פשוט עם המילה 'אני'",
+      "example_usage": "אני יכול להגיד 'אני' בקלות",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "מילים בסיסיות",
+          "התחלת לימוד"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_807",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "נראה כמו ילד מצביע על עצמו",
+        "simple_explanation": "כשאני אומר 'אני', אני יכול להצביע על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "נייטרלי",
+      "number": "יחיד",
+      "tuki_says": "כשאני אומר 'אני', אני מצביע על עצמי ככה!",
+      "visual_cue": "ילד מחייך ומצביע על עצמו",
+      "example_usage": "אני (מצביע על עצמי) רוצה לאכול",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תמיכה חזותית",
+          "שפת גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_900",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שבה אני מדבר על עצמי",
+        "simple_explanation": "כשאני רוצה לדבר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' זה כשאני מדבר על עצמי!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_901",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי המציין את האדם המדבר",
+        "simple_explanation": "המילה הכי חשובה שלי - זה אני!"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי אישי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי התוכי! ואתה? מי אתה?",
+      "visual_cue": "תמונה של טוקי מצביע על עצמו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות אישית",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_902",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה כינוי - מילה קטנה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "במקום להגיד 'טוקי אוהב', אני יכול להגיד 'אני אוהב'!",
+      "visual_cue": "כרטיס עם המילה 'אני' בצבע כחול",
+      "example_usage": "אני רוצה מים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "כינויים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_903",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משני הברות",
+        "simple_explanation": "א-ני - שני חלקים קטנים יוצרים מילה אחת"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 4,
+        "max": 10
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות!",
+      "visual_cue": "שני עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני שמח",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_904",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים בכל שיחה על עצמנו",
+        "simple_explanation": "כל פעם שאני רוצה לספר משהו על עצמי, אני מתחיל עם 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי, אני אוהב לעוף, אני חכם! תמיד משתמשים ב'אני'!",
+      "visual_cue": "ילד מדבר עם בועת דיבור",
+      "example_usage": "אני בן 5",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת יומיומית",
+          "שיחה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_905",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה הכי נפוצה בשפה העברית",
+        "simple_explanation": "אנחנו משתמשים במילה 'אני' הרבה הרבה פעמים בכל יום"
+      },
+      "difficulty": 3,
+      "age_range": {
+        "min": 6,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כמו חבר הכי טוב - תמיד איתנו!",
+      "visual_cue": "גרף עם עמודים המראה שכיחות",
+      "example_usage": "אני אומר 'אני' הרבה פעמים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "מתקדם",
+        "related_themes": [
+          "סטטיסטיקה",
+          "שכיחות מילים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_906",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ובסיסית לכל הגילאים",
+        "simple_explanation": "זאת המילה הראשונה שילדים לומדים על עצמם"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה כמו לעוף בשמיים!",
+      "visual_cue": "כוכב ירוק - רמת קושי קלה",
+      "example_usage": "אני יכול להגיד 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "רמת קושי",
+          "למידה ראשונית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_907",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מיוצג על ידי ילד מצביע על עצמו",
+        "simple_explanation": "כשאני רואה ילד מצביע על עצמו, אני יודע שזה 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "תראה! אני מצביע על עצמי כשאני אומר 'אני'!",
+      "visual_cue": "איור של ילד עם חץ מצביע על עצמו",
+      "example_usage": "אני (מצביע על עצמי) רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "ייצוג חזותי",
+          "תמיכה חזותית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_908",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים כשמדברים על עצמנו",
+        "simple_explanation": "אני = זה אני! כשאני רוצה לספר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "פשוט מאוד! 'אני' זה אתה כשאתה מדבר!",
+      "visual_cue": "פרצוף חייכן עם כתובית 'אני'",
+      "example_usage": "אני חי בבית",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הסבר פשוט",
+          "הבנה בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1000",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שבה אני מדבר על עצמי",
+        "simple_explanation": "כשאני רוצה להגיד משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "נטרלי",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי התוכי! המילה 'אני' היא המילה הכי חשובה שלך - היא אומרת מי אתה!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1001",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי לאדם שמדבר על עצמו",
+        "simple_explanation": "אני = זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "נטרלי",
+      "number": "יחיד",
+      "tuki_says": "טוקי יודע! כשאני אומר 'אני טוקי' - אני מדבר על עצמי!",
+      "visual_cue": "ילד עם חץ שמצביע עליו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות אישית",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1002",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "אני הוא כינוי - מילה קטנה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "נטרלי",
+      "number": "יחיד",
+      "tuki_says": "במקום להגיד 'טוקי אוהב לעוף', אני יכול להגיד 'אני אוהב לעוף'!",
+      "visual_cue": "כרטיס עם המילה 'אני' בצבע כחול",
+      "example_usage": "אני קורא ספר",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "כינויי גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1003",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות: א-ני",
+        "simple_explanation": "אני = א + ני. שתי הברות קצרות"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "נטרלי",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות קצרות!",
+      "visual_cue": "שתי עיגולים צבעוניים: א | ני",
+      "example_usage": "א-ני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1004",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה 'אני' כשמדברים על עצמנו",
+        "simple_explanation": "כל פעם שאני רוצה להגיד משהו על עצמי - אני משתמש ב'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "נטרלי",
+      "number": "יחיד",
+      "tuki_says": "אני אוהב לעוף, אני אוהב לשיר, אני טוקי! תמיד משתמש ב'אני' כשמדבר על עצמי!",
+      "visual_cue": "ילד בפעילויות שונות עם הכיתוב 'אני'",
+      "example_usage": "אני אוכל ארוחת בוקר",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת יומיומית",
+          "ביטוי עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1005",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה הכי נפוצה בשפה העברית",
+        "simple_explanation": "המילה 'אני' היא מילה שאנחנו משתמשים בה הרבה מאוד כל יום"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "נטרלי",
+      "number": "יחיד",
+      "tuki_says": "וואו! 'אני' היא מילה מאוד חשובה! אנחנו אומרים אותה הרבה פעמים ביום!",
+      "visual_cue": "גרף פשוט שמראה את תדירות המילה",
+      "example_usage": "אני אומר 'אני' הרבה!",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "סטטיסטיקה פשוטה",
+          "חשיבות מילים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1006",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה מאוד ללמידה",
+        "simple_explanation": "אני היא אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "נטרלי",
+      "number": "יחיד",
+      "tuki_says": "מעולה! 'אני' היא מילה קלה ופשוטה! כולם יכולים ללמוד אותה!",
+      "visual_cue": "כוכב ירוק עם הכיתוב 'קל'",
+      "example_usage": "אני לומד מילים קלות",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "רמת קושי",
+          "למידה ראשונית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1007",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "ציור של ילד מצביע על עצמו",
+        "simple_explanation": "כשאני רואה ילד מצביע על עצמו, אני יודע שהוא אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "נטרלי",
+      "number": "יחיד",
+      "tuki_says": "הנה תמונה! ילד מצביע על עצמו ואומר 'אני'! בדיוק כמוני!",
+      "visual_cue": "איור פשוט של ילד מצביע על החזה שלו",
+      "example_usage": "אני מצביע על עצמי",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תמיכה חזותית",
+          "שפת גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1100",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאני אומר כשאני מדבר על עצמי",
+        "simple_explanation": "כשאני רוצה לומר משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' זה כשאני מדבר על עצמי!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1101",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי שמציין את האדם המדבר",
+        "simple_explanation": "המילה שאני משתמש בה כדי לדבר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "טוקי אומר: אני טוקי! ואתה אומר: אני [השם שלך]!",
+      "visual_cue": "ידיים מצביעות על החזה",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת",
+          "זהות אישית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1102",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה כינוי - מילה קטנה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "טוקי מסביר: במקום לומר 'טוקי אוהב', אני אומר 'אני אוהב'!",
+      "visual_cue": "כרטיס עם המילה 'אני'",
+      "example_usage": "אני (במקום השם שלי) רוצה לאכול",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "חלקי דיבור"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1103",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משני הברות: א-ני",
+        "simple_explanation": "נחלק את המילה לחלקים קטנים: א-ני"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "בואו נכה כפיים! א-ני! שתי הברות!",
+      "visual_cue": "שני עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1104",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה כשמדברים על עצמנו",
+        "simple_explanation": "אני אומר 'אני' כשאני רוצה לספר משהו על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "טוקי אומר: כשאני רוצה לספר עליי, אני אומר 'אני'!",
+      "visual_cue": "ילד מדבר ומצביע על עצמו",
+      "example_usage": "אני אוכל, אני ישן, אני משחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שימוש יומיומי",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1105",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה שכיחה מאוד בשפה העברית",
+        "simple_explanation": "זו מילה שאנחנו משתמשים בה הרבה כל יום"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "טוקי אומר: המילה 'אני' היא אחת המילים הכי חשובות!",
+      "visual_cue": "כוכב זהב עם המילה 'אני'",
+      "example_usage": "אני אומר 'אני' הרבה פעמים ביום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שכיחות",
+          "חשיבות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1106",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ובסיסית לילדים",
+        "simple_explanation": "זו אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "טוקי אומר: 'אני' זו מילה קלה! כולם יכולים ללמוד אותה!",
+      "visual_cue": "סולם עם המילה 'אני' בשלב הראשון",
+      "example_usage": "אני לומד מילים חדשות",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "מתחילים",
+        "related_themes": [
+          "רמת קושי",
+          "למידה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1107",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "ניתן לייצג בתמונה של ילד מצביע על עצמו",
+        "simple_explanation": "התמונה שלי מראה איך אני מצביע על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "טוקי מראה: ככה אני מצביע על עצמי כשאני אומר 'אני'!",
+      "visual_cue": "ילד מחייך ומצביע על החזה שלו",
+      "example_usage": "אני מצביע על עצמי",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "ייצוג חזותי",
+          "תמיכה חזותית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1108",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאני אומר כשאני מדבר על עצמי",
+        "simple_explanation": "במקום לומר את השם שלי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "טוקי מסביר בפשטות: במקום 'טוקי רוצה', אני אומר 'אני רוצה'!",
+      "visual_cue": "שתי תמונות - אחת עם שם, אחת עם 'אני'",
+      "example_usage": "אני שמח (במקום: דני שמח)",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הסבר פשוט",
+          "החלפת מילים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1200",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שבה אני מדבר על עצמי",
+        "simple_explanation": "כשאני רוצה לומר משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי התוכי! המילה 'אני' זה כשאני מדבר על עצמי!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמיות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1201",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה אני! כשאני מדבר על מה שאני עושה או מרגיש"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי! אתה יכול להגיד 'אני' כשאתה מדבר על עצמך!",
+      "visual_cue": "ילד עם חץ מצביע עליו",
+      "example_usage": "אני רעב",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות אישית",
+          "ביטוי עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1202",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "מילה שמראה שאני מדבר על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' זה כינוי גוף! זה אומר שאני מדבר על עצמי!",
+      "visual_cue": "תמונה של ילד עם בועת דיבור",
+      "example_usage": "אני שמח",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "כינויי גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1203",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "שתי הברות: א-ני",
+        "simple_explanation": "המילה 'אני' מורכבת משתי הברות קצרות"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "בוא נספור יחד! א-ני! שתי הברות קצרות!",
+      "visual_cue": "שתי עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני אוהב צבעים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1204",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים כשמדברים על עצמנו",
+        "simple_explanation": "אני אומר 'אני' כשאני רוצה לספר משהו על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "כשאני רוצה לספר לך משהו על עצמי, אני מתחיל עם 'אני'!",
+      "visual_cue": "ילד מספר סיפור על עצמו",
+      "example_usage": "אני אוהב לשחק בחוץ",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת יומיומית",
+          "ביטוי רגשות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1205",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה נפוצה מאוד בשפה העברית",
+        "simple_explanation": "המילה 'אני' היא אחת המילים הכי חשובות שאנחנו משתמשים בהן הרבה"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 6,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא מילה מאוד חשובה! אנחנו משתמשים בה הרבה כל יום!",
+      "visual_cue": "כוכבים סביב המילה 'אני'",
+      "example_usage": "אני מדבר הרבה עם 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שכיחות מילים",
+          "חשיבות לשון"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1206",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ובסיסית",
+        "simple_explanation": "המילה 'אני' היא אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא מילה קלה! כל הילדים יכולים ללמוד אותה!",
+      "visual_cue": "פרח עם חיוך ליד המילה 'אני'",
+      "example_usage": "אני יכול להגיד 'אני'!",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "מילים ראשונות",
+          "למידה בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1207",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "ילד מצביע על עצמו",
+        "simple_explanation": "כשאני רוצה להראות 'אני', אני מצביע על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "תראה! כשאני אומר 'אני', אני מצביע על עצמי ככה!",
+      "visual_cue": "ילד מחייך ומצביע על עצמו באצבע",
+      "example_usage": "אני (מצביע על עצמי) רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תנועות גוף",
+          "תקשורת חזותית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1208",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שלי",
+        "simple_explanation": "'אני' זה אתה! כשאתה מדבר על עצמך, אתה אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "'אני' זה המילה הכי חשובה שלך! זה אתה!",
+      "visual_cue": "מראה עם הילד מסתכל על עצמו",
+      "example_usage": "אני זה אני!",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות עצמית",
+          "הכרה עצמית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1300",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים כשמדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה לספר משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' היא המילה הכי חשובה שלך!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1301",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שמציינת את האדם שמדבר",
+        "simple_explanation": "אני זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי ואתה... מי אתה? תגיד 'אני' ואז את השם שלך!",
+      "visual_cue": "אצבע מצביעה על הילד",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1302",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "אני זה מילה מיוחדת שאומרת מי מדבר"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כינוי גוף - זה אומר שהיא מציינת אדם!",
+      "visual_cue": "תמונה של ילד עם חץ שמצביע עליו",
+      "example_usage": "אני רוצה לאכול",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "כינויים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1303",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' מורכבת משתי הברות",
+        "simple_explanation": "א-ני - שתי הברות קטנות יוצרות מילה אחת"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות יפות!",
+      "visual_cue": "שתי עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני אוהב צבעים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1304",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה 'אני' בתחילת משפטים על עצמנו",
+        "simple_explanation": "כשאני רוצה לספר על עצמי, אני מתחיל עם 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "תמיד כשאני רוצה לספר עליי, אני מתחיל עם 'אני'!",
+      "visual_cue": "בועת דיבור עם המילה 'אני' בתחילה",
+      "example_usage": "אני הולך לגן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שימוש",
+          "משפטים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1305",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' היא מהמילים הנפוצות ביותר בעברית",
+        "simple_explanation": "אנחנו משתמשים במילה 'אני' הרבה פעמים כל יום"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא מילה מאוד חשובה! אנחנו אומרים אותה הרבה!",
+      "visual_cue": "כוכבים מסביב למילה 'אני'",
+      "example_usage": "אני אומר 'אני' הרבה פעמים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שכיחות",
+          "חשיבות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1306",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' היא מילה קלה ובסיסית",
+        "simple_explanation": "זאת מהמילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה מאוד! כל ילד יכול ללמוד אותה!",
+      "visual_cue": "פרח עם המילה 'אני' במרכז",
+      "example_usage": "אני יודע לומר 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "קלות",
+          "למידה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1307",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' מיוצגת בתמונה של ילד מצביע על עצמו",
+        "simple_explanation": "כשרואים ילד מצביע על עצמו, זה אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "תראה! כשאני מצביע על עצמי, זה אומר 'אני'!",
+      "visual_cue": "ילד מצביע על החזה שלו",
+      "example_usage": "אני מצביע על עצמי",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "חזותי",
+          "מחוות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1308",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "'אני' זה אתה כשאתה מדבר",
+        "simple_explanation": "המילה שאומרים כשרוצים לספר משהו על עצמנו"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "פשוט מאוד! 'אני' זה אתה!",
+      "visual_cue": "חץ מצביע על הילד",
+      "example_usage": "אני ילד טוב",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "פשטות",
+          "הבנה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1400",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים כשמדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה לומר משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "זכר ונקבה",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' זה כשאתה מדבר על עצמך!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1401",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי לאדם שמדבר על עצמו",
+        "simple_explanation": "כל אחד אומר 'אני' כשהוא מדבר על עצמו"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי אומר: כל ילד אומר 'אני' כשהוא מדבר על עצמו!",
+      "visual_cue": "מראה עם ילד מסתכל על עצמו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות אישית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1402",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "המילה 'אני' היא כינוי - מילה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "לא משתנה",
+      "number": "יחיד",
+      "tuki_says": "טוקי מסביר: במקום לומר 'טוקי אוהב', אני אומר 'אני אוהב'!",
+      "visual_cue": "כרטיס עם המילה 'אני' בצבע כחול",
+      "example_usage": "אני רוצה לאכול",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק בסיסי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1403",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות: א-ני",
+        "simple_explanation": "נחלק את המילה: א... ני. שתי הברות קצרות!"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "בוא נספור יחד: א-ני! שתי הברות קצרות וקלות!",
+      "visual_cue": "שני עיגולים צבעוניים עם האותיות א ו-ני",
+      "example_usage": "א-ני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1404",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה כשמתחילים משפט על עצמנו",
+        "simple_explanation": "כל פעם שאני רוצה לספר על עצמי, אני מתחיל עם 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "כשאני טוקי רוצה לספר עליי, אני אומר: 'אני טוקי'!",
+      "visual_cue": "בועת דיבור עם המילה 'אני' בתחילת משפט",
+      "example_usage": "אני אוהב צבעים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת",
+          "ביטוי עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1405",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה נפוצה מאוד שמשתמשים בה כל יום",
+        "simple_explanation": "המילה 'אני' היא אחת המילים הכי חשובות שאנחנו אומרים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כל כך חשובה! אנחנו אומרים אותה הרבה פעמים ביום!",
+      "visual_cue": "כוכבים זהובים סביב המילה 'אני'",
+      "example_usage": "אני אוכל, אני שותה, אני ישן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "מילים נפוצות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1406",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה מאוד ללמידה - רמת קושי: בסיסי",
+        "simple_explanation": "המילה 'אני' היא אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 2,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה מאוד! גם ילדים קטנים יכולים ללמוד אותה!",
+      "visual_cue": "סמיילי שמח עם כוכב ירוק",
+      "example_usage": "אני כאן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "למידה ראשונית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1407",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "תמונה של ילד מצביע על עצמו",
+        "simple_explanation": "כשאנחנו רואים מישהו מצביע על עצמו, זה אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "אני",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "תראה! כשאני מצביע על עצמי ואומר 'אני טוקי'!",
+      "visual_cue": "איור של ילד מחייך ומצביע על עצמו",
+      "example_usage": "אני (מצביע על עצמי) רוצה מים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת חזותית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1500",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים כשמדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה לומר משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! כשאני מדבר על עצמי, אני אומר 'אני'!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני שמח, אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות עצמית",
+          "תקשורת בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1501",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מי שמדבר - זה אני!",
+        "simple_explanation": "המילה 'אני' מספרת על מי שמדבר עכשיו"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "אני טוקי אומר: כשאני מדבר, אני משתמש במילה 'אני'!",
+      "visual_cue": "ילד עם חץ שמצביע עליו",
+      "example_usage": "אני רעב, אני צמא",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1502",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה סוג מיוחד של מילה שמספרת על מי שמדבר"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "טוקי מסביר: 'אני' זה כינוי גוף - מילה מיוחדת!",
+      "visual_cue": "כרטיס עם המילה 'אני' בצבע כחול",
+      "example_usage": "אני לומד, אני משחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי-בינוני",
+        "related_themes": [
+          "דקדוק",
+          "חלקי דיבור"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1503",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה 'אני' מורכבת משתי הברות",
+        "simple_explanation": "א-ני - שתי הברות קצרות וקלות"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "בוא נחלק יחד: א-ני! שתי הברות יפות!",
+      "visual_cue": "שתי עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני שמח, א-ני רוקד",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1504",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה 'אני' כשמדברים על עצמנו",
+        "simple_explanation": "בכל פעם שאני רוצה לספר משהו על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "כשאני רוצה לספר עליי, אני משתמש במילה 'אני'!",
+      "visual_cue": "ילד מספר על עצמו",
+      "example_usage": "אני אוכל, אני ישן, אני משחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שימוש יומיומי",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1505",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה שמשתמשים בה הרבה מאוד",
+        "simple_explanation": "זו מהמילים הכי חשובות שיש!"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "וואו! המילה 'אני' היא מהמילים הכי חשובות!",
+      "visual_cue": "כוכבים סביב המילה 'אני'",
+      "example_usage": "אני משתמש במילה 'אני' כל יום!",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "מילים חשובות",
+          "שכיחות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1506",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ופשוטה ללמידה",
+        "simple_explanation": "זו אחת המילים הראשונות שלומדים!"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "כל כך קל! המילה 'אני' פשוטה ללמידה!",
+      "visual_cue": "פרח עם המילה 'קל'",
+      "example_usage": "אני יכול ללמוד את המילה 'אני'!",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "קלות למידה",
+          "מילים ראשונות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1507",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "איור של ילד מצביע על עצמו",
+        "simple_explanation": "תמונה שמראה מי זה 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "תסתכל! הילד מצביע על עצמו ואומר 'אני'!",
+      "visual_cue": "ילד מחייך ומצביע על חזהו",
+      "example_usage": "אני מצביע על עצמי",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "ייצוג חזותי",
+          "הבנה חזותית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1508",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים על עצמנו",
+        "simple_explanation": "כשאני רוצה לספר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "פשוט מאוד! 'אני' זה אתה כשאתה מדבר!",
+      "visual_cue": "בועת דיבור עם המילה 'אני'",
+      "example_usage": "אני אוהב צבעים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הסבר פשוט",
+          "הבנה בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1600",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאני משתמש בה כשאני מדבר על עצמי",
+        "simple_explanation": "כשאני רוצה להגיד משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' היא המילה הכי חשובה שלי!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1601",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי שמציין את האדם שמדבר",
+        "simple_explanation": "אני זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "תראה! אני מצביע על עצמי ואומר 'אני טוקי'!",
+      "visual_cue": "תוכי מצביע על עצמו בכנף",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1602",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה כינוי - מילה קטנה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "במקום להגיד 'טוקי אוהב', אני אומר 'אני אוהב'!",
+      "visual_cue": "כרטיס עם המילה 'אני' בצבע כחול",
+      "example_usage": "אני לומד עברית",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "כינויים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1603",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות: א-ני",
+        "simple_explanation": "נחלק את המילה לחלקים קטנים: א... ני"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 10
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות!",
+      "visual_cue": "שתי עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1604",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה בתחילת משפט כשמדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה לספר משהו על עצמי, אני מתחיל במילה 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "תמיד כשאני מתחיל לספר על עצמי, אני אומר 'אני'!",
+      "visual_cue": "ילד עם בועת דיבור שכתוב בה 'אני'",
+      "example_usage": "אני אוכל תפוח",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שימוש",
+          "משפטים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1605",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה הכי נפוצה בעברית - משתמשים בה כל יום",
+        "simple_explanation": "זאת מילה שכולם אומרים הרבה פעמים ביום"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כמו חבר טוב - תמיד איתנו!",
+      "visual_cue": "כוכב זהב עם המילה 'אני'",
+      "example_usage": "אני משתמש במילה 'אני' הרבה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תדירות",
+          "חשיבות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1606",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה מאוד - אחת המילים הראשונות שלומדים",
+        "simple_explanation": "זאת מילה קלה שכל הילדים יכולים ללמוד"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה כמו לטוס! כולם יכולים!",
+      "visual_cue": "פרח פשוט עם המילה 'אני'",
+      "example_usage": "אני יכול להגיד 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "קל מאוד",
+        "related_themes": [
+          "למידה",
+          "בסיס"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1607",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "תמונה של ילד מצביע על עצמו",
+        "simple_explanation": "נראה ילד שמצביע על עצמו ואומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "תראה! בתמונה יש ילד שמצביע על עצמו!",
+      "visual_cue": "איור של ילד מצביע על החזה שלו",
+      "example_usage": "אני רואה את התמונה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תמונות",
+          "חזותי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1608",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאני אומר כשאני מדבר על עצמי",
+        "simple_explanation": "כמו השם שלי, אבל במקום השם אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "במקום 'טוקי רוצה', אני אומר 'אני רוצה'!",
+      "visual_cue": "שם מוחלף בחץ למילה 'אני'",
+      "example_usage": "אני (השם שלי) שמח",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "פשוט",
+        "related_themes": [
+          "הסבר",
+          "פשטות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1700",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאני משתמש בה כשאני מדבר על עצמי",
+        "simple_explanation": "כשאני רוצה להגיד משהו על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' זה כשאני מדבר על עצמי!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1701",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי שמתאר את האדם שמדבר",
+        "simple_explanation": "זה אני! זה שם שאני קורא לעצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "כשאני אומר 'אני טוקי', אני מדבר על עצמי!",
+      "visual_cue": "תוכי מצביע על עצמו",
+      "example_usage": "אני אוהב לשיר",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות אישית",
+          "תקשורת בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1702",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "מילה מיוחדת שמדברת על האדם שמדבר"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כינוי גוף - זה אומר שהיא מדברת על מי שמדבר!",
+      "visual_cue": "ילד עם חץ מצביע עליו",
+      "example_usage": "אני הולך הביתה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי-בינוני",
+        "related_themes": [
+          "דקדוק",
+          "כינויי גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1703",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות: א-ני",
+        "simple_explanation": "נחלק את המילה לחלקים קטנים: א + ני = אני"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 4,
+        "max": 10
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות יפות!",
+      "visual_cue": "שתי ידיים מכות כפיים",
+      "example_usage": "א-ני שמח",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1704",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה כשמדברים על עצמנו",
+        "simple_explanation": "כל פעם שאני רוצה להגיד משהו על עצמי, אני מתחיל עם 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "כשאני רוצה להגיד שאני רעב, אני אומר: 'אני רעב!'",
+      "visual_cue": "פה פתוח מדבר",
+      "example_usage": "אני רוצה מים",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שימוש יומיומי",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1705",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה נפוצה מאוד בשפה העברית",
+        "simple_explanation": "המילה 'אני' היא אחת המילים הכי חשובות ונפוצות"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' כל כך חשובה! אנחנו משתמשים בה הרבה כל יום!",
+      "visual_cue": "כוכבים מסביב למילה",
+      "example_usage": "אני משתמש במילה הזו הרבה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי-בינוני",
+        "related_themes": [
+          "תדירות",
+          "חשיבות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1706",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ובסיסית ללמידה",
+        "simple_explanation": "זאת מילה קלה שכל ילד יכול ללמוד"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' קלה ללמידה! כולם יכולים ללמוד אותה!",
+      "visual_cue": "פרח עם חיוך",
+      "example_usage": "אני יכול ללמוד",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "למידה",
+          "קלות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1707",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "נראה כמו ילד מצביע על עצמו",
+        "simple_explanation": "בתמונה נראה אדם שמצביע על עצמו ואומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 10
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "תסתכל! בתמונה יש ילד שמצביע על עצמו ואומר 'אני'!",
+      "visual_cue": "ילד מצביע על החזה שלו",
+      "example_usage": "אני פה!",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "ויזואליה",
+          "תמונות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1708",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "simple_explanation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "השם שאני קורא לעצמי",
+        "simple_explanation": "כשאני מדבר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "זה פשוט! 'אני' זה אתה כשאתה מדבר על עצמך!",
+      "visual_cue": "ילד עם בועת דיבור",
+      "example_usage": "אני כאן",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הסבר פשוט",
+          "הבנה בסיסית"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1800",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שבה אני מתאר את עצמי",
+        "simple_explanation": "כשאני רוצה לדבר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "זכר/נקבה",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי! המילה 'אני' היא המילה שלי כשאני מדבר על עצמי!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1801",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי לאדם שמדבר על עצמו",
+        "simple_explanation": "אני זה המילה שלי בשביל לספר על מה שאני עושה או מרגיש"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "כשאני רוצה לספר משהו על עצמי, אני מתחיל עם המילה 'אני'!",
+      "visual_cue": "ילד עם חץ מצביע על עצמו",
+      "example_usage": "אני שמח היום",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תקשורת",
+          "ביטוי עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1802",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "זה סוג של מילה שנקרא 'כינוי' - מילה שמייצגת אותי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כינוי - זה אומר שהיא מייצגת אותי במקום השם שלי!",
+      "visual_cue": "תווית עם 'אני' על דמות ילד",
+      "example_usage": "במקום לומר 'דני אוהב גלידה', דני יכול לומר 'אני אוהב גלידה'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "דקדוק",
+          "כינויים"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1803",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות: א-ני",
+        "simple_explanation": "בואו נחלק את המילה לחלקים קטנים: א... ני"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 4,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "בואו נכה כפיים! א-ני! שתי הברות קטנות יוצרות מילה גדולה!",
+      "visual_cue": "שתי עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1804",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה בכל יום לביטוי דעות ורגשות",
+        "simple_explanation": "אני משתמש במילה 'אני' כשאני רוצה לספר משהו על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "אני משתמש במילה 'אני' כל יום! אני אוכל, אני משחק, אני שמח!",
+      "visual_cue": "ילד בפעילויות שונות עם בועת דיבור 'אני'",
+      "example_usage": "אני רעב, אני עייף, אני רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שימוש יומיומי",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1805",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה נפוצה מאוד - אחת המילים הכי חשובות בעברית",
+        "simple_explanation": "המילה 'אני' היא מילה שכולם משתמשים בה הרבה מאוד"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כמו כוכב - כולם מכירים אותה וכולם משתמשים בה!",
+      "visual_cue": "כוכב זוהר עם המילה 'אני'",
+      "example_usage": "בכל שיחה נשמע את המילה 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "שכיחות",
+          "חשיבות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1806",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה ובסיסית - אחת המילים הראשונות שילדים לומדים",
+        "simple_explanation": "זו מילה קלה שכל ילד יכול ללמוד!"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא מילה קלה וחשובה! כל ילד יכול ללמוד אותה מהר!",
+      "visual_cue": "פרח עם רמת קושי 1 מתוך 5",
+      "example_usage": "גם ילדים קטנים אומרים 'אני רוצה'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "קושי",
+          "למידה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1807",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "ניתן להמחיש בציור של ילד מצביע על עצמו",
+        "simple_explanation": "אפשר לצייר ילד עם חץ שמצביע על עצמו כדי להראות 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "ניטרלי",
+      "number": "יחיד",
+      "tuki_says": "תסתכלו! כשאני מצביע על עצמי ואומר 'אני' - כולם מבינים על מי אני מדבר!",
+      "visual_cue": "דמות של ילד עם חץ גדול מצביע על עצמו",
+      "example_usage": "ילד מצביע על עצמו ואומר 'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "חזותי",
+          "הבנה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1900",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "definition",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה שאומרים כשמדברים על עצמנו",
+        "simple_explanation": "כשאני רוצה לספר על עצמי, אני אומר 'אני'"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "",
+      "number": "יחיד",
+      "tuki_says": "שלום! אני טוקי התוכי! המילה 'אני' היא המילה הכי חשובה - כי היא מדברת עליך!",
+      "visual_cue": "ילד מצביע על עצמו",
+      "example_usage": "אני שמח, אני אוהב לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1901",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "meaning",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "הכינוי שמציין את האדם המדבר",
+        "simple_explanation": "אני = זה אתה! כשאתה מדבר על עצמך"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף ראשון יחיד",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "כשאני אומר 'אני טוקי', אני מספר לך מי אני! וכשאתה אומר 'אני', אתה מספר מי אתה!",
+      "visual_cue": "מראה עם ילד מסתכל על עצמו",
+      "example_usage": "אני בן 5, אני גר בתל אביב",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "זהות אישית",
+          "תיאור עצמי"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1902",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "part_of_speech",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "כינוי גוף ראשון יחיד",
+        "simple_explanation": "אני זה סוג של מילה שנקרא 'כינוי גוף' - מילה שמחליפה את השם שלי"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 5,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "במקום להגיד 'טוקי אוהב לטוס', אני יכול להגיד 'אני אוהב לטוס'!",
+      "visual_cue": "טבלה עם כינויי גוף",
+      "example_usage": "אני (במקום השם שלי) רוצה לשחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "יסודי",
+        "related_themes": [
+          "דקדוק",
+          "כינויי גוף"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1903",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "syllables",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה מורכבת משתי הברות: א-ני",
+        "simple_explanation": "אני = א (א) + ני (ני). שתי הברות קצרות!"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 8
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "בוא נכה כפיים! א-ני! שתי הברות קצרות וקלות!",
+      "visual_cue": "שתי עיגולים עם האותיות א ו-ני",
+      "example_usage": "א-ני שמח, א-ני רוצה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "הברות",
+          "קריאה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1904",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "usage_context",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "משתמשים במילה בכל שיחה על עצמנו",
+        "simple_explanation": "אני אומר 'אני' כשאני מספר על מה שאני עושה, מרגיש או רוצה"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "אני משתמש במילה 'אני' כל הזמן! אני טוקי, אני טס, אני שמח!",
+      "visual_cue": "ילד בפעילויות שונות",
+      "example_usage": "אני אוכל, אני ישן, אני משחק",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "חיי יומיום",
+          "תקשורת"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1905",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "frequency",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "המילה הכי נפוצה בשפה העברית",
+        "simple_explanation": "אני אומר 'אני' הרבה פעמים ביום - זו המילה הכי חשובה!"
+      },
+      "difficulty": 2,
+      "age_range": {
+        "min": 4,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא כמו הכוכב הכי בהיר בשמיים - משתמשים בה הכי הרבה!",
+      "visual_cue": "גרף עם מילים נפוצות",
+      "example_usage": "בכל משפט שמתחיל ב'אני'",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "סטטיסטיקה",
+          "שכיחות"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1906",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "difficulty_level",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "מילה קלה מאוד - רמת קושי 1",
+        "simple_explanation": "המילה 'אני' היא אחת המילים הראשונות שילדים לומדים"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "המילה 'אני' היא סופר קלה! כמו ללמוד לומר את השם שלך!",
+      "visual_cue": "סולם קושי עם 'אני' בדרגה הנמוכה",
+      "example_usage": "המילה הראשונה שילדים אומרים על עצמם",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "למידה",
+          "התפתחות שפה"
+        ]
+      }
+    },
+    {
+      "id": "אני_01_basic_1907",
+      "word": "אני",
+      "category": "01_basic",
+      "type": "visual_representation",
+      "content": {
+        "hebrew": "אני",
+        "transliteration": "ani",
+        "meaning": "ילד מצביע על עצמו בגאווה",
+        "simple_explanation": "כשאני רוצה להראות 'אני', אני מצביע על עצמי"
+      },
+      "difficulty": 1,
+      "age_range": {
+        "min": 3,
+        "max": 12
+      },
+      "part_of_speech": "כינוי גוף",
+      "syllables": [
+        "א",
+        "ני"
+      ],
+      "root": "",
+      "gender": "משותף",
+      "number": "יחיד",
+      "tuki_says": "תראה! כשאני אומר 'אני', אני מצביע על עצמי ככה! 👈",
+      "visual_cue": "ילד מחייך ומצביע על עצמו",
+      "example_usage": "תנועת יד שמצביעה על החזה",
+      "autism_adaptations": {
+        "clear_language": true,
+        "visual_support": true,
+        "predictable_format": true,
+        "sensory_friendly": true
+      },
+      "metadata": {
+        "frequency_rank": 1,
+        "curriculum_level": "בסיסי",
+        "related_themes": [
+          "תנועות גוף",
+          "תקשורת לא מילולית"
+        ]
+      }
+    }
+  ]
+}
