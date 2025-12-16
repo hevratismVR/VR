@@ -1,0 +1,66 @@
+{
+  "category_id": "01_basic",
+  "category_name": "מידע בסיסי",
+  "category_name_english": "Basic Information",
+  "description": "Basic word information including definition, meaning, parts of speech, and fundamental usage",
+  "target_items": 2000,
+  "item_types": [
+    "definition",
+    "meaning",
+    "part_of_speech",
+    "syllables",
+    "root",
+    "usage_context",
+    "frequency",
+    "difficulty_level",
+    "visual_representation",
+    "simple_explanation"
+  ],
+  "item_template": {
+    "id": "{word}_01_basic_{index}",
+    "word": "{word}",
+    "category": "01_basic",
+    "type": "",
+    "content": {
+      "hebrew": "",
+      "transliteration": "",
+      "meaning": "",
+      "simple_explanation": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "part_of_speech": "",
+    "syllables": [],
+    "root": "",
+    "gender": "",
+    "number": "",
+    "tuki_says": "",
+    "visual_cue": "",
+    "example_usage": "",
+    "autism_adaptations": {
+      "clear_language": true,
+      "visual_support": true,
+      "predictable_format": true,
+      "sensory_friendly": true
+    },
+    "metadata": {
+      "frequency_rank": 0,
+      "curriculum_level": "",
+      "related_themes": []
+    }
+  },
+  "generation_prompts": {
+    "definition": "צור הגדרה פשוטה וברורה למילה '{word}' המתאימה לילדים עם אוטיזם בגילאי 3-12",
+    "meaning": "הסבר את המשמעות של המילה '{word}' בצורה חזותית וקונקרטית",
+    "usage": "תן דוגמאות לשימוש במילה '{word}' בחיי היומיום של ילדים"
+  },
+  "tuki_character": {
+    "introduction": "שלום! אני טוקי התוכי! בוא נלמד יחד על המילה '{word}'!",
+    "explanation_style": "פשוט, חזותי, עם חזרות",
+    "encouragement": "יופי! אתה לומד מילים חדשות!",
+    "visual_aids": ["תמונה", "סמל", "צבע"]
+  }
+}

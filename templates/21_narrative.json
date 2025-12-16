@@ -1,0 +1,67 @@
+{
+  "category_id": "21_narrative",
+  "category_name": "נרטיב",
+  "category_name_english": "Narrative",
+  "description": "Narrative structures, storytelling elements, and discourse organization",
+  "target_items": 2000,
+  "item_types": [
+    "story_grammar",
+    "sequence_element",
+    "character_development",
+    "setting_description",
+    "problem_introduction",
+    "resolution",
+    "cause_effect",
+    "temporal_marker",
+    "cohesive_device",
+    "perspective_taking"
+  ],
+  "item_template": {
+    "id": "{word}_21_narrative_{index}",
+    "word": "{word}",
+    "category": "21_narrative",
+    "type": "",
+    "content": {
+      "narrative_element": "",
+      "example": "",
+      "function": "",
+      "teaching_point": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 4,
+      "max": 12
+    },
+    "narrative_component": "",
+    "story_position": "",
+    "connective_words": [],
+    "sequence_markers": [],
+    "visual_organizer": "",
+    "tuki_narrates": "",
+    "autism_adaptations": {
+      "story_map": true,
+      "sequence_cards": true,
+      "explicit_connections": true,
+      "predictable_structure": true
+    },
+    "story_elements": {
+      "character": "",
+      "setting": "",
+      "problem": "",
+      "events": [],
+      "solution": "",
+      "ending": ""
+    }
+  },
+  "generation_prompts": {
+    "structure": "צור רכיבי סיפור עם המילה '{word}'",
+    "sequence": "צור רצף אירועים הכולל את המילה '{word}'",
+    "retelling": "צור תבנית לספר מחדש סיפור עם '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "כל סיפור בנוי כמו בית! בוא נבנה סיפור יחד!",
+    "scaffolding": "קודם יש התחלה... אחר כך אמצע... ובסוף סיום!",
+    "visual_support": "הנה מפת הסיפור שלנו!",
+    "encouragement": "אתה מספר סיפורים כמו סופר אמיתי!"
+  }
+}

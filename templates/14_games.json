@@ -1,0 +1,70 @@
+{
+  "category_id": "14_games",
+  "category_name": "משחקים",
+  "category_name_english": "Games",
+  "description": "Games and activities for learning and practicing the word in engaging ways",
+  "target_items": 2000,
+  "item_types": [
+    "matching_game",
+    "memory_game",
+    "sorting_game",
+    "movement_game",
+    "guessing_game",
+    "building_game",
+    "music_game",
+    "art_activity",
+    "sensory_activity",
+    "cooperative_game"
+  ],
+  "item_template": {
+    "id": "{word}_14_games_{index}",
+    "word": "{word}",
+    "category": "14_games",
+    "type": "",
+    "content": {
+      "game_name": "",
+      "instructions": [],
+      "materials": [],
+      "learning_objective": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "game_type": "",
+    "players": "",
+    "duration": "",
+    "materials_needed": [],
+    "setup_instructions": [],
+    "play_instructions": [],
+    "variations": [],
+    "tuki_plays": "",
+    "visual_instructions": [],
+    "autism_adaptations": {
+      "clear_rules": true,
+      "visual_instructions": true,
+      "predictable_structure": true,
+      "sensory_friendly": true,
+      "turn_structure": true,
+      "winning_optional": true
+    },
+    "skill_targets": {
+      "language": [],
+      "social": [],
+      "motor": [],
+      "cognitive": []
+    }
+  },
+  "generation_prompts": {
+    "active": "צור משחקי תנועה ללמידת המילה '{word}'",
+    "quiet": "צור משחקים שקטים ללמידת '{word}' לילדים שאוהבים שקט",
+    "social": "צור משחקים חברתיים עם '{word}' לתרגול אינטראקציה"
+  },
+  "tuki_character": {
+    "introduction": "טוקי אוהב לשחק! ובזמן שאנחנו משחקים - אנחנו לומדים!",
+    "game_master": "טוקי מסביר את החוקים בצורה ברורה",
+    "cheerleader": "יש! עשית את זה! כל הכבוד!",
+    "flexibility": "לא אהבת את המשחק? בוא ננסה משהו אחר!"
+  }
+}

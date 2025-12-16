@@ -1,0 +1,68 @@
+{
+  "category_id": "15_stories",
+  "category_name": "סיפורים",
+  "category_name_english": "Stories",
+  "description": "Short stories featuring the word for comprehension, enjoyment, and language modeling",
+  "target_items": 2000,
+  "item_types": [
+    "social_story",
+    "adventure_story",
+    "daily_routine_story",
+    "problem_solving_story",
+    "friendship_story",
+    "family_story",
+    "nature_story",
+    "fantasy_story",
+    "learning_story",
+    "emotion_story"
+  ],
+  "item_template": {
+    "id": "{word}_15_stories_{index}",
+    "word": "{word}",
+    "category": "15_stories",
+    "type": "",
+    "content": {
+      "title": "",
+      "story_text": "",
+      "word_occurrences": 0,
+      "comprehension_questions": []
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "story_type": "",
+    "characters": [],
+    "setting": "",
+    "plot_summary": "",
+    "moral_lesson": "",
+    "word_usage_count": 0,
+    "tuki_narrates": true,
+    "visual_scenes": [],
+    "autism_adaptations": {
+      "clear_sequence": true,
+      "predictable_structure": true,
+      "explicit_emotions": true,
+      "concrete_language": true,
+      "visual_support": true,
+      "manageable_length": true
+    },
+    "interactive_elements": {
+      "prediction_points": [],
+      "discussion_questions": [],
+      "activity_extensions": []
+    }
+  },
+  "generation_prompts": {
+    "social": "כתוב סיפור חברתי קצר עם המילה '{word}' לילדים עם אוטיזם",
+    "adventure": "כתוב סיפור הרפתקאות עם '{word}' וטוקי התוכי",
+    "routine": "כתוב סיפור על שגרת יום עם '{word}' לילדים"
+  },
+  "tuki_character": {
+    "introduction": "טוקי אוהב סיפורים! בוא אספר לך סיפור!",
+    "narration_style": "מרגש, עם קולות שונים לדמויות",
+    "participation": "מה אתה חושב שיקרה עכשיו?",
+    "conclusion": "אהבת את הסיפור? בוא נדבר עליו!"
+  }
+}

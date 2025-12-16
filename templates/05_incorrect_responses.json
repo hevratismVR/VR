@@ -1,0 +1,67 @@
+{
+  "category_id": "05_incorrect_responses",
+  "category_name": "תגובות שגויות",
+  "category_name_english": "Incorrect Responses",
+  "description": "Common mistakes and incorrect usages for error awareness and learning from mistakes",
+  "target_items": 2000,
+  "item_types": [
+    "common_error",
+    "mispronunciation",
+    "wrong_context",
+    "grammar_mistake",
+    "social_error",
+    "semantic_confusion",
+    "pragmatic_error",
+    "literal_interpretation",
+    "overgeneralization",
+    "word_confusion"
+  ],
+  "item_template": {
+    "id": "{word}_05_incorrect_{index}",
+    "word": "{word}",
+    "category": "05_incorrect_responses",
+    "type": "",
+    "content": {
+      "stimulus": "",
+      "incorrect_response": "",
+      "why_incorrect": "",
+      "correct_alternative": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 4,
+      "max": 12
+    },
+    "error_type": "",
+    "common_trigger": "",
+    "correction_strategy": "",
+    "tuki_explains": "",
+    "visual_comparison": {
+      "wrong": "",
+      "right": ""
+    },
+    "autism_adaptations": {
+      "gentle_correction": true,
+      "no_shame": true,
+      "learning_opportunity": true,
+      "clear_contrast": true
+    },
+    "teaching_moment": {
+      "acknowledge": "",
+      "explain": "",
+      "practice": "",
+      "reinforce": ""
+    }
+  },
+  "generation_prompts": {
+    "common_errors": "זהה טעויות נפוצות בשימוש במילה '{word}' אצל ילדים עם אוטיזם",
+    "corrections": "צור דוגמאות לתיקון עדין של שימוש שגוי ב'{word}'",
+    "contrast": "הראה את ההבדל בין שימוש נכון ושגוי ב'{word}'"
+  },
+  "tuki_character": {
+    "introduction": "כולם טועים לפעמים! זה בסדר! בוא נלמד יחד!",
+    "gentle_approach": "טוקי לא כועס על טעויות - הן עוזרות לנו ללמוד",
+    "correction_style": "עדין, מעודד, לא משפיל",
+    "encouragement": "טעית? לא נורא! ניסית וזה מעולה!"
+  }
+}

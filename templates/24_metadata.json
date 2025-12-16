@@ -1,0 +1,72 @@
+{
+  "category_id": "24_metadata",
+  "category_name": "מטא-דאטה",
+  "category_name_english": "Metadata",
+  "description": "Metadata, tags, categorization, and organizational information for the word database",
+  "target_items": 2000,
+  "item_types": [
+    "frequency_data",
+    "curriculum_mapping",
+    "difficulty_rating",
+    "prerequisite_words",
+    "related_categories",
+    "assessment_criteria",
+    "progress_tracking",
+    "customization_options",
+    "analytics_tag",
+    "version_info"
+  ],
+  "item_template": {
+    "id": "{word}_24_metadata_{index}",
+    "word": "{word}",
+    "category": "24_metadata",
+    "type": "",
+    "content": {
+      "metadata_type": "",
+      "value": "",
+      "source": "",
+      "last_updated": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "frequency_rank": 0,
+    "curriculum_level": "",
+    "themes": [],
+    "tags": [],
+    "prerequisites": [],
+    "follow_up_words": [],
+    "assessment_rubric": {},
+    "progress_milestones": [],
+    "autism_specific_tags": {
+      "sensory_profile": [],
+      "communication_level": [],
+      "interest_area": [],
+      "support_needs": []
+    },
+    "analytics": {
+      "usage_count": 0,
+      "success_rate": 0,
+      "average_time": 0,
+      "common_errors": []
+    },
+    "version": {
+      "created": "",
+      "modified": "",
+      "version_number": "1.0"
+    }
+  },
+  "generation_prompts": {
+    "curriculum": "מפה את המילה '{word}' לתוכנית לימודים ושלבי התפתחות",
+    "assessment": "צור קריטריונים להערכת שליטה במילה '{word}'",
+    "tracking": "צור אבני דרך להתקדמות בלמידת '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "טוקי עוקב אחרי ההתקדמות שלך!",
+    "progress_report": "תראה כמה התקדמת!",
+    "milestone": "הגעת לאבן דרך חשובה!",
+    "encouragement": "כל צעד קטן הוא הישג גדול!"
+  }
+}

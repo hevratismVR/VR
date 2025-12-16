@@ -1,0 +1,62 @@
+{
+  "category_id": "16_conversation_mechanics",
+  "category_name": "מכניקת שיחה",
+  "category_name_english": "Conversation Mechanics",
+  "description": "Turn-taking, topic maintenance, conversation skills, and dialogue structure",
+  "target_items": 2000,
+  "item_types": [
+    "conversation_opener",
+    "turn_taking_example",
+    "topic_sustaining",
+    "topic_shifting",
+    "conversation_closer",
+    "repair_strategy",
+    "backchannel_cue",
+    "elaboration",
+    "clarification_request",
+    "acknowledgment"
+  ],
+  "item_template": {
+    "id": "{word}_16_convo_{index}",
+    "word": "{word}",
+    "category": "16_conversation_mechanics",
+    "type": "",
+    "content": {
+      "mechanic_type": "",
+      "example_exchange": [],
+      "timing_cue": "",
+      "teaching_point": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 4,
+      "max": 12
+    },
+    "conversation_phase": "",
+    "speaker_roles": [],
+    "timing_indicators": [],
+    "verbal_cues": [],
+    "nonverbal_cues": [],
+    "tuki_models": "",
+    "practice_dialogue": [],
+    "autism_adaptations": {
+      "visual_turn_marker": true,
+      "explicit_timing": true,
+      "scripted_options": true,
+      "pause_tolerance": true
+    },
+    "common_challenges": [],
+    "support_strategies": []
+  },
+  "generation_prompts": {
+    "openers": "צור דרכים להתחיל שיחה עם המילה '{word}'",
+    "turns": "צור דוגמאות ללקיחת תורות בשיחה על '{word}'",
+    "maintenance": "צור דרכים להמשיך שיחה על נושא הקשור ל'{word}'"
+  },
+  "tuki_character": {
+    "introduction": "שיחה היא כמו משחק פינג-פונג! פעם אתה, פעם אני!",
+    "turn_signal": "עכשיו התור שלך לדבר!",
+    "wait_cue": "בוא נחכה לתור שלנו...",
+    "encouragement": "שיחה מעולה! אתה יודע מתי לדבר ומתי להקשיב!"
+  }
+}

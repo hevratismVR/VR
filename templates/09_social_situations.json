@@ -1,0 +1,65 @@
+{
+  "category_id": "09_social_situations",
+  "category_name": "מצבים חברתיים",
+  "category_name_english": "Social Situations",
+  "description": "Social scenarios where the word is used, teaching pragmatic language in context",
+  "target_items": 2000,
+  "item_types": [
+    "greeting_situation",
+    "request_situation",
+    "sharing_situation",
+    "conflict_situation",
+    "cooperation_situation",
+    "celebration_situation",
+    "comfort_situation",
+    "play_situation",
+    "learning_situation",
+    "family_situation"
+  ],
+  "item_template": {
+    "id": "{word}_09_social_{index}",
+    "word": "{word}",
+    "category": "09_social_situations",
+    "type": "",
+    "content": {
+      "situation_description": "",
+      "dialogue": [],
+      "social_skill": "",
+      "word_usage": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "setting": "",
+    "participants": [],
+    "social_goal": "",
+    "expected_behavior": "",
+    "tuki_role_plays": "",
+    "visual_story": [],
+    "autism_adaptations": {
+      "social_story_format": true,
+      "explicit_rules": true,
+      "predictable_sequence": true,
+      "emotion_labels": true
+    },
+    "practice": {
+      "observe": "",
+      "model": "",
+      "practice": "",
+      "generalize": ""
+    }
+  },
+  "generation_prompts": {
+    "scenarios": "צור מצבים חברתיים שבהם ילדים משתמשים במילה '{word}'",
+    "dialogues": "כתוב דיאלוגים חברתיים פשוטים הכוללים את המילה '{word}'",
+    "social_stories": "כתוב סיפורים חברתיים עם '{word}' לילדים עם אוטיזם"
+  },
+  "tuki_character": {
+    "introduction": "בוא נלמד איך להתנהג עם חברים! טוקי ילמד אותך!",
+    "role_play": "טוקי ישחק איתך את המצב",
+    "social_coaching": "עדין, מפורש, עם הרבה תרגול",
+    "encouragement": "אתה לומד להיות חבר נהדר!"
+  }
+}

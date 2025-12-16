@@ -1,0 +1,64 @@
+{
+  "category_id": "03_questions",
+  "category_name": "שאלות",
+  "category_name_english": "Questions",
+  "description": "Questions using the word in various contexts for comprehension and conversation practice",
+  "target_items": 2000,
+  "item_types": [
+    "yes_no_question",
+    "wh_question",
+    "choice_question",
+    "comprehension_question",
+    "opinion_question",
+    "factual_question",
+    "hypothetical_question",
+    "sequence_question",
+    "comparison_question",
+    "inference_question"
+  ],
+  "item_template": {
+    "id": "{word}_03_questions_{index}",
+    "word": "{word}",
+    "category": "03_questions",
+    "type": "",
+    "content": {
+      "question": "",
+      "question_type": "",
+      "expected_answer_type": "",
+      "hints": []
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "question_word": "",
+    "context": "",
+    "visual_support": "",
+    "tuki_asks": "",
+    "sample_answers": [],
+    "follow_up_questions": [],
+    "autism_adaptations": {
+      "clear_structure": true,
+      "visual_answer_options": true,
+      "processing_time": "extended",
+      "concrete_examples": true
+    },
+    "scaffolding": {
+      "level_1": "",
+      "level_2": "",
+      "level_3": ""
+    }
+  },
+  "generation_prompts": {
+    "yes_no": "צור שאלות כן/לא פשוטות עם המילה '{word}' לילדים עם אוטיזם",
+    "wh_questions": "צור שאלות מה/מי/איפה/מתי/למה עם '{word}' ברמות קושי שונות",
+    "comprehension": "צור שאלות הבנה על סיפורים קצרים שמכילים את המילה '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "טוקי אוהב לשאול שאלות! בוא נשחק במשחק שאלות!",
+    "questioning_style": "סקרני, מעודד, סבלני",
+    "wait_time": "ארוך - נותן זמן לחשוב",
+    "encouragement": "שאלה מצוינת! או תשובה נהדרת!"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "category_id": "20_phonetics",
+  "category_name": "פונטיקה",
+  "category_name_english": "Phonetics",
+  "description": "Detailed phonetic analysis, sound patterns, and articulation information",
+  "target_items": 2000,
+  "item_types": [
+    "phoneme_analysis",
+    "allophone",
+    "phonotactics",
+    "syllable_structure",
+    "stress_pattern",
+    "intonation",
+    "coarticulation",
+    "sound_change",
+    "minimal_pair",
+    "phonological_process"
+  ],
+  "item_template": {
+    "id": "{word}_20_phonetics_{index}",
+    "word": "{word}",
+    "category": "20_phonetics",
+    "type": "",
+    "content": {
+      "phonetic_feature": "",
+      "ipa_transcription": "",
+      "hebrew_description": "",
+      "practice_target": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "phonemes": [],
+    "ipa": "",
+    "hebrew_phonetic": "",
+    "place_of_articulation": [],
+    "manner_of_articulation": [],
+    "voicing": [],
+    "tuki_articulates": "",
+    "mouth_diagram": "",
+    "autism_adaptations": {
+      "visual_mouth_model": true,
+      "mirror_practice": true,
+      "tactile_cues_optional": true,
+      "slow_pace": true
+    },
+    "speech_therapy": {
+      "target_sound": "",
+      "position": "",
+      "facilitation_context": "",
+      "practice_words": []
+    }
+  },
+  "generation_prompts": {
+    "analysis": "נתח את המבנה הפונטי של המילה '{word}'",
+    "practice": "צור תרגילי הגייה לצלילים במילה '{word}'",
+    "comparison": "השווה צלילים במילה '{word}' לצלילים דומים במילים אחרות"
+  },
+  "tuki_character": {
+    "introduction": "בוא נלמד איך הפה שלנו עושה צלילים! זה מדהים!",
+    "demonstration": "תסתכל איך הלשון שלי זזה...",
+    "slow_motion": "נעשה את זה לאאאט יחד...",
+    "encouragement": "הצלילים שלך נשמעים נהדר!"
+  }
+}

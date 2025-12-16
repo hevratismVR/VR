@@ -1,0 +1,62 @@
+{
+  "category_id": "11_age_adaptations",
+  "category_name": "התאמות גיל",
+  "category_name_english": "Age Adaptations",
+  "description": "Age-appropriate variations and explanations for different developmental stages",
+  "target_items": 2000,
+  "item_types": [
+    "toddler_version",
+    "preschool_version",
+    "early_elementary",
+    "late_elementary",
+    "developmental_milestone",
+    "complexity_level",
+    "interest_adaptation",
+    "attention_span",
+    "motor_adaptation",
+    "cognitive_level"
+  ],
+  "item_template": {
+    "id": "{word}_11_age_{index}",
+    "word": "{word}",
+    "category": "11_age_adaptations",
+    "type": "",
+    "content": {
+      "age_group": "",
+      "adapted_content": "",
+      "developmental_consideration": "",
+      "activity_suggestion": ""
+    },
+    "difficulty": 1,
+    "target_age": {
+      "min": 3,
+      "max": 6
+    },
+    "developmental_stage": "",
+    "attention_duration": "",
+    "vocabulary_level": "",
+    "abstract_concrete": "",
+    "tuki_adapts": "",
+    "visual_complexity": "",
+    "interaction_style": "",
+    "autism_adaptations": {
+      "developmental_sensitivity": true,
+      "interest_based": true,
+      "sensory_appropriate": true,
+      "communication_level": ""
+    },
+    "age_specific_activities": [],
+    "parent_guidance": ""
+  },
+  "generation_prompts": {
+    "toddler": "התאם את המילה '{word}' לגיל 3-4 עם פשטות מקסימלית",
+    "preschool": "התאם את '{word}' לגיל גן 4-6 עם משחק ותנועה",
+    "elementary": "התאם את '{word}' לגיל בית ספר יסודי 6-12"
+  },
+  "tuki_character": {
+    "introduction": "טוקי יודע לדבר עם כולם - קטנים וגדולים!",
+    "adaptation_style": "משתנה לפי הגיל - יותר פשוט לקטנים, מורכב יותר לגדולים",
+    "flexibility": "טוקי מסתגל לכל ילד",
+    "encouragement": "אתה לומד בדיוק בקצב שלך!"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "category_id": "08_related_words",
+  "category_name": "מילים קשורות",
+  "category_name_english": "Related Words",
+  "description": "Synonyms, antonyms, word families, and semantically related vocabulary",
+  "target_items": 2000,
+  "item_types": [
+    "synonym",
+    "antonym",
+    "word_family",
+    "semantic_field",
+    "collocations",
+    "compound_words",
+    "derived_words",
+    "thematic_group",
+    "association",
+    "category_member"
+  ],
+  "item_template": {
+    "id": "{word}_08_related_{index}",
+    "word": "{word}",
+    "category": "08_related_words",
+    "type": "",
+    "content": {
+      "related_word": "",
+      "relationship_type": "",
+      "explanation": "",
+      "usage_comparison": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 4,
+      "max": 12
+    },
+    "relationship": "",
+    "semantic_distance": "",
+    "shared_features": [],
+    "distinguishing_features": [],
+    "tuki_connects": "",
+    "visual_map": "",
+    "example_pair": {
+      "original": "",
+      "related": ""
+    },
+    "autism_adaptations": {
+      "visual_grouping": true,
+      "explicit_connections": true,
+      "concrete_examples": true,
+      "limited_options": true
+    }
+  },
+  "generation_prompts": {
+    "synonyms": "מצא מילים נרדפות ל'{word}' והסבר את ההבדלים הדקים",
+    "antonyms": "מצא מילים הפוכות ל'{word}' עם דוגמאות ויזואליות",
+    "semantic": "צור רשת מילים הקשורות ל'{word}' לפי נושאים"
+  },
+  "tuki_character": {
+    "introduction": "מילים יכולות להיות חברות! בוא נמצא חברים למילה שלנו!",
+    "connection_style": "ויזואלי - מפת מילים צבעונית",
+    "activity": "משחק חיבור מילים",
+    "encouragement": "מצאת חיבור מעולה בין המילים!"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "category_id": "12_autism_adaptations",
+  "category_name": "התאמות אוטיזם",
+  "category_name_english": "Autism Adaptations",
+  "description": "Autism-friendly adaptations including sensory considerations, communication supports, and special strategies",
+  "target_items": 2000,
+  "item_types": [
+    "sensory_adaptation",
+    "visual_support",
+    "communication_board",
+    "social_story",
+    "routine_integration",
+    "special_interest",
+    "executive_function",
+    "anxiety_reduction",
+    "transition_support",
+    "self_regulation"
+  ],
+  "item_template": {
+    "id": "{word}_12_autism_{index}",
+    "word": "{word}",
+    "category": "12_autism_adaptations",
+    "type": "",
+    "content": {
+      "adaptation_type": "",
+      "original_content": "",
+      "adapted_content": "",
+      "support_strategy": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "sensory_profile": "",
+    "communication_level": "",
+    "visual_supports": [],
+    "predictability_features": [],
+    "tuki_supports": "",
+    "calming_elements": [],
+    "autism_specific": {
+      "literal_language": true,
+      "concrete_examples": true,
+      "reduced_figurative": true,
+      "clear_expectations": true,
+      "processing_time": "extended",
+      "repetition": true,
+      "visual_schedules": true,
+      "choice_boards": true
+    },
+    "individualization": {
+      "high_support": "",
+      "moderate_support": "",
+      "minimal_support": ""
+    }
+  },
+  "generation_prompts": {
+    "sensory": "צור התאמות סנסוריות לתוכן על '{word}' לילדים עם רגישות חושית",
+    "visual": "צור תמיכות ויזואליות ללימוד '{word}' לילדים עם אוטיזם",
+    "communication": "התאם את '{word}' לרמות תקשורת שונות באוטיזם"
+  },
+  "tuki_character": {
+    "introduction": "טוקי מבין שכל אחד לומד אחרת! בוא נמצא את הדרך שלך!",
+    "sensory_awareness": "טוקי שואל: האורות חזקים מדי? בוא נעמעם",
+    "patience": "לקח הרבה זמן? בסדר גמור! אין לחץ!",
+    "celebration": "מצאנו את הדרך שלך ללמוד! מעולה!"
+  }
+}

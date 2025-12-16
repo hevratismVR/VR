@@ -1,0 +1,65 @@
+{
+  "category_id": "22_fallbacks",
+  "category_name": "תגובות חלופיות",
+  "category_name_english": "Fallbacks",
+  "description": "Fallback responses, error handling phrases, and recovery strategies",
+  "target_items": 2000,
+  "item_types": [
+    "clarification_request",
+    "repetition_request",
+    "comprehension_check",
+    "time_request",
+    "help_request",
+    "topic_redirect",
+    "error_recovery",
+    "encouragement",
+    "validation",
+    "wait_response"
+  ],
+  "item_template": {
+    "id": "{word}_22_fallbacks_{index}",
+    "word": "{word}",
+    "category": "22_fallbacks",
+    "type": "",
+    "content": {
+      "situation": "",
+      "fallback_response": "",
+      "next_step": "",
+      "support_level": ""
+    },
+    "difficulty": 1,
+    "age_range": {
+      "min": 3,
+      "max": 12
+    },
+    "trigger_situation": "",
+    "fallback_type": "",
+    "response_options": [],
+    "escalation_path": [],
+    "tuki_responds": "",
+    "calming_element": "",
+    "autism_adaptations": {
+      "predictable_responses": true,
+      "no_frustration_signals": true,
+      "multiple_attempts": true,
+      "positive_framing": true
+    },
+    "recovery_strategy": {
+      "acknowledge": "",
+      "simplify": "",
+      "redirect": "",
+      "support": ""
+    }
+  },
+  "generation_prompts": {
+    "confusion": "צור תגובות לטוקי כשילד לא מבין משהו על '{word}'",
+    "errors": "צור תגובות עידוד כשילד טועה בשימוש ב'{word}'",
+    "help": "צור דרכים להציע עזרה בלמידת '{word}'"
+  },
+  "tuki_character": {
+    "introduction": "לפעמים דברים לא עובדים - וזה בסדר! טוקי תמיד כאן!",
+    "patience": "לא הבנת? בוא ננסה שוב בדרך אחרת!",
+    "encouragement": "קשה לך? זה מראה שאתה מנסה! וזה נהדר!",
+    "support": "אני כאן איתך, לא משנה כמה זמן זה לוקח!"
+  }
+}
