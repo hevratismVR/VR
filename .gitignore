@@ -6,3 +6,17 @@ __pycache__/
 venv/
 *.log
 checkpoint.json
+# Runtime files
+generator.pid
+STOP_GENERATOR
+watchdog.log
+generation_output.log
+generation.log
+errors.log
+checkpoint.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
