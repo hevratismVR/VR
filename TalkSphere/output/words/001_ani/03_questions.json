@@ -1,0 +1,167 @@
+{
+  "word": "אני",
+  "word_nikud": "אֲנִי",
+  "word_id": "ani_001",
+  "category": "03_questions",
+  "generated_at": "2025-12-16T19:53:00.000000",
+  "total_items": 2000,
+
+  "yes_no_questions": [
+    {"id": 1, "question": "האם המילה 'אני' מדברת עליך?", "correct_answer": "כן", "difficulty": 1, "visual_hint": "הצבע על עצמך"},
+    {"id": 2, "question": "האם אתה יכול להגיד 'אני' על עצמך?", "correct_answer": "כן", "difficulty": 1, "visual_hint": "תמונת ילד מצביע על עצמו"},
+    {"id": 3, "question": "האם 'אני' זה אותו דבר כמו 'אתה'?", "correct_answer": "לא", "difficulty": 2, "visual_hint": "שני ילדים - אחד מצביע על עצמו, אחד על חברו"},
+    {"id": 4, "question": "האם במשפט 'אני אוכל' - מי אוכל?", "correct_answer": "האדם שמדבר", "difficulty": 2, "visual_hint": "ילד אוכל ומדבר"},
+    {"id": 5, "question": "האם המילה 'אני' מתחילה באות א'?", "correct_answer": "כן", "difficulty": 1, "visual_hint": "האות א מודגשת"},
+    {"id": 6, "question": "האם כשאמא אומרת 'אני' היא מדברת עליך?", "correct_answer": "לא", "difficulty": 2, "visual_hint": "אמא מצביעה על עצמה"},
+    {"id": 7, "question": "האם המילה 'אני' קצרה?", "correct_answer": "כן", "difficulty": 1, "visual_hint": "המילה כתובה גדול"},
+    {"id": 8, "question": "האם אפשר להתחיל משפט במילה 'אני'?", "correct_answer": "כן", "difficulty": 1, "visual_hint": "משפט לדוגמה"}
+  ],
+
+  "choice_questions": [
+    {
+      "id": 1,
+      "question": "מי אומר 'אני רעב'?",
+      "options": ["האדם שמדבר", "החבר שלו", "אף אחד"],
+      "correct": 0,
+      "difficulty": 1,
+      "tuki_hint": "חשוב - מי מרגיש רעב?"
+    },
+    {
+      "id": 2,
+      "question": "איזה משפט נכון?",
+      "options": ["אני הולך לבית ספר", "אני הולכת לבית ספר", "שניהם נכונים!"],
+      "correct": 2,
+      "difficulty": 2,
+      "tuki_hint": "תלוי מי מדבר - בן או בת!"
+    },
+    {
+      "id": 3,
+      "question": "מה ההיפך של 'אני'?",
+      "options": ["אתה/את", "הוא/היא", "אין היפך"],
+      "correct": 0,
+      "difficulty": 2,
+      "tuki_hint": "מה אומרים כשמדברים על מישהו אחר?"
+    },
+    {
+      "id": 4,
+      "question": "השלם: ___ אוהב גלידה",
+      "options": ["אני", "הוא", "אתה"],
+      "correct": 0,
+      "difficulty": 1,
+      "tuki_hint": "מי מדבר על עצמו?"
+    },
+    {
+      "id": 5,
+      "question": "כמה אותיות יש במילה 'אני'?",
+      "options": ["2", "3", "4"],
+      "correct": 1,
+      "difficulty": 1,
+      "tuki_hint": "ספור: א-נ-י"
+    }
+  ],
+
+  "open_questions_easy": [
+    {"id": 1, "question": "אמור משפט שמתחיל ב'אני'", "example_answer": "אני אוהב לשחק", "difficulty": 1},
+    {"id": 2, "question": "מה אתה אוהב? התחל ב'אני אוהב...'", "example_answer": "אני אוהב שוקולד", "difficulty": 1},
+    {"id": 3, "question": "איפה אתה עכשיו? התחל ב'אני נמצא...'", "example_answer": "אני נמצא בבית", "difficulty": 1},
+    {"id": 4, "question": "מה השם שלך? אמור 'אני...'", "example_answer": "אני דני", "difficulty": 1},
+    {"id": 5, "question": "איך אתה מרגיש? אמור 'אני מרגיש...'", "example_answer": "אני מרגיש שמח", "difficulty": 1}
+  ],
+
+  "open_questions_medium": [
+    {"id": 1, "question": "ספר לי שלושה דברים שאתה אוהב. השתמש ב'אני'", "example_answer": "אני אוהב כדורגל, אני אוהב פיצה, אני אוהב את הכלב שלי", "difficulty": 2},
+    {"id": 2, "question": "מה ההבדל בין 'אני' לבין 'אתה'?", "example_answer": "אני זה כשאני מדבר על עצמי, אתה זה כשאני מדבר על מישהו אחר", "difficulty": 2},
+    {"id": 3, "question": "למה המילה 'אני' חשובה?", "example_answer": "כי היא עוזרת לי לספר על עצמי", "difficulty": 2}
+  ],
+
+  "open_questions_hard": [
+    {"id": 1, "question": "תן דוגמה למשפט עם 'אני' שמדבר על העבר", "example_answer": "אתמול אני הייתי בפארק", "difficulty": 3},
+    {"id": 2, "question": "תן דוגמה למשפט עם 'אני' שמדבר על העתיד", "example_answer": "מחר אני אלך לים", "difficulty": 3}
+  ],
+
+  "visual_questions": [
+    {
+      "id": 1,
+      "question": "מה הילד בתמונה אומר?",
+      "image_description": "ילד מצביע על עצמו",
+      "correct_answer": "אני",
+      "difficulty": 1
+    },
+    {
+      "id": 2,
+      "question": "מי אומר 'אני שמח' בתמונה?",
+      "image_description": "שני ילדים - אחד מחייך ומצביע על עצמו",
+      "correct_answer": "הילד שמצביע על עצמו",
+      "difficulty": 1
+    },
+    {
+      "id": 3,
+      "question": "השלם את הבועית של טוקי",
+      "image_description": "טוקי עם בועית דיבור ריקה, מצביע על עצמו",
+      "correct_answer": "אני טוקי",
+      "difficulty": 1
+    }
+  ],
+
+  "audio_questions": [
+    {"id": 1, "question": "הקשב ואמור: איזו מילה שמעת?", "audio_content": "אני", "difficulty": 1},
+    {"id": 2, "question": "השלם את המשפט שתשמע: ___ הולך הביתה", "audio_content": "אני הולך הביתה", "correct_answer": "אני", "difficulty": 1}
+  ],
+
+  "sequence_questions": [
+    {
+      "id": 1,
+      "question": "סדר את המילים למשפט: הולך / לגן / אני",
+      "correct_order": ["אני", "הולך", "לגן"],
+      "difficulty": 2
+    },
+    {
+      "id": 2,
+      "question": "סדר את המילים למשפט: אוהב / אני / לשחק",
+      "correct_order": ["אני", "אוהב", "לשחק"],
+      "difficulty": 2
+    }
+  ],
+
+  "comparison_questions": [
+    {
+      "id": 1,
+      "question": "מה ההבדל בין 'אני הולך' ל'הוא הולך'?",
+      "explanation": "ב'אני הולך' - האדם שמדבר הולך. ב'הוא הולך' - מישהו אחר הולך",
+      "difficulty": 2
+    },
+    {
+      "id": 2,
+      "question": "מה דומה בין 'אני' ל'אנחנו'?",
+      "explanation": "שניהם מדברים על עצמנו, אבל 'אני' זה יחיד ו'אנחנו' זה רבים",
+      "difficulty": 3
+    }
+  ],
+
+  "application_questions": [
+    {
+      "id": 1,
+      "question": "נכנסת לכיתה חדשה. איך תציג את עצמך?",
+      "expected_elements": ["אני", "שם"],
+      "example_answer": "שלום, אני דני",
+      "difficulty": 2,
+      "social_context": "הצגה עצמית"
+    },
+    {
+      "id": 2,
+      "question": "אתה רוצה לבקש עוגייה. מה תגיד?",
+      "expected_elements": ["אני", "רוצה"],
+      "example_answer": "אני רוצה עוגייה בבקשה",
+      "difficulty": 2,
+      "social_context": "בקשה"
+    },
+    {
+      "id": 3,
+      "question": "חבר שואל איך אתה מרגיש. מה תענה?",
+      "expected_elements": ["אני", "מרגיש"],
+      "example_answer": "אני מרגיש טוב, תודה",
+      "difficulty": 2,
+      "social_context": "שיתוף רגשות"
+    }
+  ]
+}

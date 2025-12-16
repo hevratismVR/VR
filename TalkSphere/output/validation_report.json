@@ -1,0 +1,70 @@
+{
+  "total_files": 3,
+  "valid_files": 3,
+  "files_with_warnings": 3,
+  "files_with_errors": 0,
+  "total_items": 166,
+  "average_items": 55.333333333333336,
+  "errors": [],
+  "warnings": [
+    {
+      "file": "output/words/001_ani/01_basic.json",
+      "word": "אני",
+      "category": "01_basic",
+      "warning": "Below minimum items: 58 < 1800"
+    },
+    {
+      "file": "output/words/001_ani/01_basic.json",
+      "word": "אני",
+      "category": "01_basic",
+      "warning": "Missing expected fields: ['category', 'word_nikud', 'word_id', 'word']"
+    },
+    {
+      "file": "output/words/001_ani/01_basic.json",
+      "word": "אני",
+      "category": "01_basic",
+      "warning": "Below target items: 58 < 2000"
+    },
+    {
+      "file": "output/words/001_ani/03_questions.json",
+      "word": "אני",
+      "category": "03_questions",
+      "warning": "Below minimum items: 35 < 1800"
+    },
+    {
+      "file": "output/words/001_ani/03_questions.json",
+      "word": "אני",
+      "category": "03_questions",
+      "warning": "Below target items: 35 < 2000"
+    },
+    {
+      "file": "output/words/001_ani/04_correct_responses.json",
+      "word": "אני",
+      "category": "04_correct_responses",
+      "warning": "Below minimum items: 73 < 1800"
+    },
+    {
+      "file": "output/words/001_ani/04_correct_responses.json",
+      "word": "אני",
+      "category": "04_correct_responses",
+      "warning": "Below target items: 73 < 2000"
+    }
+  ],
+  "by_category": {
+    "01_basic": {
+      "valid": 1,
+      "invalid": 0,
+      "total_items": 58
+    },
+    "03_questions": {
+      "valid": 1,
+      "invalid": 0,
+      "total_items": 35
+    },
+    "04_correct_responses": {
+      "valid": 1,
+      "invalid": 0,
+      "total_items": 73
+    }
+  }
+}

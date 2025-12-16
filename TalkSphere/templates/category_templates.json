@@ -1,0 +1,551 @@
+{
+  "meta": {
+    "version": "1.0",
+    "project": "TalkSphere",
+    "description": "Hebrew Word Database Generator Templates for VR/MR Learning Application",
+    "target_audience": "Children with autism, ages 4-18",
+    "ai_companion": "Tuki (טוקי) the parrot",
+    "language": "Hebrew (עברית)",
+    "items_per_category": 2000
+  },
+
+  "categories": [
+    {
+      "id": "01_basic",
+      "name": "Basic Information",
+      "name_he": "מידע בסיסי",
+      "filename": "01_basic.json",
+      "description": "Basic word info, meanings, translations, images, audio references",
+      "target_items": 2000,
+      "structure": {
+        "word": "string - Hebrew word",
+        "word_nikud": "string - Hebrew word with nikud",
+        "word_id": "string - Unique identifier",
+        "category": "basic",
+        "definitions": "array[200] - Word definitions in Hebrew",
+        "meanings_simple": "array[150] - Simple meanings for young children",
+        "meanings_advanced": "array[150] - Advanced meanings for older children",
+        "translations": "array[100] - English translations with context",
+        "usage_contexts": "array[200] - Different contexts where word is used",
+        "image_descriptions": "array[200] - Visual descriptions for image generation",
+        "audio_cues": "array[100] - Audio prompts and sound descriptions",
+        "tuki_introductions": "array[200] - Ways Tuki introduces the word",
+        "fun_facts": "array[150] - Interesting facts about the word",
+        "memory_aids": "array[200] - Mnemonics and memory helpers",
+        "visual_associations": "array[150] - Visual links and associations"
+      },
+      "prompt_template": "צור מאגר מידע בסיסי עבור המילה '{word}' ({transliteration}) בעברית. כל התוכן חייב להיות בעברית פשוטה ומותאמת לילדים עם אוטיזם. טוקי התוכי הוא הדמות המלווה - הוא מעודד, חיובי ומשתמש בשפה ברורה."
+    },
+    {
+      "id": "02_grammar",
+      "name": "Grammar",
+      "name_he": "דקדוק",
+      "filename": "02_grammar.json",
+      "description": "Grammar rules, conjugations, patterns, gender forms",
+      "target_items": 2000,
+      "structure": {
+        "grammatical_rules": "array[200] - Grammar rules related to the word",
+        "verb_conjugations": "array[300] - If verb: all conjugation forms",
+        "adjective_agreements": "array[200] - Gender/number agreements",
+        "pronoun_forms": "array[100] - Related pronoun forms",
+        "sentence_patterns": "array[300] - Common sentence structures",
+        "common_errors": "array[200] - Typical mistakes and corrections",
+        "tuki_explanations": "array[200] - Tuki explains grammar simply",
+        "grammar_games": "array[200] - Interactive grammar activities",
+        "practice_exercises": "array[200] - Practice prompts",
+        "visual_aids": "array[100] - Visual grammar helpers"
+      },
+      "prompt_template": "צור מאגר דקדוק מקיף עבור המילה '{word}' בעברית. הסבר כללי דקדוק בצורה פשוטה וברורה. כלול הטיות, צורות, ודפוסי משפט. טוקי מסביר בסבלנות ובעידוד."
+    },
+    {
+      "id": "03_questions",
+      "name": "Questions",
+      "name_he": "שאלות",
+      "filename": "03_questions.json",
+      "description": "Questions Tuki asks about the word",
+      "target_items": 2000,
+      "structure": {
+        "yes_no_questions": "array[300] - Simple yes/no questions",
+        "choice_questions": "array[300] - Multiple choice questions",
+        "open_questions_easy": "array[200] - Easy open questions",
+        "open_questions_medium": "array[200] - Medium difficulty questions",
+        "open_questions_hard": "array[150] - Challenging questions",
+        "visual_questions": "array[200] - Questions with visual cues",
+        "audio_questions": "array[150] - Questions involving listening",
+        "sequence_questions": "array[150] - Order and sequence questions",
+        "comparison_questions": "array[150] - Compare and contrast",
+        "application_questions": "array[200] - Real-life application"
+      },
+      "prompt_template": "צור 2000 שאלות שטוקי התוכי שואל על המילה '{word}'. השאלות צריכות להיות מגוונות ברמות קושי, מותאמות לילדים עם אוטיזם, וכוללות רמזים חזותיים ושמיעתיים."
+    },
+    {
+      "id": "04_correct_responses",
+      "name": "Correct Responses",
+      "name_he": "תגובות לתשובות נכונות",
+      "filename": "04_correct_responses.json",
+      "description": "Responses when child answers correctly",
+      "target_items": 2000,
+      "structure": {
+        "celebrations": "array[300] - Celebration phrases",
+        "encouragements": "array[300] - Encouraging words",
+        "specific_praise": "array[300] - Specific praise for the answer",
+        "next_step_prompts": "array[200] - Prompts to continue",
+        "bonus_facts": "array[200] - Extra info as reward",
+        "tuki_reactions": "array[300] - Tuki's happy reactions",
+        "visual_rewards": "array[150] - Visual reward descriptions",
+        "sound_effects": "array[100] - Celebratory sounds",
+        "streak_messages": "array[100] - Messages for answer streaks",
+        "achievement_unlocks": "array[50] - Achievement notifications"
+      },
+      "prompt_template": "צור 2000 תגובות חיוביות שטוקי אומר כשילד עונה נכון על המילה '{word}'. התגובות צריכות להיות מגוונות, מעודדות, וספציפיות. הימנע מחזרתיות."
+    },
+    {
+      "id": "05_incorrect_responses",
+      "name": "Incorrect Responses",
+      "name_he": "תגובות לתשובות שגויות",
+      "filename": "05_incorrect_responses.json",
+      "description": "Gentle corrections for wrong answers",
+      "target_items": 2000,
+      "structure": {
+        "gentle_corrections": "array[400] - Soft correction phrases",
+        "hints": "array[400] - Helpful hints",
+        "encouragements": "array[300] - Keep trying messages",
+        "reframing": "array[200] - Different ways to explain",
+        "visual_hints": "array[200] - Visual clue descriptions",
+        "step_by_step": "array[200] - Break down the answer",
+        "tuki_support": "array[200] - Tuki's supportive words",
+        "try_again_prompts": "array[100] - Invitations to retry"
+      },
+      "prompt_template": "צור 2000 תגובות עדינות ומעודדות שטוקי אומר כשילד טועה לגבי המילה '{word}'. אסור להיות שלילי או מבקר. כל תגובה צריכה לכלול עידוד ורמז לתשובה הנכונה."
+    },
+    {
+      "id": "06_pronunciation",
+      "name": "Pronunciation",
+      "name_he": "הגייה",
+      "filename": "06_pronunciation.json",
+      "description": "Phonetics, syllables, common mistakes, audio cues",
+      "target_items": 2000,
+      "structure": {
+        "syllable_breakdown": "array[100] - Word broken into syllables",
+        "phonetic_guides": "array[200] - Pronunciation guides",
+        "mouth_positions": "array[150] - How to position mouth",
+        "common_mistakes": "array[200] - Typical pronunciation errors",
+        "correction_tips": "array[200] - How to fix mistakes",
+        "rhyming_words": "array[200] - Words that rhyme",
+        "similar_sounds": "array[200] - Similar sounding words",
+        "tuki_demonstrations": "array[250] - Tuki models pronunciation",
+        "practice_phrases": "array[300] - Practice sentences",
+        "audio_descriptions": "array[200] - Sound quality descriptions"
+      },
+      "prompt_template": "צור מאגר הגייה מקיף עבור המילה '{word}'. כלול פירוק להברות, תיאורי צליל, טעויות נפוצות ותיקונים. טוקי מדגים את ההגייה הנכונה בצורה ברורה ומעודדת."
+    },
+    {
+      "id": "07_sentences",
+      "name": "Sentences",
+      "name_he": "משפטים",
+      "filename": "07_sentences.json",
+      "description": "Example sentences by difficulty level",
+      "target_items": 2000,
+      "structure": {
+        "level_1_sentences": "array[400] - Very simple sentences",
+        "level_2_sentences": "array[400] - Simple sentences",
+        "level_3_sentences": "array[350] - Medium sentences",
+        "level_4_sentences": "array[300] - Complex sentences",
+        "level_5_sentences": "array[200] - Advanced sentences",
+        "question_sentences": "array[150] - Question format",
+        "command_sentences": "array[100] - Imperative sentences",
+        "fill_in_blank": "array[100] - Completion exercises"
+      },
+      "prompt_template": "צור 2000 משפטים לדוגמה עם המילה '{word}' בעברית. סדר לפי רמות קושי מ-1 עד 5. המשפטים צריכים להיות טבעיים, רלוונטיים לחיי היומיום של ילדים, ומותאמים לאוטיזם."
+    },
+    {
+      "id": "08_related_words",
+      "name": "Related Words",
+      "name_he": "מילים קשורות",
+      "filename": "08_related_words.json",
+      "description": "Synonyms, antonyms, word families, associations",
+      "target_items": 2000,
+      "structure": {
+        "synonyms": "array[200] - Words with similar meaning",
+        "antonyms": "array[150] - Opposite words",
+        "word_family": "array[200] - Related word forms",
+        "collocations": "array[300] - Common word combinations",
+        "associations": "array[300] - Associated concepts",
+        "categories": "array[150] - Category memberships",
+        "semantic_fields": "array[200] - Meaning networks",
+        "tuki_connections": "array[250] - Tuki explains relationships",
+        "comparison_cards": "array[150] - Compare/contrast pairs",
+        "word_webs": "array[100] - Visual word maps"
+      },
+      "prompt_template": "צור רשת מילים קשורות למילה '{word}'. כלול מילים נרדפות, הפכים, משפחות מילים, וקשרים סמנטיים. הסבר את הקשרים בשפה פשוטה שטוקי יכול להשתמש בה."
+    },
+    {
+      "id": "09_social_situations",
+      "name": "Social Situations",
+      "name_he": "מצבים חברתיים",
+      "filename": "09_social_situations.json",
+      "description": "Social contexts where word is used",
+      "target_items": 2000,
+      "structure": {
+        "greetings": "array[150] - Greeting contexts",
+        "classroom": "array[200] - School situations",
+        "playground": "array[200] - Play situations",
+        "home": "array[200] - Home situations",
+        "public_places": "array[200] - Public setting usage",
+        "with_friends": "array[200] - Peer interactions",
+        "with_adults": "array[200] - Adult interactions",
+        "formal_situations": "array[150] - Formal contexts",
+        "informal_situations": "array[150] - Casual contexts",
+        "conflict_resolution": "array[150] - Problem solving contexts",
+        "tuki_scenarios": "array[200] - Tuki demonstrates scenarios"
+      },
+      "prompt_template": "צור 2000 מצבים חברתיים שבהם משתמשים במילה '{word}'. כלול מגוון הקשרים: בית, בית ספר, משחק, ציבורי. הדגם שימוש נכון חברתית. טוקי מראה דוגמאות."
+    },
+    {
+      "id": "10_emotions",
+      "name": "Emotions",
+      "name_he": "רגשות",
+      "filename": "10_emotions.json",
+      "description": "Emotional contexts and expressions",
+      "target_items": 2000,
+      "structure": {
+        "happy_contexts": "array[200] - Joyful usage",
+        "sad_contexts": "array[150] - Sad contexts",
+        "angry_contexts": "array[150] - Anger contexts",
+        "scared_contexts": "array[150] - Fear contexts",
+        "excited_contexts": "array[150] - Excitement contexts",
+        "calm_contexts": "array[150] - Calm usage",
+        "mixed_emotions": "array[150] - Complex feelings",
+        "emotion_recognition": "array[200] - Identifying emotions",
+        "emotion_expression": "array[200] - Expressing feelings",
+        "tuki_emotion_stories": "array[200] - Tuki's emotional examples",
+        "regulation_strategies": "array[200] - Emotional regulation"
+      },
+      "prompt_template": "צור קשרים רגשיים למילה '{word}'. כלול שימושים בהקשרים רגשיים שונים. עזור לילדים עם אוטיזם לזהות ולהביע רגשות. טוקי מדגים בעדינות."
+    },
+    {
+      "id": "11_age_adaptations",
+      "name": "Age Adaptations",
+      "name_he": "התאמות גיל",
+      "filename": "11_age_adaptations.json",
+      "description": "Content adapted for ages 4-18",
+      "target_items": 2000,
+      "structure": {
+        "age_4_5": "array[300] - Preschool content",
+        "age_6_7": "array[300] - Early elementary",
+        "age_8_9": "array[300] - Middle elementary",
+        "age_10_12": "array[300] - Late elementary",
+        "age_13_15": "array[300] - Middle school",
+        "age_16_18": "array[200] - High school",
+        "transition_content": "array[150] - Bridge content",
+        "parent_guidance": "array[150] - Parent tips"
+      },
+      "prompt_template": "התאם תוכן עבור המילה '{word}' לכל קבוצת גיל מ-4 עד 18. שנה מורכבות, דוגמאות, והקשרים לפי הגיל. שמור על התאמה לאוטיזם בכל הגילאים."
+    },
+    {
+      "id": "12_autism_adaptations",
+      "name": "Autism Adaptations",
+      "name_he": "התאמות אוטיזם",
+      "filename": "12_autism_adaptations.json",
+      "description": "Autism-specific scaffolding and supports",
+      "target_items": 2000,
+      "structure": {
+        "visual_supports": "array[300] - Visual aid descriptions",
+        "sensory_considerations": "array[200] - Sensory-friendly content",
+        "routine_integration": "array[200] - Routine-based learning",
+        "special_interests": "array[200] - Interest-based hooks",
+        "literal_explanations": "array[200] - Literal language",
+        "predictable_patterns": "array[200] - Predictable structures",
+        "break_down_steps": "array[200] - Step-by-step guides",
+        "calm_down_supports": "array[150] - Regulation supports",
+        "success_scaffolds": "array[150] - Success guarantees",
+        "tuki_autism_tips": "array[200] - Tuki's special supports"
+      },
+      "prompt_template": "צור התאמות ספציפיות לאוטיזם עבור המילה '{word}'. כלול תמיכות חזותיות, שפה מילולית (לא מושגית), צפיות, וביטול עמימות. טוקי מספק סביבה בטוחה וצפויה."
+    },
+    {
+      "id": "13_pragmatics",
+      "name": "Pragmatics",
+      "name_he": "פרגמטיקה",
+      "filename": "13_pragmatics.json",
+      "description": "Practical usage, turn-taking, conversation rules",
+      "target_items": 2000,
+      "structure": {
+        "turn_taking": "array[250] - Conversation turns",
+        "topic_maintenance": "array[200] - Staying on topic",
+        "topic_shifting": "array[150] - Changing topics",
+        "clarification": "array[200] - Asking for clarity",
+        "repair_strategies": "array[200] - Fixing misunderstandings",
+        "politeness_forms": "array[200] - Polite usage",
+        "context_clues": "array[200] - Reading context",
+        "implicit_meanings": "array[200] - Hidden meanings explained",
+        "tuki_conversations": "array[250] - Model dialogues",
+        "practice_dialogues": "array[150] - Practice scenarios"
+      },
+      "prompt_template": "צור תוכן פרגמטי עבור המילה '{word}'. לִמֵד שימוש מעשי בשיחה, תורנות, הבנת הקשר, ונימוס. טוקי מדגים שיחות טבעיות בצורה מפורשת."
+    },
+    {
+      "id": "14_games",
+      "name": "Games",
+      "name_he": "משחקים",
+      "filename": "14_games.json",
+      "description": "Interactive games and activities",
+      "target_items": 2000,
+      "structure": {
+        "matching_games": "array[200] - Match activities",
+        "sorting_games": "array[200] - Sorting activities",
+        "memory_games": "array[200] - Memory challenges",
+        "word_puzzles": "array[200] - Puzzles and riddles",
+        "movement_games": "array[150] - Physical activities",
+        "creative_games": "array[150] - Art and creativity",
+        "social_games": "array[150] - Multi-player games",
+        "tuki_challenges": "array[250] - Tuki's challenges",
+        "reward_systems": "array[150] - Point systems",
+        "achievement_games": "array[150] - Achievement hunts",
+        "vr_mini_games": "array[200] - VR specific games"
+      },
+      "prompt_template": "צור 2000 משחקים ופעילויות אינטראקטיביות עבור המילה '{word}'. כלול משחקי התאמה, זיכרון, חידות, ופעילויות VR. טוקי מנחה את המשחקים בהתלהבות."
+    },
+    {
+      "id": "15_stories",
+      "name": "Stories",
+      "name_he": "סיפורים",
+      "filename": "15_stories.json",
+      "description": "Short stories featuring the word",
+      "target_items": 2000,
+      "structure": {
+        "mini_stories": "array[400] - Very short stories (2-3 sentences)",
+        "short_stories": "array[300] - Short stories (1 paragraph)",
+        "medium_stories": "array[200] - Medium stories (2-3 paragraphs)",
+        "social_stories": "array[300] - Social skill stories",
+        "tuki_adventures": "array[250] - Tuki's adventures",
+        "interactive_stories": "array[200] - Choose your path",
+        "real_life_stories": "array[200] - Realistic scenarios",
+        "story_starters": "array[150] - Begin your own story"
+      },
+      "prompt_template": "צור סיפורים קצרים הכוללים את המילה '{word}'. כלול סיפורים חברתיים, הרפתקאות של טוקי, וסיפורים אינטראקטיביים. השתמש בשפה פשוטה וברורה."
+    },
+    {
+      "id": "16_conversation_mechanics",
+      "name": "Conversation Mechanics",
+      "name_he": "מכניקת שיחה",
+      "filename": "16_conversation_mechanics.json",
+      "description": "Dialogue patterns, prompts, responses",
+      "target_items": 2000,
+      "structure": {
+        "opening_lines": "array[200] - Conversation starters",
+        "response_patterns": "array[300] - Response templates",
+        "follow_up_questions": "array[250] - Continuing dialogue",
+        "closing_phrases": "array[150] - Ending conversations",
+        "active_listening": "array[200] - Listening responses",
+        "agreement_phrases": "array[150] - Agreeing expressions",
+        "disagreement_phrases": "array[150] - Polite disagreement",
+        "clarification_requests": "array[200] - Asking for clarity",
+        "tuki_dialogues": "array[250] - Full dialogue examples",
+        "practice_scripts": "array[150] - Role-play scripts"
+      },
+      "prompt_template": "צור מכניקת שיחה עבור המילה '{word}'. כלול פתיחות, תגובות, שאלות המשך, וסגירות. טוקי מדגים דיאלוגים מלאים."
+    },
+    {
+      "id": "17_speech_acts",
+      "name": "Speech Acts",
+      "name_he": "מעשי דיבור",
+      "filename": "17_speech_acts.json",
+      "description": "Requests, commands, questions, statements",
+      "target_items": 2000,
+      "structure": {
+        "requests": "array[300] - Asking for things",
+        "commands": "array[200] - Giving instructions",
+        "questions_acts": "array[250] - Question types",
+        "statements": "array[250] - Making statements",
+        "promises": "array[150] - Making promises",
+        "apologies": "array[150] - Saying sorry",
+        "thanks": "array[150] - Expressing gratitude",
+        "complaints": "array[100] - Expressing problems",
+        "suggestions": "array[150] - Making suggestions",
+        "offers": "array[150] - Offering help",
+        "tuki_demonstrations": "array[150] - Tuki shows speech acts"
+      },
+      "prompt_template": "צור מעשי דיבור הקשורים למילה '{word}'. כלול בקשות, פקודות, שאלות, הצהרות, והבטחות. הדגם שימוש מתאים בכל מעשה דיבור."
+    },
+    {
+      "id": "18_nonverbal",
+      "name": "Nonverbal Communication",
+      "name_he": "תקשורת לא מילולית",
+      "filename": "18_nonverbal.json",
+      "description": "Gestures, facial expressions, body language cues",
+      "target_items": 2000,
+      "structure": {
+        "facial_expressions": "array[300] - Face expressions",
+        "gestures": "array[300] - Hand and body gestures",
+        "body_posture": "array[200] - Body position cues",
+        "eye_contact": "array[150] - Eye contact guidance",
+        "personal_space": "array[150] - Space awareness",
+        "tone_of_voice": "array[200] - Voice tone cues",
+        "visual_cue_cards": "array[250] - Visual representations",
+        "matching_exercises": "array[200] - Match nonverbal to meaning",
+        "tuki_demonstrations": "array[200] - Tuki shows nonverbal",
+        "practice_scenarios": "array[50] - Practice reading cues"
+      },
+      "prompt_template": "צור תוכן תקשורת לא מילולית עבור המילה '{word}'. תאר הבעות פנים, מחוות, ושפת גוף. עזור לילדים עם אוטיזם לקרוא רמזים חברתיים."
+    },
+    {
+      "id": "19_teaching_strategies",
+      "name": "Teaching Strategies",
+      "name_he": "אסטרטגיות הוראה",
+      "filename": "19_teaching_strategies.json",
+      "description": "Pedagogical approaches, scaffolding",
+      "target_items": 2000,
+      "structure": {
+        "introduction_methods": "array[200] - Ways to introduce word",
+        "scaffolding_levels": "array[250] - Support levels",
+        "modeling_examples": "array[200] - Teacher modeling",
+        "guided_practice": "array[250] - Supported practice",
+        "independent_practice": "array[200] - Solo activities",
+        "review_techniques": "array[200] - Review methods",
+        "assessment_ideas": "array[150] - Check understanding",
+        "differentiation": "array[200] - Adapt for levels",
+        "tuki_teaching": "array[200] - Tuki's teaching moments",
+        "parent_tips": "array[150] - Home practice ideas"
+      },
+      "prompt_template": "צור אסטרטגיות הוראה עבור המילה '{word}'. כלול שיטות הצגה, פיגומים, תרגול מודרך ועצמאי. התאם לילדים עם אוטיזם."
+    },
+    {
+      "id": "20_phonetics",
+      "name": "Detailed Phonetics",
+      "name_he": "פונטיקה מפורטת",
+      "filename": "20_phonetics.json",
+      "description": "Detailed phonetic breakdowns, mouth positions",
+      "target_items": 2000,
+      "structure": {
+        "ipa_transcription": "array[50] - IPA symbols",
+        "hebrew_phonemes": "array[150] - Hebrew sound units",
+        "articulation_places": "array[200] - Where sounds made",
+        "articulation_manners": "array[200] - How sounds made",
+        "tongue_positions": "array[200] - Tongue placement",
+        "lip_shapes": "array[200] - Lip configurations",
+        "breath_patterns": "array[150] - Breathing guides",
+        "minimal_pairs": "array[250] - Similar sound contrasts",
+        "phonetic_games": "array[200] - Sound games",
+        "tuki_sound_guides": "array[250] - Tuki explains sounds",
+        "video_descriptions": "array[150] - Visual sound guides"
+      },
+      "prompt_template": "צור מידע פונטי מפורט עבור המילה '{word}'. כלול מיקום לשון ושפתיים, דפוסי נשימה, וזוגות מינימליים. טוקי מדגים צלילים בצורה ברורה."
+    },
+    {
+      "id": "21_narrative",
+      "name": "Narrative Skills",
+      "name_he": "מיומנויות סיפור",
+      "filename": "21_narrative.json",
+      "description": "Storytelling elements, sequence words",
+      "target_items": 2000,
+      "structure": {
+        "sequence_markers": "array[200] - First, then, finally",
+        "story_elements": "array[200] - Character, setting, plot",
+        "cause_effect": "array[250] - Because, so, therefore",
+        "time_markers": "array[200] - Before, after, during",
+        "story_starters": "array[200] - Beginning phrases",
+        "story_middles": "array[200] - Continuation phrases",
+        "story_endings": "array[200] - Conclusion phrases",
+        "retelling_prompts": "array[200] - Retell story cues",
+        "tuki_narratives": "array[200] - Tuki tells stories",
+        "picture_sequences": "array[150] - Visual story cards"
+      },
+      "prompt_template": "צור תוכן מיומנויות סיפור עבור המילה '{word}'. כלול סמני רצף, יסודות סיפור, וקשרי סיבה-תוצאה. טוקי מלמד לספר סיפורים."
+    },
+    {
+      "id": "22_fallbacks",
+      "name": "Fallbacks",
+      "name_he": "תגובות חלופיות",
+      "filename": "22_fallbacks.json",
+      "description": "Error handling, clarifications, rephrasing",
+      "target_items": 2000,
+      "structure": {
+        "misunderstanding_responses": "array[300] - Didn't understand",
+        "clarification_offers": "array[250] - Let me explain again",
+        "rephrasing_options": "array[300] - Same thing differently",
+        "simplification": "array[250] - Simpler version",
+        "visual_fallbacks": "array[200] - Show instead of tell",
+        "pause_options": "array[150] - Take a break",
+        "help_requests": "array[150] - Ask for help",
+        "tuki_patience": "array[250] - Tuki's patient responses",
+        "recovery_phrases": "array[150] - Get back on track"
+      },
+      "prompt_template": "צור תגובות חלופיות עבור המילה '{word}'. כלול ניסוחים מחדש, פישוטים, והסברים חלופיים. טוקי תמיד סבלני ומעודד כשיש קושי."
+    },
+    {
+      "id": "23_vr_integration",
+      "name": "VR Integration",
+      "name_he": "אינטגרציית VR",
+      "filename": "23_vr_integration.json",
+      "description": "VR/MR specific interactions, 3D object references",
+      "target_items": 2000,
+      "structure": {
+        "3d_objects": "array[200] - 3D object descriptions",
+        "spatial_interactions": "array[200] - Space-based activities",
+        "gesture_controls": "array[200] - Hand gesture actions",
+        "environment_descriptions": "array[200] - VR scene settings",
+        "avatar_interactions": "array[200] - Interact with Tuki",
+        "object_manipulations": "array[200] - Pick up, move, use",
+        "teleport_destinations": "array[150] - Places to visit",
+        "mini_world_scenarios": "array[200] - Small world play",
+        "ar_overlays": "array[150] - AR element descriptions",
+        "haptic_feedback": "array[100] - Touch sensations",
+        "vr_rewards": "array[200] - VR celebration effects"
+      },
+      "prompt_template": "צור תוכן ייחודי ל-VR/MR עבור המילה '{word}'. כלול אובייקטים תלת-ממדיים, אינטראקציות מרחביות, ומשחקי עולם וירטואלי. טוקי מופיע כאווטאר תלת-ממדי."
+    },
+    {
+      "id": "24_metadata",
+      "name": "Metadata",
+      "name_he": "מטא-דאטא",
+      "filename": "24_metadata.json",
+      "description": "Statistics, difficulty ratings, prerequisites",
+      "target_items": 2000,
+      "structure": {
+        "difficulty_ratings": "array[100] - Difficulty levels",
+        "age_appropriateness": "array[100] - Age recommendations",
+        "prerequisites": "array[150] - Words to learn first",
+        "follow_up_words": "array[150] - Next words to learn",
+        "frequency_data": "array[100] - How common the word is",
+        "category_tags": "array[200] - Classification tags",
+        "learning_objectives": "array[200] - What child will learn",
+        "success_criteria": "array[200] - How to know mastery",
+        "time_estimates": "array[150] - Learning time needed",
+        "review_schedules": "array[150] - When to review",
+        "progress_milestones": "array[200] - Achievement markers",
+        "analytics_hooks": "array[150] - Data collection points",
+        "accessibility_notes": "array[150] - Accessibility info"
+      },
+      "prompt_template": "צור מטא-דאטא מקיף עבור המילה '{word}'. כלול דירוגי קושי, דרישות קדם, מטרות למידה, וקריטריוני הצלחה. מידע זה עוזר למערכת להתאים את הלמידה."
+    }
+  ],
+
+  "global_settings": {
+    "tuki_personality": {
+      "name": "טוקי",
+      "type": "תוכי",
+      "traits": ["מעודד", "סבלני", "חיובי", "ברור", "עקבי"],
+      "speaking_style": "פשוט, ישיר, ידידותי",
+      "avoids": ["סרקזם", "ביטויים מופשטים", "שפה מורכבת", "ביקורת שלילית"]
+    },
+    "autism_guidelines": {
+      "language": "שפה מילולית וברורה",
+      "structure": "צפוי ועקבי",
+      "visuals": "תמיכה חזותית תמיד",
+      "transitions": "התראות מראש",
+      "sensory": "מודעות חושית",
+      "interests": "שילוב תחומי עניין",
+      "breaks": "הפסקות לפי צורך"
+    },
+    "content_guidelines": {
+      "positive_only": true,
+      "no_sarcasm": true,
+      "literal_language": true,
+      "visual_supports": true,
+      "predictable_patterns": true,
+      "clear_expectations": true,
+      "celebrate_effort": true
+    }
+  }
+}

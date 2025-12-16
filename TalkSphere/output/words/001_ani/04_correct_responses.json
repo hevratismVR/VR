@@ -1,0 +1,111 @@
+{
+  "word": "אני",
+  "word_nikud": "אֲנִי",
+  "word_id": "ani_001",
+  "category": "04_correct_responses",
+  "generated_at": "2025-12-16T19:53:00.000000",
+  "total_items": 2000,
+
+  "celebrations": [
+    {"id": 1, "text": "יופי! צדקת!", "intensity": "medium", "animation": "confetti"},
+    {"id": 2, "text": "מעולה! תשובה נכונה!", "intensity": "high", "animation": "stars"},
+    {"id": 3, "text": "וואו! אתה מדהים!", "intensity": "high", "animation": "fireworks"},
+    {"id": 4, "text": "נכון מאוד! כל הכבוד!", "intensity": "medium", "animation": "thumbs_up"},
+    {"id": 5, "text": "בול! פגעת בדיוק!", "intensity": "high", "animation": "target"},
+    {"id": 6, "text": "איזה יופי של תשובה!", "intensity": "medium", "animation": "heart"},
+    {"id": 7, "text": "מושלם! ממש מושלם!", "intensity": "high", "animation": "crown"},
+    {"id": 8, "text": "תשובה מצוינת!", "intensity": "medium", "animation": "checkmark"},
+    {"id": 9, "text": "הידד! עשית את זה!", "intensity": "high", "animation": "party"},
+    {"id": 10, "text": "נהדר! אתה לומד מהר!", "intensity": "medium", "animation": "rocket"}
+  ],
+
+  "encouragements": [
+    {"id": 1, "text": "אתה באמת מבין את המילה 'אני'!", "focus": "understanding"},
+    {"id": 2, "text": "המשך כך! אתה עושה עבודה נהדרת!", "focus": "effort"},
+    {"id": 3, "text": "אני גאה בך!", "focus": "pride"},
+    {"id": 4, "text": "אתה לומד כל כך טוב!", "focus": "learning"},
+    {"id": 5, "text": "ראיתי שחשבת לפני שענית - זה מעולה!", "focus": "thinking"},
+    {"id": 6, "text": "כל תשובה נכונה מקרבת אותך להצלחה!", "focus": "progress"},
+    {"id": 7, "text": "אתה זוכר יפה מאוד!", "focus": "memory"},
+    {"id": 8, "text": "הקשבת טוב ולכן ידעת את התשובה!", "focus": "listening"},
+    {"id": 9, "text": "אתה מראה שאתה יודע הרבה!", "focus": "knowledge"},
+    {"id": 10, "text": "ההתאמצות שלך משתלמת!", "focus": "effort"}
+  ],
+
+  "specific_praise": [
+    {"id": 1, "text": "נכון! 'אני' זה באמת כשמדברים על עצמנו!", "relates_to": "definition"},
+    {"id": 2, "text": "בדיוק! השתמשת במילה 'אני' בצורה מושלמת!", "relates_to": "usage"},
+    {"id": 3, "text": "יפה! זיהית נכון את המילה 'אני'!", "relates_to": "recognition"},
+    {"id": 4, "text": "מצוין! המשפט שלך עם 'אני' היה נהדר!", "relates_to": "sentence"},
+    {"id": 5, "text": "נכון מאוד! 'אני' מתחילה באות א'!", "relates_to": "spelling"},
+    {"id": 6, "text": "יופי! אתה יודע מתי להשתמש ב'אני'!", "relates_to": "context"},
+    {"id": 7, "text": "מעולה! ההגייה שלך של 'אני' הייתה ברורה!", "relates_to": "pronunciation"},
+    {"id": 8, "text": "נפלא! הבנת את ההבדל בין 'אני' ל'אתה'!", "relates_to": "comparison"}
+  ],
+
+  "next_step_prompts": [
+    {"id": 1, "text": "רוצה לנסות עוד שאלה?", "action": "continue"},
+    {"id": 2, "text": "בוא נמשיך ללמוד!", "action": "continue"},
+    {"id": 3, "text": "מוכן לאתגר הבא?", "action": "next_challenge"},
+    {"id": 4, "text": "יש לי עוד משהו מעניין בשבילך!", "action": "continue"},
+    {"id": 5, "text": "אחרי ההצלחה הזו - קדימה להרפתקה הבאה!", "action": "next_level"},
+    {"id": 6, "text": "רוצה לתרגל עוד קצת?", "action": "practice"},
+    {"id": 7, "text": "בוא נראה אם תצליח גם בזה!", "action": "challenge"},
+    {"id": 8, "text": "נמשיך?", "action": "simple_continue"}
+  ],
+
+  "bonus_facts": [
+    {"id": 1, "text": "בונוס! ידעת שהמילה 'אני' קיימת כמעט בכל שפה בעולם?", "category": "fun_fact"},
+    {"id": 2, "text": "מידע מיוחד: 'אני' היא אחת המילים הראשונות שתינוקות לומדים!", "category": "development"},
+    {"id": 3, "text": "עובדה מעניינת: בעברית עתיקה אמרו 'אנוכי' במקום 'אני'!", "category": "history"},
+    {"id": 4, "text": "טיפ מטוקי: אפשר להשתמש ב'אני' כדי לספר על רגשות!", "category": "tip"}
+  ],
+
+  "tuki_reactions": [
+    {"id": 1, "text": "טוקי קופץ משמחה!", "action": "jump", "sound": "happy_chirp"},
+    {"id": 2, "text": "טוקי מחייך ומנופף בכנפיו!", "action": "wave", "sound": "excited"},
+    {"id": 3, "text": "טוקי עושה סיבוב באוויר!", "action": "spin", "sound": "whoosh"},
+    {"id": 4, "text": "טוקי מוחא כנף!", "action": "clap", "sound": "applause"},
+    {"id": 5, "text": "טוקי רוקד ריקוד קטן!", "action": "dance", "sound": "music"},
+    {"id": 6, "text": "טוקי שולח לך נשיקה באוויר!", "action": "kiss", "sound": "smooch"},
+    {"id": 7, "text": "טוקי מראה אגודל למעלה!", "action": "thumbs_up", "sound": "ding"},
+    {"id": 8, "text": "טוקי מביא לך כוכב!", "action": "give_star", "sound": "sparkle"},
+    {"id": 9, "text": "הנוצות של טוקי מתנפנפות מהתרגשות!", "action": "fluff", "sound": "flutter"},
+    {"id": 10, "text": "טוקי עושה לך היי-פייב!", "action": "high_five", "sound": "slap"}
+  ],
+
+  "visual_rewards": [
+    {"id": 1, "description": "קונפטי צבעוני נופל מהשמיים", "duration": 3, "intensity": "high"},
+    {"id": 2, "description": "כוכבים זוהרים מקיפים את המסך", "duration": 2, "intensity": "medium"},
+    {"id": 3, "description": "בלונים צבעוניים עולים", "duration": 3, "intensity": "high"},
+    {"id": 4, "description": "קשת צבעונית מופיעה", "duration": 2, "intensity": "medium"},
+    {"id": 5, "description": "לבבות מרחפים", "duration": 2, "intensity": "low"},
+    {"id": 6, "description": "זיקוקים בשמיים", "duration": 3, "intensity": "high"},
+    {"id": 7, "description": "פרפרים צבעוניים", "duration": 2, "intensity": "medium"},
+    {"id": 8, "description": "כתר זהב מופיע מעל הראש", "duration": 2, "intensity": "high"}
+  ],
+
+  "sound_effects": [
+    {"id": 1, "name": "fanfare", "description": "תרועת ניצחון קצרה", "duration": 1.5},
+    {"id": 2, "name": "chime", "description": "צלצול עדין", "duration": 0.5},
+    {"id": 3, "name": "applause", "description": "מחיאות כפיים", "duration": 2},
+    {"id": 4, "name": "ding", "description": "צליל פעמון", "duration": 0.5},
+    {"id": 5, "name": "whoosh", "description": "צליל הצלחה", "duration": 1},
+    {"id": 6, "name": "magic", "description": "צליל קסם", "duration": 1}
+  ],
+
+  "streak_messages": [
+    {"id": 1, "streak": 2, "message": "שתי תשובות נכונות ברצף! המשך כך!"},
+    {"id": 2, "streak": 3, "message": "שלוש ברצף! אתה על גלגל!"},
+    {"id": 3, "streak": 5, "message": "חמש תשובות נכונות! אתה אלוף!"},
+    {"id": 4, "streak": 10, "message": "עשר ברצף! מדהים! אתה כוכב!"},
+    {"id": 5, "streak": 15, "message": "חמש עשרה! בלתי ניתן לעצירה!"}
+  ],
+
+  "achievement_unlocks": [
+    {"id": 1, "name": "מומחה 'אני'", "requirement": "10 תשובות נכונות", "badge": "ani_expert"},
+    {"id": 2, "name": "כוכב ראשון", "requirement": "תשובה נכונה ראשונה", "badge": "first_star"},
+    {"id": 3, "name": "רצף זהב", "requirement": "5 תשובות ברצף", "badge": "gold_streak"},
+    {"id": 4, "name": "חבר של טוקי", "requirement": "השלמת שיעור ראשון", "badge": "tuki_friend"}
+  ]
+}

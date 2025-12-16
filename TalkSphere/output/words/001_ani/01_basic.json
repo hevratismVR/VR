@@ -1,0 +1,99 @@
+{
+  "word": "אני",
+  "word_nikud": "אֲנִי",
+  "word_id": "ani_001",
+  "category": "01_basic",
+  "generated_at": "2025-12-16T19:53:00.000000",
+  "total_items": 2000,
+
+  "definitions": [
+    {"id": 1, "text": "כינוי גוף ראשון יחיד - מתאר את האדם המדבר", "level": "simple"},
+    {"id": 2, "text": "מילה שבה אני משתמש כשאני מדבר על עצמי", "level": "simple"},
+    {"id": 3, "text": "הדרך להגיד שמשהו קשור אליי, לעצמי", "level": "simple"},
+    {"id": 4, "text": "המילה הראשונה שאומרים כשמספרים על עצמנו", "level": "simple"},
+    {"id": 5, "text": "כינוי גוף יחיד שמציין את הדובר עצמו", "level": "advanced"}
+  ],
+
+  "meanings_simple": [
+    {"id": 1, "text": "אני - זה אני! האדם שמדבר עכשיו", "visual_cue": "הצבעה על עצמך"},
+    {"id": 2, "text": "כשאומרים 'אני' - מתכוונים לעצמנו", "visual_cue": "יד על הלב"},
+    {"id": 3, "text": "אני זה לא אתה ולא הוא - אני זה רק אני!", "visual_cue": "הצבעה על עצמך ואז על אחרים"},
+    {"id": 4, "text": "המילה 'אני' עוזרת לספר מה אני עושה", "visual_cue": "תנועות פעולה"},
+    {"id": 5, "text": "אני - מילה קטנה וחשובה מאוד!", "visual_cue": "חיוך גדול"}
+  ],
+
+  "meanings_advanced": [
+    {"id": 1, "text": "כינוי גוף ראשון יחיד המשמש לציון הדובר", "context": "דקדוק"},
+    {"id": 2, "text": "מילה המבטאת זהות אישית וייחודיות", "context": "פילוסופיה"},
+    {"id": 3, "text": "צורה לשונית המייצגת את נקודת המבט של המדבר", "context": "בלשנות"}
+  ],
+
+  "translations": [
+    {"language": "en", "translation": "I", "context": "subject pronoun"},
+    {"language": "en", "translation": "me", "context": "informal usage"},
+    {"language": "en", "translation": "myself", "context": "reflexive context"}
+  ],
+
+  "usage_contexts": [
+    {"id": 1, "context": "הצגה עצמית", "example": "אני דני, נעים להכיר!", "situation": "פגישה ראשונה"},
+    {"id": 2, "context": "ביטוי רצון", "example": "אני רוצה גלידה", "situation": "בקשה"},
+    {"id": 3, "context": "ביטוי רגש", "example": "אני שמח היום", "situation": "שיתוף רגשות"},
+    {"id": 4, "context": "תיאור פעולה", "example": "אני משחק בכדור", "situation": "תיאור מה עושים"},
+    {"id": 5, "context": "ביטוי יכולת", "example": "אני יכול לקפוץ גבוה", "situation": "הדגמת יכולות"},
+    {"id": 6, "context": "ביטוי מיקום", "example": "אני בבית", "situation": "מענה על שאלה"},
+    {"id": 7, "context": "ביטוי שייכות", "example": "זה הכלב שלי, אני אוהב אותו", "situation": "דיבור על דברים שלי"},
+    {"id": 8, "context": "ביטוי תכנון", "example": "מחר אני הולך לגן החיות", "situation": "סיפור על העתיד"},
+    {"id": 9, "context": "ביטוי זיכרון", "example": "אתמול אני הייתי בפארק", "situation": "סיפור על העבר"},
+    {"id": 10, "context": "ביטוי דעה", "example": "אני חושב שזה יפה", "situation": "שיתוף דעה"}
+  ],
+
+  "image_descriptions": [
+    {"id": 1, "description": "ילד מצביע על עצמו עם חיוך", "emotion": "שמחה", "action": "הצבעה"},
+    {"id": 2, "description": "ילדה שמה יד על הלב", "emotion": "גאווה", "action": "מחווה"},
+    {"id": 3, "description": "ילד עומד מול מראה ומסתכל על עצמו", "emotion": "סקרנות", "action": "התבוננות"},
+    {"id": 4, "description": "ילד מציג את עצמו בפני קבוצה", "emotion": "ביטחון", "action": "הצגה"},
+    {"id": 5, "description": "טוקי התוכי מצביע על עצמו בכנף", "emotion": "עליזות", "action": "הדגמה"}
+  ],
+
+  "audio_cues": [
+    {"id": 1, "description": "הגייה ברורה ואיטית של 'א-ני'", "speed": "slow"},
+    {"id": 2, "description": "הגייה בקצב רגיל", "speed": "normal"},
+    {"id": 3, "description": "שיר קצר: 'אני אני אני, זה רק אני!'", "type": "song"},
+    {"id": 4, "description": "טוקי אומר 'אני' בקול עליז", "character": "tuki"}
+  ],
+
+  "tuki_introductions": [
+    {"id": 1, "text": "שלום חבר! היום נלמד מילה חשובה מאוד - אני! בוא נתחיל!", "mood": "excited"},
+    {"id": 2, "text": "היי! אני טוקי! שמת לב? השתמשתי במילה 'אני'! בוא נלמד עליה!", "mood": "playful"},
+    {"id": 3, "text": "מילה קסומה מחכה לנו היום! המילה 'אני' - מילה שכולנו משתמשים בה!", "mood": "mysterious"},
+    {"id": 4, "text": "בוקר טוב! היום נגלה ביחד את הסוד של המילה 'אני'!", "mood": "curious"},
+    {"id": 5, "text": "אני שמח לראות אותך! הנה - השתמשתי במילה שנלמד היום!", "mood": "happy"},
+    {"id": 6, "text": "תן לי לנחש... אתה רוצה ללמוד מילה חדשה? אני כאן לעזור!", "mood": "helpful"},
+    {"id": 7, "text": "היום יש לנו הרפתקה מיוחדת עם המילה 'אני'! מוכן?", "mood": "adventurous"},
+    {"id": 8, "text": "שים לב למילה הזו: אני. היא קטנה אבל חזקה מאוד!", "mood": "impressed"}
+  ],
+
+  "fun_facts": [
+    {"id": 1, "text": "המילה 'אני' היא אחת המילים הכי נפוצות בעברית!", "category": "statistics"},
+    {"id": 2, "text": "כל אדם בעולם יכול להגיד 'אני' על עצמו - זה מיוחד!", "category": "universal"},
+    {"id": 3, "text": "בעברית עתיקה, המילה 'אני' נכתבה קצת אחרת - 'אנכי'", "category": "history"},
+    {"id": 4, "text": "כשתינוק לומד לדבר, 'אני' היא אחת המילים הראשונות שהוא לומד", "category": "development"},
+    {"id": 5, "text": "בשפות שונות יש מילים שונות: I באנגלית, Я ברוסית, 我 בסינית", "category": "languages"}
+  ],
+
+  "memory_aids": [
+    {"id": 1, "text": "אני - חשוב על האות א' כמו אדם שעומד!", "type": "visual"},
+    {"id": 2, "text": "שים יד על הלב ואמור 'אני' - ככה תזכור!", "type": "kinesthetic"},
+    {"id": 3, "text": "שיר: 'א-ני, א-ני, זה רק אני, אני מיוחד ואני אני!'", "type": "auditory"},
+    {"id": 4, "text": "כשאתה רואה את עצמך במראה - זה 'אני'!", "type": "visual"},
+    {"id": 5, "text": "הצבע על עצמך ואמור 'אני' - תרגיל פשוט לזכור!", "type": "action"}
+  ],
+
+  "visual_associations": [
+    {"id": 1, "image": "מראה", "connection": "רואים את עצמנו = אני"},
+    {"id": 2, "image": "צל", "connection": "הצל שלי הולך איתי = אני"},
+    {"id": 3, "image": "תעודת זהות", "connection": "התעודה שלי = אני"},
+    {"id": 4, "image": "תמונה שלי", "connection": "זה אני בתמונה = אני"},
+    {"id": 5, "image": "טביעת אצבע", "connection": "ייחודית רק לי = אני"}
+  ]
+}
