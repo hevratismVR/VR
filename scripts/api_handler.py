@@ -183,7 +183,8 @@ class APIHandler:
         category_description: str,
         template: Dict[str, Any],
         items_count: int = 2000,
-        batch_size: int = 100
+        batch_size: int = 100,
+        on_batch_complete: Optional[callable] = None
     ) -> List[Dict[str, Any]]:
         """
         Generate content for a specific category.
@@ -196,6 +197,7 @@ class APIHandler:
             template: JSON template structure for this category
             items_count: Total number of items to generate
             batch_size: Items per API call
+            on_batch_complete: Callback function(items_count, batch_num) called after each batch
 
         Returns:
             List of generated items
@@ -223,16 +225,22 @@ class APIHandler:
 
             response = self.call_api(prompt)
 
+            batch_items = 0
             if response:
                 try:
                     # Try to parse JSON from response
                     items = self._parse_json_response(response)
                     all_items.extend(items)
+                    batch_items = len(items)
                     logger.info(f"Batch {batch_num + 1}/{batches_needed}: Generated {len(items)} items")
                 except Exception as e:
                     logger.error(f"Failed to parse batch {batch_num + 1}: {e}")
             else:
                 logger.error(f"Failed to get response for batch {batch_num + 1}")
+
+            # Call checkpoint callback after each batch
+            if on_batch_complete:
+                on_batch_complete(batch_items, batch_num + 1)
 
             # Progress update
             if (batch_num + 1) % 10 == 0:

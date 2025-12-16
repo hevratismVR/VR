@@ -171,9 +171,15 @@ class CheckpointManager:
         if SAVE_AFTER_EACH_CATEGORY:
             self.save()
 
+    def mark_batch_completed(self, items_count: int, batch_num: int):
+        """Mark a batch as completed and save checkpoint immediately."""
+        self.checkpoint_data["stats"]["total_items_generated"] += items_count
+        self.checkpoint_data["current_batch"] = batch_num
+        self.save()  # Always save after each batch for robustness
+
     def mark_category_completed(self, items_count: int):
         """Mark current category as completed."""
-        self.checkpoint_data["stats"]["total_items_generated"] += items_count
+        # Items already counted in mark_batch_completed, just save
         if SAVE_AFTER_EACH_CATEGORY:
             self.save()
 
@@ -717,6 +723,10 @@ class TalkSphereGenerator:
             self.checkpoint.mark_category_started(category_id, cat_idx)
 
             try:
+                # Callback to save checkpoint after each batch
+                def on_batch_complete(items_count: int, batch_num: int):
+                    self.checkpoint.mark_batch_completed(items_count, batch_num)
+
                 items = self.api_handler.generate_category_content(
                     word=word,
                     category_id=category_id,
@@ -724,7 +734,8 @@ class TalkSphereGenerator:
                     category_description=category_info["description"],
                     template=self.templates.get(category_id, {}),
                     items_count=category_info.get("items_count", ITEMS_PER_CATEGORY),
-                    batch_size=BATCH_SIZE
+                    batch_size=BATCH_SIZE,
+                    on_batch_complete=on_batch_complete
                 )
 
                 # Save category file
@@ -743,7 +754,7 @@ class TalkSphereGenerator:
                 with open(output_file, 'w', encoding='utf-8') as f:
                     json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-                self.checkpoint.mark_category_completed(len(items))
+                self.checkpoint.mark_category_completed(0)  # Items already counted per-batch
                 logger.info(f"Saved {len(items)} items to {output_file}")
 
             except Exception as e:
