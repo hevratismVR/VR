@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config import (
     INPUT_DIR, OUTPUT_DIR, TEMPLATES_DIR,
-    EXCEL_INPUT_FILE, EXCEL_SHEET_NAME, WORD_COLUMN,
+    EXCEL_INPUT_FILE, CSV_INPUT_FILE, EXCEL_SHEET_NAME, WORD_COLUMN,
     CHECKPOINT_FILE, LOG_FILE, ERROR_LOG_FILE,
     CATEGORIES, ITEMS_PER_CATEGORY, BATCH_SIZE,
     SAVE_AFTER_EACH_CATEGORY, SAVE_AFTER_EACH_WORD,
@@ -246,6 +246,39 @@ Last Update: {data['stats'].get('last_update', 'N/A')}
 # WORD LIST MANAGEMENT
 # =============================================================================
 
+def load_words_from_csv(filepath: Path = CSV_INPUT_FILE) -> List[str]:
+    """
+    Load words from CSV file.
+
+    Args:
+        filepath: Path to CSV file
+
+    Returns:
+        List of Hebrew words
+    """
+    import csv
+
+    if not filepath.exists():
+        logger.warning(f"CSV file not found: {filepath}")
+        return []
+
+    try:
+        words = []
+        with open(filepath, 'r', encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Try different column names
+                word = row.get('word') or row.get('מילה') or row.get(list(row.keys())[1] if len(row.keys()) > 1 else list(row.keys())[0])
+                if word:
+                    words.append(word.strip())
+
+        logger.info(f"Loaded {len(words)} words from CSV: {filepath}")
+        return words
+    except Exception as e:
+        logger.error(f"Failed to load CSV file: {e}")
+        return []
+
+
 def load_words_from_excel(filepath: Path = EXCEL_INPUT_FILE) -> List[str]:
     """
     Load words from Excel file.
@@ -256,6 +289,11 @@ def load_words_from_excel(filepath: Path = EXCEL_INPUT_FILE) -> List[str]:
     Returns:
         List of Hebrew words
     """
+    # First try CSV file
+    csv_words = load_words_from_csv(CSV_INPUT_FILE)
+    if csv_words:
+        return csv_words
+
     if not filepath.exists():
         logger.warning(f"Excel file not found: {filepath}")
         return get_fallback_word_list()

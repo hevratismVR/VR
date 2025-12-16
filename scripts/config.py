@@ -43,6 +43,7 @@ SCRIPTS_DIR = BASE_DIR / "scripts"
 
 # Input Files
 EXCEL_INPUT_FILE = INPUT_DIR / "words_1000.xlsx"
+CSV_INPUT_FILE = INPUT_DIR / "words.csv"
 EXCEL_SHEET_NAME = "Sheet1"
 WORD_COLUMN = "word"  # Column name containing Hebrew words
 
