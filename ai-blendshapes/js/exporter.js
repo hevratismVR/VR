@@ -11,8 +11,9 @@ export class Exporter {
 
     /**
      * Export the model with blendshapes as GLB.
+     * @param {Object} accessoriesInfo - Optional { accessories: {type: mesh}, blendshapeGenerator }
      */
-    async exportGLB(scene, mesh, animationData = null) {
+    async exportGLB(scene, mesh, animationData = null, accessoriesInfo = null) {
         const exportScene = scene.clone(true);
 
         // Find the mesh with morph targets in the cloned scene
@@ -33,7 +34,7 @@ export class Exporter {
         // Build animation clip if we have animation data
         let animations = [];
         if (animationData && exportMesh) {
-            const clip = this.buildAnimationClip(animationData, exportMesh);
+            const clip = this.buildAnimationClip(animationData, exportMesh, accessoriesInfo);
             if (clip) {
                 animations.push(clip);
             }
@@ -91,8 +92,9 @@ export class Exporter {
 
     /**
      * Build a THREE.AnimationClip from our animation data.
+     * Includes accessory position/rotation tracks if accessories are provided.
      */
-    buildAnimationClip(animationData, mesh) {
+    buildAnimationClip(animationData, mesh, accessoriesInfo = null) {
         const { tracks, duration, fps, totalFrames } = animationData;
         const dictionary = mesh.morphTargetDictionary || mesh.geometry.morphTargetDictionary;
 
@@ -133,9 +135,129 @@ export class Exporter {
             clipTracks.push(track);
         }
 
+        // Bake accessory jaw/eye tracking into position/rotation tracks
+        if (accessoriesInfo) {
+            const accTracks = this.buildAccessoryTracks(
+                animationData, dictionary, accessoriesInfo, times
+            );
+            clipTracks.push(...accTracks);
+        }
+
         if (clipTracks.length === 0) return null;
 
         return new THREE.AnimationClip('LipSync', duration, clipTracks);
+    }
+
+    /**
+     * Bake accessory movements into animation tracks.
+     * Computes per-frame position/rotation from morph target influences.
+     */
+    buildAccessoryTracks(animationData, dictionary, accessoriesInfo, times) {
+        const { tracks, totalFrames } = animationData;
+        const { accessories, attachments, blendshapeGenerator } = accessoriesInfo;
+        const accTracks = [];
+
+        if (!blendshapeGenerator) return accTracks;
+        const sf = blendshapeGenerator.scaleFactor;
+
+        for (const [type, mesh] of Object.entries(accessories)) {
+            if (!mesh) continue;
+            const attachment = attachments[type];
+            if (!attachment) continue;
+
+            // Ensure accessory has a name for track binding
+            if (!mesh.name) mesh.name = type;
+
+            if (attachment.followsJaw) {
+                // Build position track from jawOpen/mouthOpen influences
+                const positions = new Float32Array(totalFrames * 3);
+                const basePos = attachment.basePosition;
+
+                for (let f = 0; f < totalFrames; f++) {
+                    let dropY = 0, dropZ = 0, slideX = 0;
+
+                    // jawOpen contribution
+                    const jawCurve = tracks['jawOpen'];
+                    if (jawCurve && jawCurve[f] > 0.001) {
+                        dropY += sf * 0.18 * 0.85 * jawCurve[f];
+                        dropZ += sf * 0.03 * 0.85 * jawCurve[f];
+                    }
+
+                    // mouthOpen contribution
+                    const mouthCurve = tracks['mouthOpen'];
+                    if (mouthCurve && mouthCurve[f] > 0.001) {
+                        dropY += sf * 0.18 * 0.65 * mouthCurve[f];
+                        dropZ += sf * 0.03 * 0.65 * mouthCurve[f];
+                    }
+
+                    // jawForward
+                    const jawFwdCurve = tracks['jawForward'];
+                    if (jawFwdCurve && jawFwdCurve[f] > 0.001) {
+                        dropZ -= sf * 0.12 * jawFwdCurve[f]; // forward = +z
+                    }
+
+                    // jawLeft/jawRight
+                    const jawLeftCurve = tracks['jawLeft'];
+                    const jawRightCurve = tracks['jawRight'];
+                    if (jawLeftCurve && jawLeftCurve[f] > 0.001) {
+                        slideX += sf * 0.08 * jawLeftCurve[f];
+                    }
+                    if (jawRightCurve && jawRightCurve[f] > 0.001) {
+                        slideX -= sf * 0.08 * jawRightCurve[f];
+                    }
+
+                    positions[f * 3] = basePos.x + slideX;
+                    positions[f * 3 + 1] = basePos.y - dropY;
+                    positions[f * 3 + 2] = basePos.z - dropZ;
+                }
+
+                accTracks.push(new THREE.VectorKeyframeTrack(
+                    `${mesh.name}.position`,
+                    times,
+                    positions
+                ));
+            }
+
+            if (attachment.isEye) {
+                // Build rotation track from eye look blendshapes
+                const side = attachment.region === 'eyeLeft' ? 'Left' : 'Right';
+                const rotations = new Float32Array(totalFrames * 4); // quaternion
+
+                for (let f = 0; f < totalFrames; f++) {
+                    let rotX = attachment.baseRotation.x;
+                    let rotY = attachment.baseRotation.y;
+
+                    const upCurve = tracks[`eyeLookUp${side}`];
+                    const downCurve = tracks[`eyeLookDown${side}`];
+                    const inCurve = tracks[`eyeLookIn${side}`];
+                    const outCurve = tracks[`eyeLookOut${side}`];
+
+                    if (upCurve) rotX -= (upCurve[f] || 0) * 0.35;
+                    if (downCurve) rotX += (downCurve[f] || 0) * 0.35;
+
+                    const inDir = side === 'Left' ? 1 : -1;
+                    if (inCurve) rotY += (inCurve[f] || 0) * 0.3 * inDir;
+                    if (outCurve) rotY -= (outCurve[f] || 0) * 0.3 * inDir;
+
+                    // Convert Euler to quaternion
+                    const q = new THREE.Quaternion().setFromEuler(
+                        new THREE.Euler(rotX, rotY, attachment.baseRotation.z)
+                    );
+                    rotations[f * 4] = q.x;
+                    rotations[f * 4 + 1] = q.y;
+                    rotations[f * 4 + 2] = q.z;
+                    rotations[f * 4 + 3] = q.w;
+                }
+
+                accTracks.push(new THREE.QuaternionKeyframeTrack(
+                    `${mesh.name}.quaternion`,
+                    times,
+                    rotations
+                ));
+            }
+        }
+
+        return accTracks;
     }
 
     /**

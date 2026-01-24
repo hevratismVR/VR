@@ -24,11 +24,14 @@ export class BlendshapeGenerator {
 
     /**
      * Generate all blendshapes for the detected face.
+     * @param {Function} onProgress - Optional callback(progress: 0-1, stage: string)
      */
-    generate(mesh, landmarks, regions, intensity = 1.0) {
+    async generate(mesh, landmarks, regions, intensity = 1.0, onProgress = null) {
         this.mesh = mesh;
         this.basePositions = mesh.geometry.attributes.position.clone();
         this.regions = regions;
+
+        if (onProgress) onProgress(0, 'Computing face metrics');
 
         // Compute scale factor based on actual face size
         this.computeScaleFactor(regions);
@@ -39,17 +42,25 @@ export class BlendshapeGenerator {
 
         const geometry = mesh.geometry;
 
+        if (onProgress) onProgress(0.05, 'Generating ARKit blendshapes');
+
         // Generate ARKit-compatible blendshapes
         this.blendshapes = this.generateARKitBlendshapes(geometry, landmarks, regions);
+
+        if (onProgress) onProgress(0.15, 'Generating visemes');
 
         // Generate viseme blendshapes for lip sync
         this.visemes = this.generateVisemes(geometry, landmarks, regions);
 
-        // Apply morph targets to the mesh
-        this.applyMorphTargets(geometry);
+        if (onProgress) onProgress(0.25, 'Computing morph targets');
+
+        // Apply morph targets to the mesh (async for progress reporting)
+        await this.applyMorphTargets(geometry, onProgress);
 
         // Enable morphTargets on material
         this.enableMorphOnMaterial(mesh);
+
+        if (onProgress) onProgress(1.0, 'Complete');
 
         return {
             blendshapes: this.blendshapes,
@@ -1474,7 +1485,7 @@ export class BlendshapeGenerator {
         return positions;
     }
 
-    applyMorphTargets(geometry) {
+    async applyMorphTargets(geometry, onProgress = null) {
         const newGeometry = geometry.clone();
         newGeometry.morphAttributes.position = [];
         newGeometry.morphAttributes.normal = [];
@@ -1484,11 +1495,15 @@ export class BlendshapeGenerator {
         let index = 0;
 
         const allShapes = { ...this.blendshapes, ...this.visemes };
+        const shapeEntries = Object.entries(allShapes);
+        const totalShapes = shapeEntries.length;
 
         // Pre-build vertex→face lookup for efficient morph normal computation
         const vertexFaceMap = this.buildVertexFaceMap(newGeometry);
 
-        for (const [name, buffer] of Object.entries(allShapes)) {
+        for (let s = 0; s < shapeEntries.length; s++) {
+            const [name, buffer] = shapeEntries[s];
+
             const posAttr = new THREE.Float32BufferAttribute(buffer, 3);
             posAttr.name = name;
             newGeometry.morphAttributes.position.push(posAttr);
@@ -1500,6 +1515,13 @@ export class BlendshapeGenerator {
             newGeometry.morphAttributes.normal.push(normAttr);
 
             dictionary[name] = index++;
+
+            // Yield every 5 shapes to allow UI repaint
+            if (onProgress && s % 5 === 4) {
+                const progress = 0.25 + (s / totalShapes) * 0.7;
+                onProgress(progress, `Morph normals: ${s + 1}/${totalShapes}`);
+                await new Promise(r => setTimeout(r, 0));
+            }
         }
 
         this.mesh.geometry = newGeometry;

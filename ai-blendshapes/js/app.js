@@ -394,11 +394,11 @@ class App {
     /**
      * Generate blendshapes for the detected face.
      */
-    generateBlendshapes() {
+    async generateBlendshapes() {
         if (!this.faceMesh || !this.regions) return;
 
         this.setStatus('Generating blendshapes...');
-        this.showProgress(true);
+        this.showProgress(true, 0);
 
         try {
             const intensity = parseFloat(document.getElementById('blend-intensity').value);
@@ -406,11 +406,15 @@ class App {
             // Pass any manually adjusted landmark positions
             this.blendshapeGenerator.manualLandmarks = { ...this.landmarkOffsets };
 
-            const result = this.blendshapeGenerator.generate(
+            const result = await this.blendshapeGenerator.generate(
                 this.faceMesh,
                 this.landmarks,
                 this.regions,
-                intensity
+                intensity,
+                (progress, stage) => {
+                    this.showProgress(true, progress);
+                    this.setStatus(stage);
+                }
             );
 
             this.blendshapesGenerated = true;
@@ -1089,10 +1093,21 @@ class App {
         this.showProgress(true);
 
         try {
+            // Build accessory info for baking jaw/eye tracking into animation
+            let accessoriesInfo = null;
+            if (this.accessoriesManager.hasAccessories()) {
+                accessoriesInfo = {
+                    accessories: this.accessoriesManager.getAccessories(),
+                    attachments: this.accessoriesManager.attachments,
+                    blendshapeGenerator: this.blendshapeGenerator
+                };
+            }
+
             const blob = await this.exporter.exportGLB(
                 this.modelData.scene,
                 this.faceMesh,
-                this.animationData
+                this.animationData,
+                accessoriesInfo
             );
 
             this.exporter.downloadBlob(blob, 'model-with-blendshapes.glb');
@@ -1169,13 +1184,15 @@ class App {
     /**
      * Show/hide progress bar.
      */
-    showProgress(show) {
+    showProgress(show, percent = null) {
         const bar = document.getElementById('progress-bar');
+        const fill = document.getElementById('progress-fill');
         if (show) {
             bar.classList.remove('hidden');
-            document.getElementById('progress-fill').style.width = '100%';
+            fill.style.width = percent !== null ? `${Math.round(percent * 100)}%` : '100%';
         } else {
             bar.classList.add('hidden');
+            fill.style.width = '0%';
         }
     }
 }

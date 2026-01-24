@@ -123,55 +123,81 @@ export class LipSync {
     }
 
     /**
-     * Compute blend weights with smooth transitions between phonemes.
-     * Uses binary search to find relevant phonemes, then iterates only the local window.
+     * Compute blend weights with coarticulation.
+     * Adjacent phonemes influence each other: carry-over from previous,
+     * anticipation of next. Produces more natural mouth movements than
+     * simple crossfade.
      */
     computeBlendWeights(phonemes, time) {
         const weights = {};
         const transitionDuration = this.transitionSpeed;
+        const coarticulationStrength = 0.2;
 
         // Binary search: find first phoneme that could be relevant
-        // (a phoneme is relevant if time < p.end + transitionDuration)
         let startIdx = this.findPhonemeIndex(phonemes, time - transitionDuration);
         if (startIdx > 0) startIdx--;
+
+        let currentIdx = -1;
 
         for (let i = startIdx; i < phonemes.length; i++) {
             const p = phonemes[i];
 
-            // Past the relevant window - stop searching
+            // Past the relevant window
             if (p.start > time + transitionDuration) break;
-
-            // Skip if completely out of range
             if (time > p.end + transitionDuration) continue;
 
             let weight = 0;
 
             if (time >= p.start && time <= p.end) {
-                // Inside the phoneme
+                currentIdx = i;
                 const fadeInEnd = p.start + transitionDuration;
                 const fadeOutStart = p.end - transitionDuration;
 
                 if (time < fadeInEnd) {
-                    // Fade in
                     weight = (time - p.start) / transitionDuration;
                 } else if (time > fadeOutStart) {
-                    // Fade out
                     weight = (p.end - time) / transitionDuration;
                 } else {
-                    // Full weight
                     weight = 1.0;
                 }
             } else if (time < p.start) {
-                // Pre-transition (anticipation)
                 weight = Math.max(0, 1 - (p.start - time) / transitionDuration) * 0.3;
             }
 
-            // Scale by energy for more natural animation
             weight *= Math.min(1, (p.energy || 0.5) * 10);
             weight = Math.min(1, Math.max(0, weight));
 
             if (weight > 0.01) {
                 weights[p.viseme] = (weights[p.viseme] || 0) + weight;
+            }
+        }
+
+        // Coarticulation: neighboring phonemes influence current shape
+        if (currentIdx >= 0) {
+            const current = phonemes[currentIdx];
+            const dur = current.end - current.start;
+            const relPos = dur > 0 ? (time - current.start) / dur : 0.5;
+
+            // Carry-over from previous (strong at phoneme start, fades out)
+            if (currentIdx > 0) {
+                const prev = phonemes[currentIdx - 1];
+                if (prev.viseme !== current.viseme && prev.viseme !== 'viseme_sil') {
+                    const carry = (1 - relPos) * coarticulationStrength;
+                    if (carry > 0.01) {
+                        weights[prev.viseme] = (weights[prev.viseme] || 0) + carry;
+                    }
+                }
+            }
+
+            // Anticipation of next (grows towards phoneme end)
+            if (currentIdx < phonemes.length - 1) {
+                const next = phonemes[currentIdx + 1];
+                if (next.viseme !== current.viseme && next.viseme !== 'viseme_sil') {
+                    const antic = relPos * coarticulationStrength;
+                    if (antic > 0.01) {
+                        weights[next.viseme] = (weights[next.viseme] || 0) + antic;
+                    }
+                }
             }
         }
 

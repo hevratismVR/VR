@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
 export class ModelLoader {
     constructor() {
@@ -85,6 +86,13 @@ export class ModelLoader {
 
         scene.traverse((child) => {
             if (child.isMesh) {
+                // Merge vertices for non-indexed geometry (OBJ files)
+                // Without this, shared-position vertices get separate indices,
+                // causing visible cracks when blendshapes are applied.
+                if (!child.geometry.index) {
+                    child.geometry = mergeVertices(child.geometry);
+                }
+
                 // Ensure geometry has needed attributes
                 if (!child.geometry.attributes.normal) {
                     child.geometry.computeVertexNormals();
