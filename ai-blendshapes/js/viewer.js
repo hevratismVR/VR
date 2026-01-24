@@ -407,6 +407,45 @@ export class Viewer {
     }
 
     /**
+     * Toggle wireframe overlay on the model.
+     */
+    toggleWireframe() {
+        if (!this.model) return;
+
+        if (this._wireframeOverlay) {
+            // Remove wireframe
+            this.model.traverse((child) => {
+                if (child._wireHelper) {
+                    child.remove(child._wireHelper);
+                    child._wireHelper.geometry.dispose();
+                    child._wireHelper.material.dispose();
+                    child._wireHelper = null;
+                }
+            });
+            this._wireframeOverlay = false;
+        } else {
+            // Add wireframe overlay
+            this.model.traverse((child) => {
+                if (child.isMesh && !child._wireHelper) {
+                    const wireGeo = new THREE.WireframeGeometry(child.geometry);
+                    const wireMat = new THREE.LineBasicMaterial({
+                        color: 0x4ecdc4,
+                        opacity: 0.3,
+                        transparent: true
+                    });
+                    const wireframe = new THREE.LineSegments(wireGeo, wireMat);
+                    wireframe.raycast = () => {}; // non-pickable
+                    child._wireHelper = wireframe;
+                    child.add(wireframe);
+                }
+            });
+            this._wireframeOverlay = true;
+        }
+
+        return this._wireframeOverlay;
+    }
+
+    /**
      * Render loop.
      */
     render() {

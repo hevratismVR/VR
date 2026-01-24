@@ -11,7 +11,7 @@ export class LipSync {
         this.audioSource = null;
         this.audioContext = null;
         this.audioBuffer = null;
-        this.startTimestamp = 0;
+        this._lastFrameTime = 0;
         this.mesh = null;
         this.morphTargetDictionary = null;
         this.onUpdate = null;
@@ -19,6 +19,7 @@ export class LipSync {
 
         // Interpolation settings
         this.transitionSpeed = 0.12; // seconds for transitions
+        this.playbackSpeed = 1.0; // speed multiplier (0.5x, 1x, 2x)
         this.currentWeights = {};
     }
 
@@ -253,6 +254,7 @@ export class LipSync {
         if (audioBuffer && audioContext) {
             this.audioSource = audioContext.createBufferSource();
             this.audioSource.buffer = audioBuffer;
+            this.audioSource.playbackRate.value = this.playbackSpeed;
             this.audioSource.connect(audioContext.destination);
             this.audioSource.start(0, resumeFrom);
 
@@ -261,21 +263,27 @@ export class LipSync {
             };
         }
 
-        // Adjust start timestamp so currentTime calculation resumes correctly
-        this.startTimestamp = performance.now() - (resumeFrom * 1000);
         this.currentTime = resumeFrom;
+        this._lastFrameTime = performance.now();
 
         this.animate();
     }
 
     /**
-     * Animation loop.
+     * Animation loop. Uses delta-time for correct playback speed support.
      */
     animate() {
         if (!this.isPlaying) return;
 
         const now = performance.now();
-        this.currentTime = (now - this.startTimestamp) / 1000;
+        const delta = (now - this._lastFrameTime) / 1000;
+        this._lastFrameTime = now;
+        this.currentTime += delta * this.playbackSpeed;
+
+        // Sync audio playback rate if speed changed
+        if (this.audioSource && this.audioSource.playbackRate.value !== this.playbackSpeed) {
+            this.audioSource.playbackRate.value = this.playbackSpeed;
+        }
 
         if (this.currentTime >= this.animationData.duration) {
             this.stop();
@@ -380,17 +388,18 @@ export class LipSync {
                 this.audioSource = null;
             }
 
-            // Restart audio from new position
+            // Restart audio from new position with current speed
             if (this.audioBuffer && this.audioContext) {
                 this.audioSource = this.audioContext.createBufferSource();
                 this.audioSource.buffer = this.audioBuffer;
+                this.audioSource.playbackRate.value = this.playbackSpeed;
                 this.audioSource.connect(this.audioContext.destination);
                 this.audioSource.start(0, time);
                 this.audioSource.onended = () => { this.stop(); };
             }
 
-            // Adjust start timestamp for correct time calculation
-            this.startTimestamp = performance.now() - (time * 1000);
+            // Reset frame timer for delta-based time tracking
+            this._lastFrameTime = performance.now();
         } else {
             this.updateMorphTargets(time);
         }

@@ -24,6 +24,9 @@ class App {
         // State
         this.selectedAccessory = null;
         this.landmarkOffsets = {}; // manual adjustments to landmark positions
+        this.landmarkUndoStack = []; // history for Ctrl+Z
+        this._testAllAbort = false; // abort flag for test-all
+        this.playbackSpeed = 1.0; // playback speed multiplier
         this.modelData = null;
         this.faceMesh = null;
         this.landmarks = null;
@@ -159,8 +162,26 @@ class App {
         document.getElementById('export-animation-btn').addEventListener('click', () => this.exportAnimation());
         document.getElementById('export-json-btn').addEventListener('click', () => this.exportJSON());
 
-        // Test all blendshapes
-        document.getElementById('test-all-btn').addEventListener('click', () => this.testAllBlendshapes());
+        // Speed control
+        const speedBtn = document.getElementById('speed-btn');
+        const speeds = [0.5, 1.0, 1.5, 2.0];
+        speedBtn.addEventListener('click', () => {
+            const currentIdx = speeds.indexOf(this.playbackSpeed);
+            this.playbackSpeed = speeds[(currentIdx + 1) % speeds.length];
+            speedBtn.textContent = `${this.playbackSpeed}x`;
+            if (this.lipSync) {
+                this.lipSync.playbackSpeed = this.playbackSpeed;
+            }
+        });
+
+        // Test all blendshapes (click again to stop)
+        document.getElementById('test-all-btn').addEventListener('click', () => {
+            if (this._testAllRunning) {
+                this._testAllAbort = true;
+            } else {
+                this.testAllBlendshapes();
+            }
+        });
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -181,6 +202,18 @@ class App {
                 case 'KeyR':
                     if (this.animationData) {
                         this.reset();
+                    }
+                    break;
+                case 'KeyW':
+                    if (this.viewer) {
+                        const on = this.viewer.toggleWireframe();
+                        this.setStatus(on ? 'Wireframe ON' : 'Wireframe OFF');
+                    }
+                    break;
+                case 'KeyZ':
+                    if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+                        e.preventDefault();
+                        this.undoLandmarkDrag();
                     }
                     break;
             }
@@ -718,9 +751,44 @@ class App {
      * Handle a landmark point being dragged in the viewport.
      */
     handleLandmarkMoved(name, newPosition) {
+        // Push previous state to undo stack
+        const prevPos = this.landmarkOffsets[name] ? this.landmarkOffsets[name].clone() : null;
+        this.landmarkUndoStack.push({ name, prevPos });
+
         // Store the new position for this landmark
         this.landmarkOffsets[name] = newPosition.clone();
-        this.setStatus(`Moved ${name} - click "צור Blendshapes" to apply`);
+        this.setStatus(`Moved ${name} - click "צור Blendshapes" to apply (Ctrl+Z to undo)`);
+    }
+
+    /**
+     * Undo the last landmark drag.
+     */
+    undoLandmarkDrag() {
+        if (this.landmarkUndoStack.length === 0) {
+            this.setStatus('Nothing to undo');
+            return;
+        }
+
+        const { name, prevPos } = this.landmarkUndoStack.pop();
+        if (prevPos) {
+            this.landmarkOffsets[name] = prevPos;
+        } else {
+            delete this.landmarkOffsets[name];
+        }
+
+        // Update the sphere position in the viewport
+        if (this.viewer && this.viewer.landmarkSpheres) {
+            for (const sphere of this.viewer.landmarkSpheres) {
+                if (sphere.userData && sphere.userData.name === name) {
+                    if (prevPos) {
+                        sphere.position.copy(prevPos);
+                    }
+                    break;
+                }
+            }
+        }
+
+        this.setStatus(`Undid move of ${name}`);
     }
 
     /**
@@ -818,8 +886,9 @@ class App {
         const btn = document.getElementById('test-all-btn');
         const viewportLabel = document.getElementById('viewport-label');
 
-        btn.disabled = true;
-        btn.textContent = 'Testing...';
+        this._testAllRunning = true;
+        this._testAllAbort = false;
+        btn.textContent = '\u25A0 Stop';
 
         // Reset all first
         for (let i = 0; i < this.faceMesh.morphTargetInfluences.length; i++) {
@@ -827,6 +896,8 @@ class App {
         }
 
         for (const name of names) {
+            if (this._testAllAbort) break;
+
             const idx = dictionary[name];
             const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
             const slider = sliderItem ? sliderItem.querySelector('input[type="range"]') : null;
@@ -844,7 +915,7 @@ class App {
 
             // Animate in (ramp up over 150ms)
             const steps = 5;
-            for (let s = 1; s <= steps; s++) {
+            for (let s = 1; s <= steps && !this._testAllAbort; s++) {
                 const weight = s / steps;
                 this.faceMesh.morphTargetInfluences[idx] = weight;
                 if (slider) slider.value = weight.toFixed(2);
@@ -852,12 +923,20 @@ class App {
                 await this.delay(30);
             }
 
+            if (this._testAllAbort) {
+                this.faceMesh.morphTargetInfluences[idx] = 0;
+                if (slider) slider.value = '0';
+                if (valueSpan) valueSpan.textContent = '0';
+                if (sliderItem) sliderItem.style.background = '';
+                break;
+            }
+
             // Hold for 300ms
-            this.setStatus(`Testing: ${name}`);
+            this.setStatus(`Testing: ${name} (${names.indexOf(name) + 1}/${names.length})`);
             await this.delay(300);
 
             // Animate out (ramp down over 150ms)
-            for (let s = steps - 1; s >= 0; s--) {
+            for (let s = steps - 1; s >= 0 && !this._testAllAbort; s--) {
                 const weight = s / steps;
                 this.faceMesh.morphTargetInfluences[idx] = weight;
                 if (slider) slider.value = weight.toFixed(2);
@@ -873,9 +952,9 @@ class App {
         }
 
         viewportLabel.classList.add('hidden');
-        this.setStatus('Test complete');
-        btn.disabled = false;
-        btn.textContent = 'בדוק הכל \u25B6';
+        this._testAllRunning = false;
+        this.setStatus(this._testAllAbort ? 'Test stopped' : 'Test complete');
+        btn.textContent = '\u25B6 בדוק הכל';
     }
 
     /**

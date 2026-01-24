@@ -490,6 +490,13 @@ h3 {
     background: var(--accent);
 }
 
+#speed-btn {
+    font-size: 0.7rem;
+    width: auto;
+    padding: 0 6px;
+    min-width: 28px;
+}
+
 /* Viewport info label */
 .viewport-label {
     position: absolute;
