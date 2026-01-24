@@ -273,11 +273,27 @@ export class BlendshapeGenerator {
         // Rotation angle based on amount
         const angle = amount * 0.8; // radians equivalent for displacement
 
-        // Lower lip and jaw - rotate downward around pivot
+        // Lower lip and jaw - rotate downward around pivot with distance falloff
         const lowerIndices = [...(regions.lowerLip || []), ...(regions.jaw || [])];
+
+        // Compute mouth bounds to create a falloff zone
+        let mouthMinY = Infinity;
+        for (const i of (regions.mouth || [])) {
+            const y = positions.getY(i);
+            if (y < mouthMinY) mouthMinY = y;
+        }
+        // Falloff distance: vertices far below mouth get less influence
+        const falloffRange = this.scaleFactor * 0.4;
+
         for (const i of lowerIndices) {
             const y = positions.getY(i);
             const z = positions.getZ(i);
+
+            // Distance-based falloff: vertices close to mouth get full effect,
+            // vertices far below (neck) get almost none
+            const distFromMouth = Math.max(0, mouthMinY - y);
+            const falloff = Math.max(0, 1 - (distFromMouth / falloffRange));
+            if (falloff < 0.01) continue; // skip neck vertices
 
             // Distance from pivot determines displacement magnitude
             const dy = y - pivotY;
@@ -286,7 +302,8 @@ export class BlendshapeGenerator {
 
             // Rotate the vertex around the pivot (jaw hinge rotation)
             const currentAngle = Math.atan2(dy, dz);
-            const newAngle = currentAngle - angle * this.intensity;
+            const rotAngle = angle * this.intensity * falloff;
+            const newAngle = currentAngle - rotAngle;
 
             const newDy = dist * Math.sin(newAngle) - dy;
             const newDz = dist * Math.cos(newAngle) - dz;
