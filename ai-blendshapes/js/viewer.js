@@ -95,10 +95,12 @@ export class Viewer {
      * Set the model to display.
      */
     setModel(modelData) {
-        // Remove existing model
+        // Remove existing model and all helpers
         if (this.model) {
             this.scene.remove(this.model);
         }
+        this.clearHelpers();
+        this.accessoryHandles = [];
 
         this.model = modelData.scene;
         this.scene.add(this.model);

@@ -164,6 +164,83 @@ class App {
     }
 
     /**
+     * Reset all state when loading a new model.
+     */
+    resetState() {
+        // Stop any playing animation
+        this.lipSync.stop();
+
+        // Cancel accessory update loop
+        if (this._accessoryLoop) {
+            cancelAnimationFrame(this._accessoryLoop);
+            this._accessoryLoop = null;
+        }
+
+        // Remove all accessories
+        for (const type of Object.keys(this.accessoriesManager.accessories)) {
+            if (this.accessoriesManager.accessories[type]) {
+                this.accessoriesManager.removeAccessory(type);
+            }
+        }
+
+        // Reset state variables
+        this.faceMesh = null;
+        this.landmarks = null;
+        this.regions = null;
+        this.blendshapesGenerated = false;
+        this.animationData = null;
+        this.audioBuffer = null;
+        this.landmarkOffsets = {};
+        this.selectedAccessory = null;
+        this.blendshapeGenerator.manualLandmarks = {};
+        this.blendshapeGenerator.seamYOffset = 0;
+        this.blendshapeGenerator.zThresholdOffset = 0;
+
+        // Reset UI
+        document.getElementById('detect-face-btn').disabled = true;
+        document.getElementById('generate-blendshapes-btn').disabled = true;
+        document.getElementById('audio-upload-btn').disabled = true;
+        document.getElementById('generate-lipsync-btn').disabled = true;
+        document.getElementById('export-glb-btn').disabled = true;
+        document.getElementById('export-animation-btn').disabled = true;
+        document.getElementById('export-json-btn').disabled = true;
+        document.getElementById('test-all-btn').disabled = true;
+        document.getElementById('play-btn').disabled = true;
+        document.getElementById('pause-btn').disabled = true;
+        document.getElementById('reset-btn').disabled = true;
+        document.getElementById('timeline').disabled = true;
+
+        // Reset accessory buttons
+        ['upper-teeth', 'lower-teeth', 'tongue', 'eye-left', 'eye-right'].forEach(id => {
+            const btn = document.getElementById(`${id}-btn`);
+            btn.disabled = true;
+            btn.classList.remove('loaded');
+            btn.style.outline = '';
+            document.getElementById(`${id}-status`).textContent = '';
+        });
+
+        // Hide panels
+        document.getElementById('manual-adjust').classList.add('hidden');
+        document.getElementById('accessory-transform').classList.add('hidden');
+        document.getElementById('blendshapes-info').classList.add('hidden');
+        document.getElementById('audio-info').classList.add('hidden');
+
+        // Reset lists
+        document.getElementById('blendshapes-list').innerHTML =
+            '<p class="placeholder">Blendshapes יופיעו כאן לאחר יצירה</p>';
+        document.getElementById('visemes-list').innerHTML =
+            '<p class="placeholder">Visemes יופיעו כאן לאחר יצירת Blendshapes</p>';
+
+        // Reset sliders
+        document.getElementById('seam-y-offset').value = 0;
+        document.getElementById('seam-y-val').textContent = '0';
+        document.getElementById('z-threshold-offset').value = 0;
+        document.getElementById('z-threshold-val').textContent = '0';
+        document.getElementById('timeline').value = 0;
+        document.getElementById('time-display').textContent = '0:00 / 0:00';
+    }
+
+    /**
      * Handle model file input change.
      */
     handleModelUpload(event) {
@@ -177,6 +254,9 @@ class App {
     async loadModel(file) {
         this.setStatus('Loading model...');
         this.showProgress(true);
+
+        // Reset previous state
+        this.resetState();
 
         try {
             this.modelData = await this.modelLoader.load(file);
