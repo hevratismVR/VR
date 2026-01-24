@@ -235,6 +235,10 @@ export class BlendshapeGenerator {
             mouthUpperUpRight: () => this.createUpperLipUp(regions, 'right'),
             mouthLowerDownLeft: () => this.createLowerLipDown(regions, 'left'),
             mouthLowerDownRight: () => this.createLowerLipDown(regions, 'right'),
+            mouthDimpleLeft: () => this.createDimple(regions, 'left'),
+            mouthDimpleRight: () => this.createDimple(regions, 'right'),
+            mouthLeft: () => this.createMouthSlide(regions, 'left'),
+            mouthRight: () => this.createMouthSlide(regions, 'right'),
 
             // Eyes - proportional to eye height
             eyeBlinkLeft: () => this.createBlink(regions, 'left'),
@@ -740,6 +744,73 @@ export class BlendshapeGenerator {
                 y: -sf * 0.035 * influence * this.intensity,
                 z: sf * 0.01 * influence * this.intensity
             });
+        }
+
+        return displacements;
+    }
+
+    /**
+     * Mouth dimple: pulls corner inward creating a dimple.
+     */
+    createDimple(regions, side) {
+        const displacements = new Map();
+        const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const centerX = this.mouthCenter.x;
+
+        for (const i of mouthIndices) {
+            const x = positions.getX(i);
+            const sideWeight = side === 'left'
+                ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+
+            if (sideWeight < 0.4) continue; // only affect corner area
+
+            const influence = Math.min(1, (sideWeight - 0.4) / 0.6);
+            const pullDir = side === 'left' ? -1 : 1;
+
+            displacements.set(i, {
+                x: pullDir * sf * 0.02 * influence * this.intensity,
+                y: 0,
+                z: -sf * 0.025 * influence * this.intensity // pull inward
+            });
+        }
+
+        return displacements;
+    }
+
+    /**
+     * Mouth slide: entire mouth area moves left or right.
+     */
+    createMouthSlide(regions, side) {
+        const displacements = new Map();
+        const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const dir = side === 'left' ? 1 : -1;
+
+        for (const i of mouthIndices) {
+            displacements.set(i, {
+                x: dir * sf * 0.04 * this.intensity,
+                y: 0,
+                z: 0
+            });
+        }
+
+        // Also slightly move nearby cheek/jaw vertices
+        const jawIndices = regions.jaw || [];
+        for (const i of jawIndices) {
+            const y = positions.getY(i);
+            // Only upper jaw area (near mouth)
+            if (y > this.mouthCenter.y - sf * 0.08) {
+                const weight = Math.max(0, 1 - (this.mouthCenter.y - y) / (sf * 0.08));
+                displacements.set(i, {
+                    x: dir * sf * 0.02 * weight * this.intensity,
+                    y: 0,
+                    z: 0
+                });
+            }
         }
 
         return displacements;
