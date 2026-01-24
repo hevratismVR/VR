@@ -33,33 +33,45 @@ export class AudioAnalyzer {
 
     /**
      * Extract phoneme-like segments using spectral analysis.
-     * Groups audio into time windows and classifies each by frequency content.
+     * Uses native FFT via Float32Array for performance.
      */
     extractPhonemes() {
         const channelData = this.audioBuffer.getChannelData(0);
         const sampleRate = this.audioBuffer.sampleRate;
 
         // Analysis parameters
-        const windowSize = Math.floor(sampleRate * 0.03); // 30ms windows
+        const fftSize = 512;
+        const windowSize = fftSize;
         const hopSize = Math.floor(windowSize / 2); // 50% overlap
         const totalWindows = Math.floor((channelData.length - windowSize) / hopSize);
+
+        // Pre-compute Hanning window
+        const hanningWindow = new Float32Array(windowSize);
+        for (let i = 0; i < windowSize; i++) {
+            hanningWindow[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (windowSize - 1)));
+        }
 
         const phonemes = [];
         let currentPhoneme = null;
 
+        // Reusable buffer for windowed samples
+        const windowedBuffer = new Float32Array(fftSize);
+
         for (let w = 0; w < totalWindows; w++) {
             const startSample = w * hopSize;
-            const endSample = startSample + windowSize;
             const timeStart = startSample / sampleRate;
 
-            // Extract window
-            const window = channelData.slice(startSample, endSample);
+            // Apply window function
+            for (let i = 0; i < windowSize; i++) {
+                windowedBuffer[i] = channelData[startSample + i] * hanningWindow[i];
+            }
 
             // Compute features
-            const energy = this.computeEnergy(window);
-            const zcr = this.computeZeroCrossingRate(window);
-            const spectralCentroid = this.computeSpectralCentroid(window, sampleRate);
-            const formants = this.estimateFormants(window, sampleRate);
+            const energy = this.computeEnergy(windowedBuffer);
+            const zcr = this.computeZeroCrossingRate(channelData, startSample, windowSize);
+            const magnitudes = this.computeFFTReal(windowedBuffer, fftSize);
+            const spectralCentroid = this.centroidFromMagnitudes(magnitudes, sampleRate, fftSize);
+            const formants = this.formantsFromMagnitudes(magnitudes, sampleRate, fftSize);
 
             // Classify the phoneme/viseme
             const viseme = this.classifyViseme(energy, zcr, spectralCentroid, formants);
@@ -90,56 +102,94 @@ export class AudioAnalyzer {
     }
 
     /**
-     * Compute RMS energy of a window.
+     * Compute RMS energy of a windowed buffer.
      */
-    computeEnergy(window) {
+    computeEnergy(buffer) {
         let sum = 0;
-        for (let i = 0; i < window.length; i++) {
-            sum += window[i] * window[i];
+        for (let i = 0; i < buffer.length; i++) {
+            sum += buffer[i] * buffer[i];
         }
-        return Math.sqrt(sum / window.length);
+        return Math.sqrt(sum / buffer.length);
     }
 
     /**
-     * Compute zero-crossing rate (indicates noise/fricative content).
+     * Compute zero-crossing rate from raw channel data at offset.
      */
-    computeZeroCrossingRate(window) {
+    computeZeroCrossingRate(data, offset, length) {
         let crossings = 0;
-        for (let i = 1; i < window.length; i++) {
-            if ((window[i] >= 0 && window[i - 1] < 0) ||
-                (window[i] < 0 && window[i - 1] >= 0)) {
+        for (let i = 1; i < length; i++) {
+            if ((data[offset + i] >= 0) !== (data[offset + i - 1] >= 0)) {
                 crossings++;
             }
         }
-        return crossings / window.length;
+        return crossings / length;
     }
 
     /**
-     * Compute spectral centroid (brightness of sound).
+     * Compute FFT magnitudes using Cooley-Tukey radix-2 algorithm.
+     * Much faster than the DFT approach: O(n log n) vs O(n²).
      */
-    computeSpectralCentroid(window, sampleRate) {
-        // Simple DFT for frequency analysis
-        const n = window.length;
-        const fftSize = Math.pow(2, Math.ceil(Math.log2(n)));
-        const real = new Float32Array(fftSize);
-        const imag = new Float32Array(fftSize);
+    computeFFTReal(input, size) {
+        // Allocate real and imaginary parts
+        const real = new Float32Array(size);
+        const imag = new Float32Array(size);
+        real.set(input);
 
-        // Apply Hanning window and copy
-        for (let i = 0; i < n; i++) {
-            const hanningValue = 0.5 * (1 - Math.cos(2 * Math.PI * i / (n - 1)));
-            real[i] = window[i] * hanningValue;
+        // Bit-reversal permutation
+        let j = 0;
+        for (let i = 0; i < size - 1; i++) {
+            if (i < j) {
+                let tmp = real[i]; real[i] = real[j]; real[j] = tmp;
+                tmp = imag[i]; imag[i] = imag[j]; imag[j] = tmp;
+            }
+            let k = size >> 1;
+            while (k <= j) { j -= k; k >>= 1; }
+            j += k;
         }
 
-        // Compute FFT magnitudes (simplified)
-        const magnitudes = this.computeFFTMagnitudes(real, fftSize);
+        // FFT butterfly operations
+        for (let len = 2; len <= size; len <<= 1) {
+            const halfLen = len >> 1;
+            const angleStep = -2 * Math.PI / len;
+            const wR = Math.cos(angleStep);
+            const wI = Math.sin(angleStep);
 
-        // Compute centroid
+            for (let i = 0; i < size; i += len) {
+                let curR = 1, curI = 0;
+                for (let k = 0; k < halfLen; k++) {
+                    const idx1 = i + k;
+                    const idx2 = i + k + halfLen;
+                    const tR = curR * real[idx2] - curI * imag[idx2];
+                    const tI = curR * imag[idx2] + curI * real[idx2];
+                    real[idx2] = real[idx1] - tR;
+                    imag[idx2] = imag[idx1] - tI;
+                    real[idx1] += tR;
+                    imag[idx1] += tI;
+                    const newCurR = curR * wR - curI * wI;
+                    curI = curR * wI + curI * wR;
+                    curR = newCurR;
+                }
+            }
+        }
+
+        // Compute magnitudes (only first half - positive frequencies)
+        const magnitudes = new Float32Array(size / 2);
+        for (let i = 0; i < size / 2; i++) {
+            magnitudes[i] = Math.sqrt(real[i] * real[i] + imag[i] * imag[i]);
+        }
+        return magnitudes;
+    }
+
+    /**
+     * Compute spectral centroid from pre-computed magnitudes.
+     */
+    centroidFromMagnitudes(magnitudes, sampleRate, fftSize) {
         let weightedSum = 0;
         let totalMagnitude = 0;
 
-        for (let i = 0; i < fftSize / 2; i++) {
-            const frequency = (i * sampleRate) / fftSize;
-            weightedSum += frequency * magnitudes[i];
+        for (let i = 0; i < magnitudes.length; i++) {
+            const freq = (i * sampleRate) / fftSize;
+            weightedSum += freq * magnitudes[i];
             totalMagnitude += magnitudes[i];
         }
 
@@ -147,69 +197,32 @@ export class AudioAnalyzer {
     }
 
     /**
-     * Simple FFT magnitude computation.
+     * Estimate formant frequencies (F1, F2) from pre-computed magnitudes.
      */
-    computeFFTMagnitudes(real, size) {
-        const magnitudes = new Float32Array(size / 2);
-
-        for (let k = 0; k < size / 2; k++) {
-            let realPart = 0;
-            let imagPart = 0;
-
-            // For performance, only compute a subset of frequencies
-            const step = Math.max(1, Math.floor(size / 128));
-            for (let n = 0; n < size; n += step) {
-                const angle = -2 * Math.PI * k * n / size;
-                realPart += real[n] * Math.cos(angle);
-                imagPart += real[n] * Math.sin(angle);
-            }
-
-            magnitudes[k] = Math.sqrt(realPart * realPart + imagPart * imagPart);
-        }
-
-        return magnitudes;
-    }
-
-    /**
-     * Estimate formant frequencies (F1, F2) for vowel detection.
-     * Uses peak detection in the spectrum.
-     */
-    estimateFormants(window, sampleRate) {
-        const n = window.length;
-        const fftSize = 256;
-        const real = new Float32Array(fftSize);
-
-        for (let i = 0; i < Math.min(n, fftSize); i++) {
-            const hanningValue = 0.5 * (1 - Math.cos(2 * Math.PI * i / (Math.min(n, fftSize) - 1)));
-            real[i] = window[i] * hanningValue;
-        }
-
-        const magnitudes = this.computeFFTMagnitudes(real, fftSize);
-
-        // Find peaks in formant regions
-        const freqResolution = sampleRate / fftSize;
+    formantsFromMagnitudes(magnitudes, sampleRate, fftSize) {
+        const freqRes = sampleRate / fftSize;
 
         // F1 range: 200-900 Hz
-        const f1Start = Math.floor(200 / freqResolution);
-        const f1End = Math.floor(900 / freqResolution);
+        const f1Start = Math.floor(200 / freqRes);
+        const f1End = Math.min(Math.floor(900 / freqRes), magnitudes.length);
 
         // F2 range: 900-2500 Hz
-        const f2Start = Math.floor(900 / freqResolution);
-        const f2End = Math.min(Math.floor(2500 / freqResolution), fftSize / 2);
+        const f2Start = Math.floor(900 / freqRes);
+        const f2End = Math.min(Math.floor(2500 / freqRes), magnitudes.length);
 
         let f1 = 0, f1Max = 0;
-        for (let i = f1Start; i < f1End && i < magnitudes.length; i++) {
+        for (let i = f1Start; i < f1End; i++) {
             if (magnitudes[i] > f1Max) {
                 f1Max = magnitudes[i];
-                f1 = i * freqResolution;
+                f1 = i * freqRes;
             }
         }
 
         let f2 = 0, f2Max = 0;
-        for (let i = f2Start; i < f2End && i < magnitudes.length; i++) {
+        for (let i = f2Start; i < f2End; i++) {
             if (magnitudes[i] > f2Max) {
                 f2Max = magnitudes[i];
-                f2 = i * freqResolution;
+                f2 = i * freqRes;
             }
         }
 

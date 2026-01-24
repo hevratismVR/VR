@@ -180,29 +180,61 @@ export class LandmarkDetector {
     }
 
     /**
-     * Detect the axis of symmetry by comparing vertex distributions.
+     * Detect the axis of symmetry using spatial hashing with vertex sampling.
+     * O(n) instead of O(n²).
      */
     detectSymmetryAxis(vertices, center) {
-        // Test each axis for bilateral symmetry
         let bestAxis = 'x';
         let bestSymmetry = 0;
 
+        // Sample up to 500 vertices for performance
+        const sampleSize = Math.min(500, vertices.length);
+        const step = Math.max(1, Math.floor(vertices.length / sampleSize));
+
+        // Build spatial hash for fast neighbor lookup
+        const bbox = new THREE.Box3();
+        for (const v of vertices) bbox.expandByPoint(v);
+        const bboxSize = bbox.getSize(new THREE.Vector3());
+        const cellSize = Math.max(bboxSize.x, bboxSize.y, bboxSize.z) * 0.02;
+
+        const hashVertex = (v) => {
+            const ix = Math.floor((v.x - bbox.min.x) / cellSize);
+            const iy = Math.floor((v.y - bbox.min.y) / cellSize);
+            const iz = Math.floor((v.z - bbox.min.z) / cellSize);
+            return `${ix},${iy},${iz}`;
+        };
+
+        // Build hash map once
+        const spatialHash = new Map();
+        for (let i = 0; i < vertices.length; i++) {
+            const key = hashVertex(vertices[i]);
+            if (!spatialHash.has(key)) spatialHash.set(key, []);
+            spatialHash.get(key).push(i);
+        }
+
+        const tolerance = cellSize * 2;
+
         for (const axis of ['x', 'y', 'z']) {
             let symmetryScore = 0;
-            const tolerance = 0.05;
 
-            for (const v of vertices) {
+            for (let i = 0; i < vertices.length; i += step) {
+                const v = vertices[i];
                 const reflected = v.clone();
                 reflected[axis] = 2 * center[axis] - reflected[axis];
 
-                // Find closest vertex to reflected position
-                let minDist = Infinity;
-                for (const other of vertices) {
-                    const dist = reflected.distanceTo(other);
-                    if (dist < minDist) minDist = dist;
+                // Check spatial hash cells near the reflected position
+                const key = hashVertex(reflected);
+                const candidates = spatialHash.get(key) || [];
+
+                let found = false;
+                for (const ci of candidates) {
+                    if (reflected.distanceTo(vertices[ci]) < tolerance) {
+                        found = true;
+                        break;
+                    }
                 }
 
-                if (minDist < tolerance) symmetryScore++;
+                if (found) symmetryScore++;
             }
 
             if (symmetryScore > bestSymmetry) {
