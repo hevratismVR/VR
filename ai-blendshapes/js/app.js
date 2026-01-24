@@ -445,30 +445,73 @@ class App {
                 this.viewer.showAuxiliaryLandmarks(this.auxiliaryMeshes, this.faceMesh);
             }
 
-            // Show detection info
+            // Show detection info with diagnostics
             const regionCounts = {};
             for (const [name, indices] of Object.entries(this.regions)) {
-                if (indices.length > 0) {
-                    regionCounts[name] = indices.length;
-                }
+                regionCounts[name] = indices.length;
             }
+
+            // Minimum vertex thresholds for quality blendshapes
+            const minThresholds = {
+                mouth: 10, upperLip: 5, lowerLip: 5,
+                jaw: 10, eyeLeft: 5, eyeRight: 5,
+                nose: 3, cheekLeft: 3, cheekRight: 3, forehead: 5
+            };
+            const warnThresholds = {
+                mouth: 20, upperLip: 10, lowerLip: 10,
+                jaw: 20, eyeLeft: 10, eyeRight: 10,
+                nose: 8, cheekLeft: 8, cheekRight: 8, forehead: 10
+            };
+
+            const regionLabels = {
+                forehead: 'Forehead', eyeLeft: 'L Eye', eyeRight: 'R Eye',
+                nose: 'Nose', cheekLeft: 'L Cheek', cheekRight: 'R Cheek',
+                upperLip: 'Upper Lip', lowerLip: 'Lower Lip',
+                mouth: 'Mouth', jaw: 'Jaw'
+            };
+
+            const allRegions = ['forehead', 'eyeLeft', 'eyeRight', 'nose', 'cheekLeft', 'cheekRight', 'upperLip', 'lowerLip', 'mouth', 'jaw'];
+            let regionHTML = '<div class="region-grid">';
+            const warnings = [];
+
+            for (const key of allRegions) {
+                const count = regionCounts[key] || 0;
+                const minT = minThresholds[key] || 3;
+                const warnT = warnThresholds[key] || 8;
+                let cls = 'good';
+                if (count < minT) {
+                    cls = 'error';
+                    warnings.push(`${regionLabels[key]}: ${count < 1 ? 'missing' : 'too few vertices'}`);
+                } else if (count < warnT) {
+                    cls = 'warn';
+                }
+                regionHTML += `<div class="region-item ${cls}"><span>${regionLabels[key]}</span><span class="count">${count}</span></div>`;
+            }
+            regionHTML += '</div>';
 
             const auxInfo = [];
             if (this.auxiliaryMeshes.eyeLeft) auxInfo.push(`L Eye mesh: ${this.auxiliaryMeshes.eyeLeft.geometry.attributes.position.count}v`);
             if (this.auxiliaryMeshes.eyeRight) auxInfo.push(`R Eye mesh: ${this.auxiliaryMeshes.eyeRight.geometry.attributes.position.count}v`);
             if (this.auxiliaryMeshes.nose) auxInfo.push(`Nose mesh: ${this.auxiliaryMeshes.nose.geometry.attributes.position.count}v`);
 
+            let warningHTML = '';
+            if (warnings.length > 0) {
+                warningHTML = `<div class="diag-warning">Issues: ${warnings.join(', ')}</div>`;
+                warningHTML += `<div class="diag-tip">Try adjusting seam Y / Z threshold, or switch character type</div>`;
+            }
+
             const infoBox = document.getElementById('blendshapes-info');
             infoBox.innerHTML = `
-                <strong>Face detected!</strong><br>
-                Regions found: ${Object.keys(regionCounts).length}<br>
-                ${Object.entries(regionCounts).map(([k, v]) =>
-                    `${k}: ${v} vertices`
-                ).join('<br>')}
-                ${auxInfo.length > 0 ? '<br><strong>Auxiliary meshes:</strong><br>' + auxInfo.join('<br>') : ''}
+                <strong>Face detected!</strong> (${Object.values(regionCounts).filter(v => v > 0).length}/10 regions)
+                ${regionHTML}
+                ${auxInfo.length > 0 ? '<strong>Auxiliary:</strong> ' + auxInfo.join(' | ') : ''}
+                ${warningHTML}
             `;
             infoBox.classList.remove('hidden');
-            infoBox.classList.add('success');
+            infoBox.classList.remove('success');
+            if (warnings.length === 0) {
+                infoBox.classList.add('success');
+            }
 
             // Enable blendshape generation
             document.getElementById('generate-blendshapes-btn').disabled = false;
@@ -912,26 +955,77 @@ class App {
         const listEl = document.getElementById('blendshapes-list');
         const visemeListEl = document.getElementById('visemes-list');
 
+        // Compute quality metrics for each morph target
+        const quality = this.computeMorphQuality();
+
         // Blendshapes
         listEl.innerHTML = '';
+        let strongCount = 0, weakCount = 0, emptyCount = 0;
         for (const name of Object.keys(result.blendshapes)) {
-            listEl.appendChild(this.createBlendshapeSlider(name));
+            const q = quality[name] || 'empty';
+            if (q === 'strong') strongCount++;
+            else if (q === 'weak') weakCount++;
+            else emptyCount++;
+            listEl.appendChild(this.createBlendshapeSlider(name, q));
         }
 
         // Visemes
         visemeListEl.innerHTML = '';
         for (const name of Object.keys(result.visemes)) {
-            visemeListEl.appendChild(this.createBlendshapeSlider(name));
+            const q = quality[name] || 'empty';
+            visemeListEl.appendChild(this.createBlendshapeSlider(name, q));
         }
+
+        // Show generation quality summary
+        const total = Object.keys(result.blendshapes).length;
+        if (total > 0) {
+            const summary = document.createElement('div');
+            summary.className = 'quality-summary';
+            summary.innerHTML = `<span class="qs-strong">${strongCount}</span> strong / <span class="qs-weak">${weakCount}</span> weak / <span class="qs-empty">${emptyCount}</span> empty`;
+            listEl.insertBefore(summary, listEl.firstChild);
+        }
+    }
+
+    computeMorphQuality() {
+        const quality = {};
+        if (!this.faceMesh || !this.faceMesh.morphTargetDictionary) return quality;
+
+        const dict = this.faceMesh.morphTargetDictionary;
+        const morphPositions = this.faceMesh.geometry.morphAttributes.position;
+        if (!morphPositions) return quality;
+
+        const sf = this.blendshapeGenerator ? this.blendshapeGenerator.scaleFactor : 1;
+
+        for (const [name, idx] of Object.entries(dict)) {
+            const posAttr = morphPositions[idx];
+            if (!posAttr) { quality[name] = 'empty'; continue; }
+
+            let maxDisp = 0;
+            for (let i = 0; i < posAttr.count; i++) {
+                const dx = posAttr.getX(i), dy = posAttr.getY(i), dz = posAttr.getZ(i);
+                const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                if (d > maxDisp) maxDisp = d;
+            }
+
+            // Threshold relative to scale factor
+            if (maxDisp > sf * 0.02) quality[name] = 'strong';
+            else if (maxDisp > sf * 0.005) quality[name] = 'weak';
+            else quality[name] = 'empty';
+        }
+        return quality;
     }
 
     /**
      * Create a slider control for a blendshape.
      */
-    createBlendshapeSlider(name) {
+    createBlendshapeSlider(name, quality = 'strong') {
         const item = document.createElement('div');
         item.className = 'blendshape-item';
         item.dataset.shapeName = name;
+
+        const dot = document.createElement('span');
+        dot.className = `quality-dot q-${quality}`;
+        dot.title = quality === 'strong' ? 'Strong deformation' : quality === 'weak' ? 'Weak deformation' : 'No movement';
 
         const label = document.createElement('label');
         label.textContent = name.replace('viseme_', '').replace(/([A-Z])/g, ' $1').trim();
@@ -953,6 +1047,7 @@ class App {
             this.lipSync.setBlendshapeWeight(this.faceMesh, name, weight);
         });
 
+        item.appendChild(dot);
         item.appendChild(label);
         item.appendChild(slider);
         item.appendChild(value);

@@ -223,6 +223,64 @@ export class BlendshapeGenerator {
         }
     }
 
+    /**
+     * Expand a sparse region by including nearby vertices with distance-based falloff.
+     * Returns array of {index, weight} where weight is 1.0 for original region vertices
+     * and falls off for nearby expanded vertices.
+     * @param {number[]} regionIndices - Original region vertex indices
+     * @param {number} minCount - Minimum vertices needed; expand if below this
+     * @param {number} searchRadius - Search radius as fraction of scaleFactor
+     * @returns {{index: number, weight: number}[]}
+     */
+    getExpandedIndices(regionIndices, minCount = 15, searchRadius = 0.12) {
+        const result = regionIndices.map(i => ({ index: i, weight: 1.0 }));
+        if (regionIndices.length >= minCount) return result;
+        if (regionIndices.length === 0) return result;
+
+        const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const radius = sf * searchRadius;
+        const radiusSq = radius * radius;
+
+        // Compute center of the region
+        let cx = 0, cy = 0, cz = 0;
+        for (const i of regionIndices) {
+            cx += positions.getX(i);
+            cy += positions.getY(i);
+            cz += positions.getZ(i);
+        }
+        cx /= regionIndices.length;
+        cy /= regionIndices.length;
+        cz /= regionIndices.length;
+
+        const regionSet = new Set(regionIndices);
+
+        // Search all face vertices for nearby ones
+        const allFaceIndices = [
+            ...(this.regions.mouth || []), ...(this.regions.upperLip || []),
+            ...(this.regions.lowerLip || []), ...(this.regions.jaw || []),
+            ...(this.regions.nose || []), ...(this.regions.cheekLeft || []),
+            ...(this.regions.cheekRight || []), ...(this.regions.eyeLeft || []),
+            ...(this.regions.eyeRight || []), ...(this.regions.forehead || [])
+        ];
+
+        for (const i of allFaceIndices) {
+            if (regionSet.has(i)) continue;
+            const x = positions.getX(i), y = positions.getY(i), z = positions.getZ(i);
+            const dx = x - cx, dy = y - cy, dz = z - cz;
+            const distSq = dx * dx + dy * dy + dz * dz;
+            if (distSq < radiusSq) {
+                const dist = Math.sqrt(distSq);
+                const weight = 1.0 - (dist / radius);
+                if (weight > 0.1) {
+                    result.push({ index: i, weight: weight * 0.6 }); // Max 60% for expanded
+                }
+            }
+        }
+
+        return result;
+    }
+
     enableMorphOnMaterial(mesh) {
         // Three.js r160+ automatically enables morph targets in shaders when
         // geometry has morphAttributes. Just trigger shader recompile.
@@ -642,16 +700,16 @@ export class BlendshapeGenerator {
         const positions = this.basePositions;
         const sf = this.scaleFactor;
         const dir = side === 'left' ? 1 : -1;
-        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const rawMouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const expanded = this.getExpandedIndices(rawMouthIndices, 15, 0.15);
         const centerX = this.mouthCenter.x;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
-            // Weight by how far this vertex is on the correct side
             const sideWeight = side === 'left'
                 ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
-            const influence = Math.min(1, sideWeight);
+            const influence = Math.min(1, sideWeight) * regionW;
 
             if (influence > 0.05) {
                 displacements.set(i, {
@@ -663,12 +721,13 @@ export class BlendshapeGenerator {
         }
 
         // Cheeks rise on smile side
-        const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
-        for (const i of cheekIndices) {
+        const cheekRaw = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
+        const cheekExpanded = this.getExpandedIndices(cheekRaw, 8, 0.12);
+        for (const { index: i, weight: w } of cheekExpanded) {
             displacements.set(i, {
-                x: dir * sf * 0.02 * this.intensity,
-                y: sf * 0.04 * this.intensity,
-                z: sf * 0.02 * this.intensity
+                x: dir * sf * 0.02 * w * this.intensity,
+                y: sf * 0.04 * w * this.intensity,
+                z: sf * 0.02 * w * this.intensity
             });
         }
 
@@ -680,15 +739,16 @@ export class BlendshapeGenerator {
         const positions = this.basePositions;
         const sf = this.scaleFactor;
         const dir = side === 'left' ? 1 : -1;
-        const mouthIndices = [...(regions.mouth || []), ...(regions.lowerLip || [])];
+        const rawIndices = [...(regions.mouth || []), ...(regions.lowerLip || [])];
+        const expanded = this.getExpandedIndices(rawIndices, 12, 0.12);
         const centerX = this.mouthCenter.x;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const sideWeight = side === 'left'
                 ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
-            const influence = Math.min(1, sideWeight);
+            const influence = Math.min(1, sideWeight) * regionW;
 
             if (influence > 0.05) {
                 displacements.set(i, {
@@ -706,20 +766,21 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const rawIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const expanded = this.getExpandedIndices(rawIndices, 15, 0.12);
         const cx = this.mouthCenter.x;
         const cy = this.mouthCenter.y;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
             const dx = x - cx;
             const dy = y - cy;
 
             displacements.set(i, {
-                x: -dx * 0.5 * this.intensity,
-                y: -dy * 0.4 * this.intensity,
-                z: sf * 0.06 * this.intensity
+                x: -dx * 0.5 * regionW * this.intensity,
+                y: -dy * 0.4 * regionW * this.intensity,
+                z: sf * 0.06 * regionW * this.intensity
             });
         }
 
@@ -730,11 +791,12 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const rawIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const expanded = this.getExpandedIndices(rawIndices, 15, 0.12);
         const cx = this.mouthCenter.x;
         const cy = this.mouthCenter.y;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
             const dx = x - cx;
@@ -742,9 +804,9 @@ export class BlendshapeGenerator {
             const dist = Math.sqrt(dx * dx + dy * dy) / (this.mouthWidth * 0.5 + 0.001);
 
             displacements.set(i, {
-                x: -dx * 0.3 * this.intensity,
-                y: -dy * 0.25 * this.intensity,
-                z: sf * 0.04 * (1.2 - dist) * this.intensity
+                x: -dx * 0.3 * regionW * this.intensity,
+                y: -dy * 0.25 * regionW * this.intensity,
+                z: sf * 0.04 * (1.2 - dist) * regionW * this.intensity
             });
         }
 
@@ -756,21 +818,24 @@ export class BlendshapeGenerator {
         const positions = this.basePositions;
         const sf = this.scaleFactor;
         const dir = side === 'left' ? 1 : -1;
-        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const rawIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const expanded = this.getExpandedIndices(rawIndices, 12, 0.12);
         const centerX = this.mouthCenter.x;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const sideWeight = side === 'left'
                 ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
-            const influence = Math.min(1, sideWeight);
+            const influence = Math.min(1, sideWeight) * regionW;
 
-            displacements.set(i, {
-                x: dir * sf * 0.08 * influence * this.intensity,
-                y: 0,
-                z: -sf * 0.01 * influence * this.intensity
-            });
+            if (influence > 0.05) {
+                displacements.set(i, {
+                    x: dir * sf * 0.08 * influence * this.intensity,
+                    y: 0,
+                    z: -sf * 0.01 * influence * this.intensity
+                });
+            }
         }
 
         return displacements;
@@ -779,14 +844,15 @@ export class BlendshapeGenerator {
     createLipRoll(regions, part) {
         const displacements = new Map();
         const sf = this.scaleFactor;
-        const indices = part === 'upper' ? (regions.upperLip || []) : (regions.lowerLip || []);
+        const rawIndices = part === 'upper' ? (regions.upperLip || []) : (regions.lowerLip || []);
+        const expanded = this.getExpandedIndices(rawIndices, 8, 0.08);
         const dir = part === 'upper' ? -1 : 1;
 
-        for (const i of indices) {
+        for (const { index: i, weight: w } of expanded) {
             displacements.set(i, {
                 x: 0,
-                y: dir * sf * 0.02 * this.intensity,
-                z: -sf * 0.03 * this.intensity
+                y: dir * sf * 0.02 * w * this.intensity,
+                z: -sf * 0.03 * w * this.intensity
             });
         }
 
@@ -796,14 +862,15 @@ export class BlendshapeGenerator {
     createLipShrug(regions, part) {
         const displacements = new Map();
         const sf = this.scaleFactor;
-        const indices = part === 'upper' ? (regions.upperLip || []) : (regions.lowerLip || []);
+        const rawIndices = part === 'upper' ? (regions.upperLip || []) : (regions.lowerLip || []);
+        const expanded = this.getExpandedIndices(rawIndices, 8, 0.08);
         const dir = part === 'upper' ? 1 : -1;
 
-        for (const i of indices) {
+        for (const { index: i, weight: w } of expanded) {
             displacements.set(i, {
                 x: 0,
-                y: dir * sf * 0.025 * this.intensity,
-                z: sf * 0.01 * this.intensity
+                y: dir * sf * 0.025 * w * this.intensity,
+                z: sf * 0.01 * w * this.intensity
             });
         }
 
@@ -814,21 +881,24 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const mouthIndices = [...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const rawIndices = [...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const expanded = this.getExpandedIndices(rawIndices, 10, 0.10);
         const centerX = this.mouthCenter.x;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const sideWeight = side === 'left'
                 ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
-            const influence = Math.min(1, sideWeight);
+            const influence = Math.min(1, sideWeight) * regionW;
 
-            displacements.set(i, {
-                x: 0,
-                y: 0,
-                z: -sf * 0.02 * influence * this.intensity
-            });
+            if (influence > 0.05) {
+                displacements.set(i, {
+                    x: 0,
+                    y: 0,
+                    z: -sf * 0.02 * influence * this.intensity
+                });
+            }
         }
 
         return displacements;
@@ -838,15 +908,16 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const indices = regions.upperLip || [];
+        const rawIndices = regions.upperLip || [];
+        const expanded = this.getExpandedIndices(rawIndices, 8, 0.08);
         const centerX = this.mouthCenter.x;
 
-        for (const i of indices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const sideWeight = side === 'left'
                 ? Math.max(0, 0.5 + (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, 0.5 + (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
-            const influence = Math.min(1, sideWeight);
+            const influence = Math.min(1, sideWeight) * regionW;
 
             displacements.set(i, {
                 x: 0,
@@ -862,15 +933,16 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const indices = regions.lowerLip || [];
+        const rawIndices = regions.lowerLip || [];
+        const expanded = this.getExpandedIndices(rawIndices, 8, 0.08);
         const centerX = this.mouthCenter.x;
 
-        for (const i of indices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const sideWeight = side === 'left'
                 ? Math.max(0, 0.5 + (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, 0.5 + (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
-            const influence = Math.min(1, sideWeight);
+            const influence = Math.min(1, sideWeight) * regionW;
 
             displacements.set(i, {
                 x: 0,
@@ -889,24 +961,25 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const rawIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const expanded = this.getExpandedIndices(rawIndices, 12, 0.12);
         const centerX = this.mouthCenter.x;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const sideWeight = side === 'left'
                 ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
 
-            if (sideWeight < 0.4) continue; // only affect corner area
+            if (sideWeight < 0.4) continue;
 
-            const influence = Math.min(1, (sideWeight - 0.4) / 0.6);
+            const influence = Math.min(1, (sideWeight - 0.4) / 0.6) * regionW;
             const pullDir = side === 'left' ? -1 : 1;
 
             displacements.set(i, {
                 x: pullDir * sf * 0.02 * influence * this.intensity,
                 y: 0,
-                z: -sf * 0.025 * influence * this.intensity // pull inward
+                z: -sf * 0.025 * influence * this.intensity
             });
         }
 
@@ -920,12 +993,13 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const rawIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const expanded = this.getExpandedIndices(rawIndices, 12, 0.12);
         const dir = side === 'left' ? 1 : -1;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: w } of expanded) {
             displacements.set(i, {
-                x: dir * sf * 0.04 * this.intensity,
+                x: dir * sf * 0.04 * w * this.intensity,
                 y: 0,
                 z: 0
             });
@@ -935,7 +1009,6 @@ export class BlendshapeGenerator {
         const jawIndices = regions.jaw || [];
         for (const i of jawIndices) {
             const y = positions.getY(i);
-            // Only upper jaw area (near mouth)
             if (y > this.mouthCenter.y - sf * 0.08) {
                 const weight = Math.max(0, 1 - (this.mouthCenter.y - y) / (sf * 0.08));
                 displacements.set(i, {
@@ -957,14 +1030,15 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
-        if (eyeIndices.length === 0) return displacements;
+        const rawEyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+        if (rawEyeIndices.length === 0) return displacements;
 
-        const centerY = this.getMidY(positions, eyeIndices);
-        const centerX = this.getMidX(positions, eyeIndices);
+        // Use raw indices for metrics, expanded for displacement
+        const centerY = this.getMidY(positions, rawEyeIndices);
+        const centerX = this.getMidX(positions, rawEyeIndices);
 
         let minY = Infinity, maxY = -Infinity;
-        for (const i of eyeIndices) {
+        for (const i of rawEyeIndices) {
             const y = positions.getY(i);
             if (y < minY) minY = y;
             if (y > maxY) maxY = y;
@@ -972,23 +1046,23 @@ export class BlendshapeGenerator {
         const eyeHeight = maxY - minY;
         if (eyeHeight < 0.001) return displacements;
 
-        for (const i of eyeIndices) {
+        const expanded = this.getExpandedIndices(rawEyeIndices, 10, 0.10);
+
+        for (const { index: i, weight: regionW } of expanded) {
             const y = positions.getY(i);
             const relY = (y - centerY) / (eyeHeight * 0.5);
 
             if (relY > 0) {
-                // Upper eyelid moves down strongly
                 displacements.set(i, {
                     x: 0,
-                    y: -relY * eyeHeight * 0.48 * this.intensity,
-                    z: 0.005 * sf * relY * this.intensity
+                    y: -relY * eyeHeight * 0.48 * regionW * this.intensity,
+                    z: 0.005 * sf * relY * regionW * this.intensity
                 });
             } else {
-                // Lower eyelid moves up slightly
                 displacements.set(i, {
                     x: 0,
-                    y: -relY * eyeHeight * 0.12 * this.intensity,
-                    z: 0.003 * sf * (-relY) * this.intensity
+                    y: -relY * eyeHeight * 0.12 * regionW * this.intensity,
+                    z: 0.003 * sf * (-relY) * regionW * this.intensity
                 });
             }
         }
@@ -1021,18 +1095,19 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
-        if (eyeIndices.length === 0) return displacements;
+        const rawEyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+        if (rawEyeIndices.length === 0) return displacements;
 
-        const centerY = this.getMidY(positions, eyeIndices);
+        const centerY = this.getMidY(positions, rawEyeIndices);
+        const expanded = this.getExpandedIndices(rawEyeIndices, 8, 0.10);
 
-        for (const i of eyeIndices) {
+        for (const { index: i, weight: w } of expanded) {
             const y = positions.getY(i);
             const above = y > centerY;
 
             displacements.set(i, {
                 x: 0,
-                y: (above ? sf * 0.03 : -sf * 0.015) * this.intensity,
+                y: (above ? sf * 0.03 : -sf * 0.015) * w * this.intensity,
                 z: 0
             });
         }
@@ -1044,36 +1119,37 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
-        const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
-        if (eyeIndices.length === 0) return displacements;
+        const rawEyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+        const cheekRaw = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
+        if (rawEyeIndices.length === 0) return displacements;
 
-        const centerY = this.getMidY(positions, eyeIndices);
-        const centerX = this.getMidX(positions, eyeIndices);
+        const centerY = this.getMidY(positions, rawEyeIndices);
+        const centerX = this.getMidX(positions, rawEyeIndices);
+        const expanded = this.getExpandedIndices(rawEyeIndices, 8, 0.10);
 
-        for (const i of eyeIndices) {
+        for (const { index: i, weight: w } of expanded) {
             const y = positions.getY(i);
             const above = y > centerY;
 
             displacements.set(i, {
                 x: 0,
-                y: (above ? -sf * 0.02 : sf * 0.015) * this.intensity,
-                z: sf * 0.008 * this.intensity
+                y: (above ? -sf * 0.02 : sf * 0.015) * w * this.intensity,
+                z: sf * 0.008 * w * this.intensity
             });
         }
 
         // Push upper cheek up with distance-based falloff from eye center
-        for (const i of (cheekIndices || [])) {
+        const cheekExpanded = this.getExpandedIndices(cheekRaw, 6, 0.10);
+        for (const { index: i, weight: w } of cheekExpanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
-            // Only affect vertices near the eye (upper portion of cheek)
             const dist = Math.sqrt(
                 (x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)
             );
             const maxDist = sf * 0.2;
             if (dist > maxDist) continue;
 
-            const falloff = 1 - dist / maxDist;
+            const falloff = (1 - dist / maxDist) * w;
             displacements.set(i, {
                 x: 0,
                 y: sf * 0.025 * falloff * this.intensity,
@@ -1087,9 +1163,9 @@ export class BlendshapeGenerator {
     createEyeLook(regions, side, direction) {
         const displacements = new Map();
         const sf = this.scaleFactor;
-        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+        const rawEyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+        const expanded = this.getExpandedIndices(rawEyeIndices, 8, 0.08);
 
-        // Eye look is subtle eyelid following
         let dx = 0, dy = 0;
         switch (direction) {
             case 'up': dy = sf * 0.012; break;
@@ -1098,10 +1174,10 @@ export class BlendshapeGenerator {
             case 'out': dx = (side === 'left' ? 1 : -1) * sf * 0.008; break;
         }
 
-        for (const i of eyeIndices) {
+        for (const { index: i, weight: w } of expanded) {
             displacements.set(i, {
-                x: dx * this.intensity,
-                y: dy * this.intensity,
+                x: dx * w * this.intensity,
+                y: dy * w * this.intensity,
                 z: 0
             });
         }
@@ -1117,15 +1193,16 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const foreheadIndices = regions.forehead || [];
-        if (foreheadIndices.length === 0) return displacements;
+        const rawForehead = regions.forehead || [];
+        if (rawForehead.length === 0) return displacements;
 
-        const centerX = this.getMidX(positions, foreheadIndices);
-        const minY = this.getMinY(positions, foreheadIndices);
-        const maxY = this.getMaxY(positions, foreheadIndices);
+        const centerX = this.getMidX(positions, rawForehead);
+        const minY = this.getMinY(positions, rawForehead);
+        const maxY = this.getMaxY(positions, rawForehead);
         const browHeight = maxY - minY;
 
-        for (const i of foreheadIndices) {
+        const expanded = this.getExpandedIndices(rawForehead, 10, 0.10);
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
 
@@ -1137,13 +1214,12 @@ export class BlendshapeGenerator {
             // Height influence - brow is at bottom of forehead region
             const heightWeight = Math.max(0, 1 - (y - minY) / (browHeight * 0.5 + 0.001));
 
-            const influence = Math.min(1, sideWeight) * Math.min(1, heightWeight);
+            const influence = Math.min(1, sideWeight) * Math.min(1, heightWeight) * regionW;
 
             if (influence > 0.1) {
-                // z-component: browDown pushes skin forward (bunching), browUp flattens
                 const zDisp = direction < 0
-                    ? sf * 0.015 * influence * this.intensity   // furrowing pushes forward
-                    : -sf * 0.005 * influence * this.intensity; // raising flattens slightly
+                    ? sf * 0.015 * influence * this.intensity
+                    : -sf * 0.005 * influence * this.intensity;
 
                 displacements.set(i, {
                     x: 0,
@@ -1160,27 +1236,28 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const foreheadIndices = regions.forehead || [];
-        if (foreheadIndices.length === 0) return displacements;
+        const rawForehead = regions.forehead || [];
+        if (rawForehead.length === 0) return displacements;
 
-        const centerX = this.getMidX(positions, foreheadIndices);
-        const minY = this.getMinY(positions, foreheadIndices);
-        const maxY = this.getMaxY(positions, foreheadIndices);
+        const centerX = this.getMidX(positions, rawForehead);
+        const minY = this.getMinY(positions, rawForehead);
+        const maxY = this.getMaxY(positions, rawForehead);
         const browHeight = maxY - minY;
 
-        for (const i of foreheadIndices) {
+        const expanded = this.getExpandedIndices(rawForehead, 10, 0.10);
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
 
             const centerWeight = Math.max(0, 1 - Math.abs(x - centerX) / (this.mouthWidth * 0.4 + 0.001));
             const heightWeight = Math.max(0, 1 - (y - minY) / (browHeight * 0.4 + 0.001));
-            const influence = centerWeight * heightWeight;
+            const influence = centerWeight * heightWeight * regionW;
 
             if (influence > 0.1) {
                 displacements.set(i, {
                     x: 0,
                     y: sf * 0.05 * influence * this.intensity,
-                    z: -sf * 0.005 * influence * this.intensity // skin flattens when raised
+                    z: -sf * 0.005 * influence * this.intensity
                 });
             }
         }
@@ -1192,15 +1269,16 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const foreheadIndices = regions.forehead || [];
-        if (foreheadIndices.length === 0) return displacements;
+        const rawForehead = regions.forehead || [];
+        if (rawForehead.length === 0) return displacements;
 
-        const centerX = this.getMidX(positions, foreheadIndices);
-        const minY = this.getMinY(positions, foreheadIndices);
-        const maxY = this.getMaxY(positions, foreheadIndices);
+        const centerX = this.getMidX(positions, rawForehead);
+        const minY = this.getMinY(positions, rawForehead);
+        const maxY = this.getMaxY(positions, rawForehead);
         const browHeight = maxY - minY;
 
-        for (const i of foreheadIndices) {
+        const expanded = this.getExpandedIndices(rawForehead, 10, 0.10);
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
 
@@ -1210,13 +1288,13 @@ export class BlendshapeGenerator {
                 : (x < centerX ? Math.min(1, dist / (this.mouthWidth * 0.5 + 0.001)) : 0);
 
             const heightWeight = Math.max(0, 1 - (y - minY) / (browHeight * 0.4 + 0.001));
-            const influence = outerWeight * heightWeight;
+            const influence = outerWeight * heightWeight * regionW;
 
             if (influence > 0.1) {
                 displacements.set(i, {
                     x: 0,
                     y: sf * 0.05 * influence * this.intensity,
-                    z: -sf * 0.005 * influence * this.intensity // skin flattens when raised
+                    z: -sf * 0.005 * influence * this.intensity
                 });
             }
         }
@@ -1232,18 +1310,19 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const allCheeks = [...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
+        const rawCheeks = [...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
+        const expanded = this.getExpandedIndices(rawCheeks, 12, 0.15);
         const centerX = this.mouthCenter.x;
 
         // Puff cheeks outward
-        for (const i of allCheeks) {
+        for (const { index: i, weight: w } of expanded) {
             const x = positions.getX(i);
             const dir = x > centerX ? 1 : -1;
 
             displacements.set(i, {
-                x: dir * sf * 0.05 * this.intensity,
+                x: dir * sf * 0.05 * w * this.intensity,
                 y: 0,
-                z: sf * 0.06 * this.intensity
+                z: sf * 0.06 * w * this.intensity
             });
         }
 
@@ -1289,29 +1368,28 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
-        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+        const rawCheek = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
+        const rawEye = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
 
-        // Compute eye center for distance-based falloff
         let eyeCenterX, eyeCenterY;
-        if (eyeIndices.length > 0) {
-            eyeCenterX = this.getMidX(positions, eyeIndices);
-            eyeCenterY = this.getMidY(positions, eyeIndices);
+        if (rawEye.length > 0) {
+            eyeCenterX = this.getMidX(positions, rawEye);
+            eyeCenterY = this.getMidY(positions, rawEye);
         } else {
             eyeCenterX = this.mouthCenter.x;
             eyeCenterY = this.mouthCenter.y + sf * 0.15;
         }
 
-        for (const i of cheekIndices) {
+        const cheekExpanded = this.getExpandedIndices(rawCheek, 8, 0.12);
+        for (const { index: i, weight: w } of cheekExpanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
 
-            // Stronger effect closer to the eye, weaker further away
             const dist = Math.sqrt(
                 (x - eyeCenterX) * (x - eyeCenterX) + (y - eyeCenterY) * (y - eyeCenterY)
             );
             const maxDist = sf * 0.25;
-            const falloff = Math.max(0, 1 - dist / maxDist);
+            const falloff = Math.max(0, 1 - dist / maxDist) * w;
 
             if (falloff > 0.05) {
                 displacements.set(i, {
@@ -1323,13 +1401,14 @@ export class BlendshapeGenerator {
         }
 
         // Also slightly squint the lower eye vertices
-        for (const i of eyeIndices) {
+        const eyeExpanded = this.getExpandedIndices(rawEye, 6, 0.08);
+        for (const { index: i, weight: w } of eyeExpanded) {
             const y = positions.getY(i);
             if (y < eyeCenterY) {
                 displacements.set(i, {
                     x: 0,
-                    y: sf * 0.01 * this.intensity,
-                    z: sf * 0.005 * this.intensity
+                    y: sf * 0.01 * w * this.intensity,
+                    z: sf * 0.005 * w * this.intensity
                 });
             }
         }
@@ -1341,21 +1420,20 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const noseIndices = regions.nose || [];
+        const rawNose = regions.nose || [];
         const centerX = this.mouthCenter.x;
         const dir = side === 'left' ? 1 : -1;
 
-        // Nostril area: raise and flare
-        for (const i of noseIndices) {
+        const noseExpanded = this.getExpandedIndices(rawNose, 8, 0.10);
+        for (const { index: i, weight: regionW } of noseExpanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
             const sideWeight = side === 'left'
                 ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
-            const influence = Math.min(1, sideWeight);
+            const influence = Math.min(1, sideWeight) * regionW;
 
             if (influence > 0.1) {
-                // Lower nose vertices (nostrils) get more flare, upper get more raise
                 const lowerWeight = Math.max(0, (this.mouthCenter.y - y) / (sf * 0.1 + 0.001));
                 const nostrilFlare = Math.min(1, lowerWeight) * 0.6 + 0.4;
 
