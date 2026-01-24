@@ -255,10 +255,10 @@ export class BlendshapeGenerator {
     // ========================================================================
 
     /**
-     * Professional jaw open using spatial vertex selection.
-     * Instead of only rotating detected jaw/mouth vertices (too few),
-     * rotates ALL vertices below the mouth seam line with distance-based weight.
-     * angle: rotation in radians (0.45 ≈ 25 degrees for full open)
+     * Professional jaw open using translation-based displacement.
+     * Moves lower face vertices DOWNWARD with weight proportional to
+     * distance below the mouth seam line.
+     * angle: controls magnitude (0.45 = full open, ~15% of face height drop)
      */
     createJawOpen(regions, angle) {
         const displacements = new Map();
@@ -266,16 +266,10 @@ export class BlendshapeGenerator {
         const sf = this.scaleFactor;
         const vertexCount = positions.count;
 
-        const pivotY = this.jawPivot.y;
-        const pivotZ = this.jawPivot.z;
-
-        // The "seam line" is where the mouth opens - between upper and lower lips
-        // Use the center Y of the mouth region as the split
+        // The "seam line" is where the mouth splits open
         const seamY = this.mouthCenter.y;
-        const mouthZ = this.mouthCenter.z;
 
-        // Find the lowest point of the face (bottom of chin/jaw)
-        // Use ALL face region vertices to determine bounds
+        // Find face bounds for thresholds
         const allFaceIndices = [
             ...(regions.forehead || []),
             ...(regions.eyeLeft || []),
@@ -298,20 +292,22 @@ export class BlendshapeGenerator {
             if (z < faceMinZ) faceMinZ = z;
         }
 
-        // The distance from seam to chin - this is where rotation goes 0→1
         const jawLength = seamY - faceMinY;
         if (jawLength < 0.001) return displacements;
 
-        // Z threshold: only affect front-facing vertices
-        // Face depth = faceMaxZ - faceMinZ. Front half is > midZ
+        // Z threshold: only affect front-facing vertices (front 70% of face depth)
         const faceDepth = faceMaxZ - faceMinZ;
-        const zThreshold = faceMinZ + faceDepth * 0.3; // only front 70% of face
+        const zThreshold = faceMinZ + faceDepth * 0.3;
 
-        // Neck cutoff: beyond chin, fade out quickly
-        const neckFadeStart = faceMinY;
+        // Maximum displacement at full jaw open (chin drops this much)
+        const maxDrop = sf * 0.18 * angle * this.intensity;
+        // Slight backward pull for realism
+        const maxBack = -sf * 0.03 * angle * this.intensity;
+
+        // Neck cutoff
         const neckFadeRange = sf * 0.08;
 
-        // Upper face set - vertices that should NEVER rotate
+        // Upper face set - never moves
         const upperFaceSet = new Set([
             ...(regions.forehead || []),
             ...(regions.eyeLeft || []),
@@ -321,7 +317,6 @@ export class BlendshapeGenerator {
 
         // Iterate ALL vertices spatially
         for (let i = 0; i < vertexCount; i++) {
-            // Skip upper face regions entirely
             if (upperFaceSet.has(i)) continue;
 
             const y = positions.getY(i);
@@ -333,42 +328,32 @@ export class BlendshapeGenerator {
             // Skip back-of-head vertices
             if (z < zThreshold) continue;
 
-            // Compute rotation weight based on distance below seam
+            // Weight: 0 at seam, 1 at chin
             const distBelowSeam = seamY - y;
-            let weight = Math.min(1.0, distBelowSeam / (jawLength * 0.6));
+            let weight = Math.min(1.0, distBelowSeam / (jawLength * 0.7));
 
-            // Neck fade: reduce weight for vertices below the chin
-            if (y < neckFadeStart) {
-                const neckDist = neckFadeStart - y;
-                const neckFade = Math.max(0, 1 - neckDist / neckFadeRange);
-                weight *= neckFade;
+            // Neck fade: vertices below face bottom get reduced
+            if (y < faceMinY) {
+                const neckDist = faceMinY - y;
+                weight *= Math.max(0, 1 - neckDist / neckFadeRange);
             }
 
             if (weight < 0.01) continue;
 
-            // Compute distance from pivot
-            const dy = y - pivotY;
-            const dz = z - pivotZ;
-            const dist = Math.sqrt(dy * dy + dz * dz);
-            if (dist < 0.001) continue;
-
-            // Rotate around pivot (negative angle = open downward)
-            const currentAngle = Math.atan2(dy, dz);
-            const rotAngle = -angle * this.intensity * weight;
-            const newAngle = currentAngle + rotAngle;
-
-            const newDy = dist * Math.sin(newAngle) - dy;
-            const newDz = dist * Math.cos(newAngle) - dz;
-
-            displacements.set(i, { x: 0, y: newDy, z: newDz });
+            // Apply downward translation + slight backward pull
+            displacements.set(i, {
+                x: 0,
+                y: -maxDrop * weight,
+                z: maxBack * weight
+            });
         }
 
-        // Upper lip: slight outward push (lip separates when jaw opens)
+        // Upper lip: slight upward push (lip separates when jaw opens)
         for (const i of (regions.upperLip || [])) {
             displacements.set(i, {
                 x: 0,
-                y: sf * 0.015 * angle * this.intensity,
-                z: sf * 0.01 * angle * this.intensity
+                y: sf * 0.02 * angle * this.intensity,
+                z: sf * 0.015 * angle * this.intensity
             });
         }
 
