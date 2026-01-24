@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Blendshapes Generator - VR Ready</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>AI Blendshapes Generator</h1>
+            <p>יצירת Blendshapes אוטומטית + Lip Sync מ-WAV</p>
+        </header>
+
+        <div class="main-layout">
+            <!-- Left Panel - Controls -->
+            <div class="panel controls-panel">
+                <div class="section">
+                    <h2>1. העלאת מודל תלת-מימדי</h2>
+                    <div class="upload-zone" id="model-upload-zone">
+                        <input type="file" id="model-input" accept=".glb,.gltf,.fbx,.obj" hidden>
+                        <button class="btn btn-primary" id="model-upload-btn">
+                            בחר קובץ 3D
+                        </button>
+                        <p class="hint">GLB, GLTF, FBX, OBJ</p>
+                    </div>
+                    <div id="model-info" class="info-box hidden"></div>
+                </div>
+
+                <div class="section">
+                    <h2>2. זיהוי פנים ויצירת Blendshapes</h2>
+                    <div class="controls">
+                        <label>
+                            סוג דמות:
+                            <select id="character-type">
+                                <option value="human">אנושי</option>
+                                <option value="animal">חיה</option>
+                                <option value="creature">יצור/חייזר</option>
+                                <option value="custom">מותאם אישית</option>
+                            </select>
+                        </label>
+                        <label>
+                            עוצמת Blendshapes:
+                            <input type="range" id="blend-intensity" min="0.1" max="2.0" step="0.1" value="1.0">
+                            <span id="blend-intensity-val">1.0</span>
+                        </label>
+                        <button class="btn btn-secondary" id="detect-face-btn" disabled>
+                            זהה פנים במודל
+                        </button>
+                        <button class="btn btn-primary" id="generate-blendshapes-btn" disabled>
+                            צור Blendshapes
+                        </button>
+                    </div>
+                    <div id="blendshapes-info" class="info-box hidden"></div>
+                </div>
+
+                <div class="section">
+                    <h2>3. Lip Sync - העלאת אודיו</h2>
+                    <div class="upload-zone" id="audio-upload-zone">
+                        <input type="file" id="audio-input" accept=".wav,.mp3,.ogg" hidden>
+                        <button class="btn btn-primary" id="audio-upload-btn" disabled>
+                            העלה קובץ WAV
+                        </button>
+                        <p class="hint">WAV, MP3, OGG</p>
+                    </div>
+                    <div id="audio-info" class="info-box hidden"></div>
+                    <button class="btn btn-secondary" id="generate-lipsync-btn" disabled>
+                        צור Lip Sync
+                    </button>
+                </div>
+
+                <div class="section">
+                    <h2>4. ייצוא</h2>
+                    <button class="btn btn-export" id="export-glb-btn" disabled>
+                        ייצא GLB (VR-Ready)
+                    </button>
+                    <button class="btn btn-secondary" id="export-animation-btn" disabled>
+                        ייצא אנימציה בלבד
+                    </button>
+                </div>
+            </div>
+
+            <!-- Center - 3D Viewport -->
+            <div class="panel viewport-panel">
+                <div id="viewport-container">
+                    <canvas id="viewport"></canvas>
+                    <div id="viewport-overlay" class="overlay">
+                        <p>העלה מודל תלת-מימדי להתחלה</p>
+                    </div>
+                </div>
+                <div class="viewport-controls">
+                    <button class="btn-icon" id="play-btn" disabled title="הפעל אנימציה">&#9654;</button>
+                    <button class="btn-icon" id="pause-btn" disabled title="עצור">&#9646;&#9646;</button>
+                    <button class="btn-icon" id="reset-btn" disabled title="אפס">&#8634;</button>
+                    <input type="range" id="timeline" min="0" max="100" value="0" disabled>
+                    <span id="time-display">0:00 / 0:00</span>
+                </div>
+            </div>
+
+            <!-- Right Panel - Blendshape Controls -->
+            <div class="panel blendshapes-panel">
+                <h2>Blendshapes</h2>
+                <div id="blendshapes-list" class="blendshapes-list">
+                    <p class="placeholder">Blendshapes יופיעו כאן לאחר יצירה</p>
+                </div>
+                <div class="section">
+                    <h3>Visemes</h3>
+                    <div id="visemes-list" class="blendshapes-list">
+                        <p class="placeholder">Visemes יופיעו כאן לאחר Lip Sync</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div id="status-bar">
+            <span id="status-text">מוכן</span>
+            <div id="progress-bar" class="hidden">
+                <div id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js and dependencies -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
