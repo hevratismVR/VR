@@ -649,3 +649,14 @@ h3 {
 .region-overlay-toggle input {
     accent-color: var(--accent);
 }
+
+/* Heatmap active state */
+.blendshape-item.heatmap-active {
+    background: rgba(233, 69, 96, 0.1);
+    border-radius: 3px;
+}
+
+.blendshape-item.heatmap-active label {
+    color: var(--accent);
+    font-weight: 600;
+}

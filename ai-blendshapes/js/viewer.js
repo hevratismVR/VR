@@ -631,6 +631,82 @@ export class Viewer {
     }
 
     /**
+     * Show weight heatmap for a specific morph target.
+     * Colors vertices from blue (no movement) to red (max movement).
+     */
+    showWeightHeatmap(mesh, morphIndex) {
+        if (!mesh || !mesh.geometry) return;
+
+        const geometry = mesh.geometry;
+        const posCount = geometry.attributes.position.count;
+        const morphPositions = geometry.morphAttributes.position;
+        if (!morphPositions || !morphPositions[morphIndex]) return;
+
+        const posAttr = morphPositions[morphIndex];
+
+        // Find max displacement
+        let maxDisp = 0;
+        for (let i = 0; i < posAttr.count; i++) {
+            const dx = posAttr.getX(i), dy = posAttr.getY(i), dz = posAttr.getZ(i);
+            const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            if (d > maxDisp) maxDisp = d;
+        }
+        if (maxDisp < 0.0001) maxDisp = 1;
+
+        // Create vertex colors with heatmap
+        const colors = new Float32Array(posCount * 3);
+        for (let i = 0; i < posCount; i++) {
+            const dx = posAttr.getX(i), dy = posAttr.getY(i), dz = posAttr.getZ(i);
+            const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            const t = d / maxDisp; // 0..1
+
+            // Heatmap: blue -> cyan -> green -> yellow -> red
+            let r, g, b;
+            if (t < 0.01) {
+                r = 0.12; g = 0.12; b = 0.15; // near-black for zero
+            } else if (t < 0.25) {
+                const s = t / 0.25;
+                r = 0; g = s; b = 1 - s * 0.5;
+            } else if (t < 0.5) {
+                const s = (t - 0.25) / 0.25;
+                r = 0; g = 1; b = 0.5 * (1 - s);
+            } else if (t < 0.75) {
+                const s = (t - 0.5) / 0.25;
+                r = s; g = 1; b = 0;
+            } else {
+                const s = (t - 0.75) / 0.25;
+                r = 1; g = 1 - s; b = 0;
+            }
+
+            colors[i * 3] = r;
+            colors[i * 3 + 1] = g;
+            colors[i * 3 + 2] = b;
+        }
+
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        if (!this._originalMaterial) {
+            this._originalMaterial = mesh.material;
+        }
+
+        mesh.material = new THREE.MeshStandardMaterial({
+            vertexColors: true,
+            roughness: 0.6,
+            metalness: 0.1,
+            morphTargets: true,
+            morphNormals: true
+        });
+        mesh.material.needsUpdate = true;
+    }
+
+    /**
+     * Hide weight heatmap: restore original material.
+     */
+    hideWeightHeatmap(mesh) {
+        this.hideRegionOverlay(mesh);
+    }
+
+    /**
      * Hide region overlay: restore original material.
      */
     hideRegionOverlay(mesh) {

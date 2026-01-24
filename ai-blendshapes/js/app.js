@@ -197,6 +197,10 @@ class App {
 
         // Region overlay toggle
         document.getElementById('region-overlay-toggle').addEventListener('change', (e) => {
+            // Clear any active heatmap first
+            this._heatmapActive = null;
+            document.querySelectorAll('.blendshape-item.heatmap-active').forEach(el => el.classList.remove('heatmap-active'));
+
             if (e.target.checked && this.faceMesh && this.regions) {
                 this.viewer.showRegionOverlay(this.faceMesh, this.regions);
             } else {
@@ -1076,12 +1080,52 @@ class App {
             this.lipSync.setBlendshapeWeight(this.faceMesh, name, weight);
         });
 
+        // Click label to show weight heatmap
+        label.style.cursor = 'pointer';
+        label.title = 'Click to show weight heatmap';
+        label.addEventListener('click', () => {
+            this.toggleWeightHeatmap(name);
+        });
+
         item.appendChild(dot);
         item.appendChild(label);
         item.appendChild(slider);
         item.appendChild(value);
 
         return item;
+    }
+
+    /**
+     * Toggle weight heatmap for a blendshape.
+     */
+    toggleWeightHeatmap(name) {
+        if (!this.faceMesh || !this.faceMesh.morphTargetDictionary) return;
+        const dict = this.faceMesh.morphTargetDictionary;
+        if (!(name in dict)) return;
+
+        const idx = dict[name];
+
+        if (this._heatmapActive === name) {
+            // Turn off
+            this.viewer.hideWeightHeatmap(this.faceMesh);
+            this._heatmapActive = null;
+            // Uncheck region overlay toggle if it was on
+            const overlayToggle = document.getElementById('region-overlay-toggle');
+            if (overlayToggle) overlayToggle.checked = false;
+            // Remove highlight
+            document.querySelectorAll('.blendshape-item.heatmap-active').forEach(el => el.classList.remove('heatmap-active'));
+        } else {
+            // Show heatmap for this blendshape
+            this.viewer.showWeightHeatmap(this.faceMesh, idx);
+            this._heatmapActive = name;
+            // Uncheck region overlay
+            const overlayToggle = document.getElementById('region-overlay-toggle');
+            if (overlayToggle) overlayToggle.checked = false;
+            // Highlight this slider item
+            document.querySelectorAll('.blendshape-item.heatmap-active').forEach(el => el.classList.remove('heatmap-active'));
+            const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
+            if (sliderItem) sliderItem.classList.add('heatmap-active');
+        }
     }
 
     /**
