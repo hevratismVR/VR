@@ -46,6 +46,11 @@ class App {
             this.handleLandmarkMoved(name, newPos);
         };
 
+        // Set accessory drag callback
+        this.viewer.onAccessoryMoved = (type, newPos) => {
+            this.handleAccessoryDragged(type, newPos);
+        };
+
         // Bind UI events
         this.bindEvents();
 
@@ -246,7 +251,7 @@ class App {
             // Enable blendshape generation
             document.getElementById('generate-blendshapes-btn').disabled = false;
 
-            this.setStatus('Face detected - ready to generate blendshapes');
+            this.setStatus('Face detected - drag landmarks to adjust, then generate blendshapes');
         } catch (error) {
             this.setStatus(`Detection error: ${error.message}`);
             console.error('Face detection error:', error);
@@ -343,7 +348,12 @@ class App {
 
         try {
             const modelData = await this.modelLoader.load(file);
-            this.accessoriesManager.addAccessory(type, modelData.scene);
+            const accMesh = this.accessoriesManager.addAccessory(type, modelData.scene);
+
+            // Register as draggable in the 3D viewport
+            if (accMesh) {
+                this.viewer.addAccessoryHandle(type, accMesh);
+            }
 
             // Update UI
             const btn = document.getElementById(`${htmlId}-btn`);
@@ -354,7 +364,7 @@ class App {
             // Auto-select this accessory for transform
             this.selectAccessory(type, htmlId);
 
-            this.setStatus(`${type} loaded - use sliders to position`);
+            this.setStatus(`${type} loaded - drag in viewport or use sliders`);
         } catch (error) {
             this.setStatus(`Error loading ${type}: ${error.message}`);
             console.error('Accessory load error:', error);
@@ -484,6 +494,10 @@ class App {
         // Remove button
         document.getElementById('acc-remove-btn').addEventListener('click', () => {
             if (!this.selectedAccessory) return;
+
+            // Remove from viewer drag handles
+            this.viewer.removeAccessoryHandle(this.selectedAccessory);
+
             this.accessoriesManager.removeAccessory(this.selectedAccessory);
 
             // Reset UI
@@ -539,6 +553,35 @@ class App {
         // Store the new position for this landmark
         this.landmarkOffsets[name] = newPosition.clone();
         this.setStatus(`Moved ${name} - click "צור Blendshapes" to apply`);
+    }
+
+    /**
+     * Handle an accessory being dragged in the viewport.
+     */
+    handleAccessoryDragged(type, newWorldPosition) {
+        const attachment = this.accessoriesManager.attachments[type];
+        if (attachment) {
+            attachment.basePosition.copy(newWorldPosition);
+        }
+
+        // If this is the currently selected accessory, update slider display
+        if (this.selectedAccessory === type) {
+            // Show current offset from original auto-position
+            const mesh = this.accessoriesManager.accessories[type];
+            if (mesh && this._accBasePos) {
+                const sf = this.blendshapeGenerator.scaleFactor || 1;
+                const range = sf * 0.3;
+                ['x', 'y', 'z'].forEach(axis => {
+                    const offset = mesh.position[axis] - this._accBasePos[axis];
+                    const sliderVal = (offset / range) * 100;
+                    const slider = document.getElementById(`acc-pos-${axis}`);
+                    slider.value = Math.max(-100, Math.min(100, sliderVal));
+                    document.getElementById(`acc-pos-${axis}-val`).textContent = Math.round(sliderVal);
+                });
+            }
+        }
+
+        this.setStatus(`${type} moved - position updated`);
     }
 
     /**

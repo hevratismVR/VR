@@ -109,9 +109,46 @@ export class BlendshapeGenerator {
             };
         }
 
-        // Jaw pivot - behind and above the mouth center (ear level)
+        // Jaw position - use manual if available
         const jawIndices = regions.jaw || [];
-        const jawMidY = this.getMidY(positions, jawIndices);
+        if (this.manualLandmarks.jaw) {
+            this.jawCenter = {
+                x: this.manualLandmarks.jaw.x,
+                y: this.manualLandmarks.jaw.y,
+                z: this.manualLandmarks.jaw.z
+            };
+        } else {
+            this.jawCenter = {
+                x: this.getMidX(positions, jawIndices),
+                y: this.getMidY(positions, jawIndices),
+                z: this.getMidZ(positions, jawIndices)
+            };
+        }
+
+        // Upper lip position - refines the seam line
+        if (this.manualLandmarks.upperLip) {
+            this.upperLipCenter = {
+                x: this.manualLandmarks.upperLip.x,
+                y: this.manualLandmarks.upperLip.y,
+                z: this.manualLandmarks.upperLip.z
+            };
+            // Use upper lip Y as seam if it's below the detected mouth center
+            // (upper lip is the boundary between what moves and what doesn't)
+            if (this.upperLipCenter.y < this.mouthCenter.y) {
+                this.mouthCenter.y = (this.mouthCenter.y + this.upperLipCenter.y) / 2;
+            }
+        }
+
+        // Lower lip - affects mouth height
+        if (this.manualLandmarks.lowerLip) {
+            this.lowerLipCenter = {
+                x: this.manualLandmarks.lowerLip.x,
+                y: this.manualLandmarks.lowerLip.y,
+                z: this.manualLandmarks.lowerLip.z
+            };
+        }
+
+        // Jaw pivot - behind and above the mouth center (ear level)
         this.jawPivot = {
             x: this.mouthCenter.x,
             y: this.mouthCenter.y + this.scaleFactor * 0.15,
@@ -134,7 +171,14 @@ export class BlendshapeGenerator {
         this.mouthWidth = mouthMaxX - mouthMinX;
         this.mouthHeight = mouthMaxY - mouthMinY;
 
-        // Apply manual offsets from UI
+        // Override face min Y (jaw bottom) if manually set
+        if (this.manualLandmarks.jaw) {
+            this.manualJawBottom = this.manualLandmarks.jaw.y;
+        } else {
+            this.manualJawBottom = null;
+        }
+
+        // Apply manual offsets from UI sliders
         if (this.seamYOffset) {
             this.mouthCenter.y += this.seamYOffset * this.scaleFactor * 0.3;
         }
@@ -308,6 +352,11 @@ export class BlendshapeGenerator {
             if (y < faceMinY) faceMinY = y;
             if (z > faceMaxZ) faceMaxZ = z;
             if (z < faceMinZ) faceMinZ = z;
+        }
+
+        // Use manually positioned jaw bottom if available
+        if (this.manualJawBottom !== null && this.manualJawBottom !== undefined) {
+            faceMinY = this.manualJawBottom;
         }
 
         const jawLength = seamY - faceMinY;

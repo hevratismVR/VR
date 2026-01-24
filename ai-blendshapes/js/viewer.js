@@ -17,7 +17,10 @@ export class Viewer {
         this.helpers = [];
         this.dragControls = null;
         this.landmarkSpheres = [];
+        this.accessoryHandles = []; // draggable handles for accessories
+        this.labels = []; // sprite labels
         this.onLandmarkMoved = null; // callback(name, newPosition)
+        this.onAccessoryMoved = null; // callback(type, newPosition)
 
         this.init();
     }
@@ -126,7 +129,7 @@ export class Viewer {
     }
 
     /**
-     * Show landmark detection results as draggable colored spheres.
+     * Show landmark detection results as draggable colored spheres with labels.
      */
     showLandmarks(landmarks, mesh) {
         // Remove old helpers and drag controls
@@ -143,6 +146,19 @@ export class Viewer {
             cheekRight: 0x00ffff,
             upperLip: 0xff8800,
             lowerLip: 0xff4400
+        };
+
+        const labelNames = {
+            forehead: 'Forehead',
+            eyeLeft: 'L Eye',
+            eyeRight: 'R Eye',
+            nose: 'Nose',
+            mouth: 'Mouth',
+            jaw: 'Jaw',
+            cheekLeft: 'L Cheek',
+            cheekRight: 'R Cheek',
+            upperLip: 'Upper Lip',
+            lowerLip: 'Lower Lip'
         };
 
         this.landmarkSpheres = [];
@@ -175,10 +191,22 @@ export class Viewer {
             sphere.position.copy(worldPos);
             sphere.userData.landmarkName = name;
             sphere.userData.mesh = mesh;
+            sphere.userData.isDraggable = true;
 
             this.scene.add(sphere);
             this.helpers.push(sphere);
             this.landmarkSpheres.push(sphere);
+
+            // Add text label sprite (size relative to model)
+            const label = this.createLabel(labelNames[name] || name, color);
+            label.position.copy(worldPos);
+            label.position.x += sphereRadius * 2.5;
+            label.position.y += sphereRadius * 1.5;
+            label.scale.set(sphereRadius * 6, sphereRadius * 1.6, 1);
+            label.userData.parentSphere = sphere;
+            this.scene.add(label);
+            this.helpers.push(label);
+            this.labels.push(label);
         }
 
         // Set up drag controls for the spheres
@@ -186,7 +214,75 @@ export class Viewer {
     }
 
     /**
-     * Set up DragControls for landmark spheres.
+     * Create a text sprite label.
+     */
+    createLabel(text, color) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 128;
+        canvas.height = 32;
+
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.beginPath();
+        const r = 4, w = canvas.width, h = canvas.height;
+        ctx.moveTo(r, 0);
+        ctx.lineTo(w - r, 0);
+        ctx.quadraticCurveTo(w, 0, w, r);
+        ctx.lineTo(w, h - r);
+        ctx.quadraticCurveTo(w, h, w - r, h);
+        ctx.lineTo(r, h);
+        ctx.quadraticCurveTo(0, h, 0, h - r);
+        ctx.lineTo(0, r);
+        ctx.quadraticCurveTo(0, 0, r, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const material = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            depthTest: false
+        });
+
+        const sprite = new THREE.Sprite(material);
+        // Scale will be set by showLandmarks based on model size
+        sprite.scale.set(0.15, 0.04, 1);
+        sprite.userData.isLabel = true;
+        return sprite;
+    }
+
+    /**
+     * Add an accessory mesh as a draggable object in the viewport.
+     */
+    addAccessoryHandle(type, mesh) {
+        if (!mesh) return;
+
+        // Mark the mesh as draggable accessory
+        mesh.userData.accessoryType = type;
+        mesh.userData.isDraggable = true;
+
+        this.accessoryHandles.push(mesh);
+
+        // Rebuild drag controls with both landmarks and accessories
+        this.setupDragControls();
+    }
+
+    /**
+     * Remove an accessory handle.
+     */
+    removeAccessoryHandle(type) {
+        this.accessoryHandles = this.accessoryHandles.filter(m => m.userData.accessoryType !== type);
+        this.setupDragControls();
+    }
+
+    /**
+     * Set up DragControls for landmark spheres and accessories.
      */
     setupDragControls() {
         if (this.dragControls) {
@@ -194,44 +290,85 @@ export class Viewer {
             this.dragControls = null;
         }
 
-        if (this.landmarkSpheres.length === 0) return;
+        // Combine all draggable objects
+        const draggables = [...this.landmarkSpheres, ...this.accessoryHandles];
+        if (draggables.length === 0) return;
 
         this.dragControls = new DragControls(
-            this.landmarkSpheres,
+            draggables,
             this.camera,
             this.renderer.domElement
         );
 
         this.dragControls.addEventListener('dragstart', (event) => {
             this.controls.enabled = false;
-            event.object.material.opacity = 1.0;
-            event.object.scale.setScalar(1.3);
+            const obj = event.object;
+
+            if (obj.userData.landmarkName) {
+                // Landmark sphere
+                obj.material.opacity = 1.0;
+                obj.scale.setScalar(1.3);
+            } else if (obj.userData.accessoryType) {
+                // Accessory mesh - show highlight
+                if (obj.material) {
+                    obj.userData._origEmissive = obj.material.emissive ?
+                        obj.material.emissive.clone() : null;
+                    if (obj.material.emissive) {
+                        obj.material.emissive.setHex(0x444444);
+                    }
+                }
+            }
         });
 
         this.dragControls.addEventListener('drag', (event) => {
-            const sphere = event.object;
-            const name = sphere.userData.landmarkName;
+            const obj = event.object;
 
-            if (this.onLandmarkMoved && name) {
-                // Convert back to local space
-                const localPos = sphere.position.clone();
-                const mesh = sphere.userData.mesh;
-                if (mesh && mesh.parent) {
-                    mesh.worldToLocal(localPos);
+            if (obj.userData.landmarkName) {
+                // Landmark sphere dragged
+                const name = obj.userData.landmarkName;
+                if (this.onLandmarkMoved && name) {
+                    const localPos = obj.position.clone();
+                    const mesh = obj.userData.mesh;
+                    if (mesh && mesh.parent) {
+                        mesh.worldToLocal(localPos);
+                    }
+                    this.onLandmarkMoved(name, localPos);
                 }
-                this.onLandmarkMoved(name, localPos);
+
+                // Update label position
+                for (const label of this.labels) {
+                    if (label.userData.parentSphere === obj) {
+                        label.position.copy(obj.position);
+                        label.position.x += 0.02;
+                        label.position.y += 0.015;
+                        break;
+                    }
+                }
+            } else if (obj.userData.accessoryType) {
+                // Accessory mesh dragged
+                if (this.onAccessoryMoved) {
+                    this.onAccessoryMoved(obj.userData.accessoryType, obj.position.clone());
+                }
             }
         });
 
         this.dragControls.addEventListener('dragend', (event) => {
             this.controls.enabled = true;
-            event.object.material.opacity = 0.85;
-            event.object.scale.setScalar(1.0);
+            const obj = event.object;
+
+            if (obj.userData.landmarkName) {
+                obj.material.opacity = 0.85;
+                obj.scale.setScalar(1.0);
+            } else if (obj.userData.accessoryType) {
+                if (obj.userData._origEmissive && obj.material && obj.material.emissive) {
+                    obj.material.emissive.copy(obj.userData._origEmissive);
+                }
+            }
         });
     }
 
     /**
-     * Clear all helper objects.
+     * Clear all helper objects (landmarks, labels, handles).
      */
     clearHelpers() {
         if (this.dragControls) {
@@ -239,11 +376,15 @@ export class Viewer {
             this.dragControls = null;
         }
         this.landmarkSpheres = [];
+        this.labels = [];
 
         for (const helper of this.helpers) {
             this.scene.remove(helper);
             if (helper.geometry) helper.geometry.dispose();
-            if (helper.material) helper.material.dispose();
+            if (helper.material) {
+                if (helper.material.map) helper.material.map.dispose();
+                helper.material.dispose();
+            }
         }
         this.helpers = [];
     }
