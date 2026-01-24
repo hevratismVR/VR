@@ -209,13 +209,13 @@ export class BlendshapeGenerator {
 
         const shapeDefinitions = {
             // Jaw - uses rotational displacement with large angle
-            jawOpen: () => this.createJawOpen(regions, 0.45), // ~25 degrees
+            jawOpen: () => this.createJawOpen(regions, 0.85), // strong visible drop (~15% face height)
             jawForward: () => this.createJawForward(regions, 0.12),
             jawLeft: () => this.createJawSlide(regions, 'left', 0.08),
             jawRight: () => this.createJawSlide(regions, 'right', 0.08),
 
             // Mouth - strong visible deformations
-            mouthOpen: () => this.createJawOpen(regions, 0.35), // less than jaw open
+            mouthOpen: () => this.createJawOpen(regions, 0.65), // medium jaw drop (~12% face height)
             mouthClose: () => this.createMouthClose(regions),
             mouthSmileLeft: () => this.createSmile(regions, 'left'),
             mouthSmileRight: () => this.createSmile(regions, 'right'),
@@ -320,7 +320,7 @@ export class BlendshapeGenerator {
      * Professional jaw open using translation-based displacement.
      * Moves lower face vertices DOWNWARD with weight proportional to
      * distance below the mouth seam line.
-     * angle: controls magnitude (0.45 = full open, ~15% of face height drop)
+     * angle: controls magnitude (0.85 = full open, ~15% of face height drop)
      */
     createJawOpen(regions, angle) {
         const displacements = new Map();

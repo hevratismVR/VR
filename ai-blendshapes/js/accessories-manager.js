@@ -260,13 +260,13 @@ export class AccessoriesManager {
         // maxDrop = sf * 0.18 * angle * intensity (accessories get full weight)
         if (jawOpenIdx !== undefined && influences[jawOpenIdx] > 0.001) {
             const jawInfluence = influences[jawOpenIdx];
-            totalDrop += sf * 0.18 * 0.45 * jawInfluence;
-            totalBack += sf * 0.03 * 0.45 * jawInfluence;
+            totalDrop += sf * 0.18 * 0.85 * jawInfluence;
+            totalBack += sf * 0.03 * 0.85 * jawInfluence;
         }
         if (mouthOpenIdx !== undefined && influences[mouthOpenIdx] > 0.001) {
             const mouthInfluence = influences[mouthOpenIdx];
-            totalDrop += sf * 0.18 * 0.35 * mouthInfluence;
-            totalBack += sf * 0.03 * 0.35 * mouthInfluence;
+            totalDrop += sf * 0.18 * 0.65 * mouthInfluence;
+            totalBack += sf * 0.03 * 0.65 * mouthInfluence;
         }
 
         if (totalDrop > 0.0001) {
