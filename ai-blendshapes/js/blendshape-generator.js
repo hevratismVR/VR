@@ -18,8 +18,11 @@ export class BlendshapeGenerator {
      */
     generate(mesh, landmarks, regions, intensity = 1.0) {
         this.mesh = mesh;
-        this.intensity = intensity;
         this.basePositions = mesh.geometry.attributes.position.clone();
+
+        // Compute scale factor based on actual face size in geometry space
+        this.scaleFactor = this.computeScaleFactor(regions);
+        this.intensity = intensity * this.scaleFactor;
 
         const geometry = mesh.geometry;
 
@@ -32,12 +35,64 @@ export class BlendshapeGenerator {
         // Apply morph targets to the mesh
         this.applyMorphTargets(geometry);
 
+        // Enable morphTargets on material
+        this.enableMorphOnMaterial(mesh);
+
         return {
             blendshapes: this.blendshapes,
             visemes: this.visemes,
             morphTargetDictionary: geometry.morphTargetDictionary,
             morphTargetInfluences: mesh.morphTargetInfluences
         };
+    }
+
+    /**
+     * Compute a scale factor so displacements are proportional to the face size.
+     * Our base displacement values assume a face height of ~1 unit.
+     */
+    computeScaleFactor(regions) {
+        const positions = this.basePositions;
+        let minY = Infinity, maxY = -Infinity;
+
+        // Use all face region vertices to find the face height
+        const allIndices = [
+            ...(regions.forehead || []),
+            ...(regions.eyeLeft || []),
+            ...(regions.eyeRight || []),
+            ...(regions.nose || []),
+            ...(regions.mouth || []),
+            ...(regions.jaw || []),
+            ...(regions.upperLip || []),
+            ...(regions.lowerLip || [])
+        ];
+
+        if (allIndices.length === 0) return 1;
+
+        for (const i of allIndices) {
+            const y = positions.getY(i);
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+        }
+
+        const faceHeight = maxY - minY;
+        // Our displacements are designed for a face ~1 unit tall
+        // Scale them to match the actual face size
+        return faceHeight > 0 ? faceHeight / 1.0 : 1;
+    }
+
+    /**
+     * Enable morph targets on the mesh material.
+     */
+    enableMorphOnMaterial(mesh) {
+        if (Array.isArray(mesh.material)) {
+            mesh.material.forEach(mat => {
+                mat.morphTargets = true;
+                mat.needsUpdate = true;
+            });
+        } else if (mesh.material) {
+            mesh.material.morphTargets = true;
+            mesh.material.needsUpdate = true;
+        }
     }
 
     /**
@@ -676,12 +731,22 @@ export class BlendshapeGenerator {
         const centerX = this.getMidX(positions, mouthIndices);
         const centerY = this.getMidY(positions, mouthIndices);
 
+        // Compute mouth width for relative threshold
+        let minX = Infinity, maxX = -Infinity;
+        for (const i of mouthIndices) {
+            const x = positions.getX(i);
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+        }
+        const mouthWidth = maxX - minX;
+        const threshold = mouthWidth * 0.2;
+
         // Select lower-center vertices as tongue proxy
         for (const i of mouthIndices) {
             const x = positions.getX(i);
             const y = positions.getY(i);
 
-            if (Math.abs(x - centerX) < 0.03 && y < centerY) {
+            if (Math.abs(x - centerX) < threshold && y < centerY) {
                 displacements.set(i, {
                     x: 0,
                     y: -0.06 * this.intensity,
@@ -902,6 +967,7 @@ export class BlendshapeGenerator {
         // Add blendshapes
         for (const [name, buffer] of Object.entries(this.blendshapes)) {
             const attr = new THREE.Float32BufferAttribute(buffer, 3);
+            attr.name = name;
             geometry.morphAttributes.position.push(attr);
             dictionary[name] = index++;
         }
@@ -909,15 +975,14 @@ export class BlendshapeGenerator {
         // Add visemes
         for (const [name, buffer] of Object.entries(this.visemes)) {
             const attr = new THREE.Float32BufferAttribute(buffer, 3);
+            attr.name = name;
             geometry.morphAttributes.position.push(attr);
             dictionary[name] = index++;
         }
 
-        geometry.morphTargetDictionary = dictionary;
-
-        // Initialize morph target influences
+        // Set morph target dictionary and influences on the mesh (not geometry)
+        this.mesh.morphTargetDictionary = dictionary;
         this.mesh.morphTargetInfluences = new Array(index).fill(0);
-        this.mesh.updateMorphTargets();
     }
 
     // Utility methods
