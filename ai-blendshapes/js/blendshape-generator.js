@@ -682,15 +682,14 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const sf = this.scaleFactor;
 
-        if (regions.upperLip) {
-            for (const i of regions.upperLip) {
-                displacements.set(i, { x: 0, y: -sf * 0.015 * this.intensity, z: sf * 0.005 * this.intensity });
-            }
+        const upperExp = this.getExpandedIndices(regions.upperLip || [], 6, 0.08);
+        const lowerExp = this.getExpandedIndices(regions.lowerLip || [], 6, 0.08);
+
+        for (const { index: i, weight: w } of upperExp) {
+            displacements.set(i, { x: 0, y: -sf * 0.015 * w * this.intensity, z: sf * 0.005 * w * this.intensity });
         }
-        if (regions.lowerLip) {
-            for (const i of regions.lowerLip) {
-                displacements.set(i, { x: 0, y: sf * 0.015 * this.intensity, z: sf * 0.005 * this.intensity });
-            }
+        for (const { index: i, weight: w } of lowerExp) {
+            displacements.set(i, { x: 0, y: sf * 0.015 * w * this.intensity, z: sf * 0.005 * w * this.intensity });
         }
         return displacements;
     }
@@ -1491,25 +1490,33 @@ export class BlendshapeGenerator {
     }
 
     createTongueOut(regions) {
-        // Approximation: push lower-center mouth vertices forward and down
-        const displacements = new Map();
+        // Tongue protrusion: jaw opens, lower lip pushes down, center pushes forward
+        const displacements = this.createJawOpen(regions, 0.12);
         const positions = this.basePositions;
         const sf = this.scaleFactor;
-        const mouthIndices = regions.lowerLip || regions.mouth || [];
+        const rawMouth = [...(regions.lowerLip || []), ...(regions.mouth || [])];
+        const expanded = this.getExpandedIndices(rawMouth, 10, 0.10);
         const cx = this.mouthCenter.x;
         const cy = this.mouthCenter.y;
 
-        for (const i of mouthIndices) {
+        for (const { index: i, weight: regionW } of expanded) {
             const x = positions.getX(i);
             const y = positions.getY(i);
             const distX = Math.abs(x - cx);
-            const below = y < cy;
+            const halfWidth = this.mouthWidth * 0.35 + 0.001;
 
-            if (below && distX < this.mouthWidth * 0.25) {
+            // Center weight: strongest at center, fades at edges
+            const centerWeight = Math.max(0, 1 - distX / halfWidth);
+            // Below mouth center: tongue pushes here
+            const belowWeight = y < cy ? Math.min(1, (cy - y) / (sf * 0.06 + 0.001)) : 0;
+            const influence = centerWeight * (0.4 + belowWeight * 0.6) * regionW;
+
+            if (influence > 0.1) {
+                const existing = displacements.get(i) || { x: 0, y: 0, z: 0 };
                 displacements.set(i, {
-                    x: 0,
-                    y: -sf * 0.05 * this.intensity,
-                    z: sf * 0.08 * this.intensity
+                    x: existing.x,
+                    y: existing.y - sf * 0.03 * influence * this.intensity,
+                    z: existing.z + sf * 0.10 * influence * this.intensity
                 });
             }
         }
