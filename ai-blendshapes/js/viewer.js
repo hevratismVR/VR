@@ -623,11 +623,8 @@ export class Viewer {
         mesh.material = new THREE.MeshStandardMaterial({
             vertexColors: true,
             roughness: 0.7,
-            metalness: 0.1,
-            morphTargets: true,
-            morphNormals: true
+            metalness: 0.1
         });
-        mesh.material.needsUpdate = true;
     }
 
     /**
@@ -692,11 +689,8 @@ export class Viewer {
         mesh.material = new THREE.MeshStandardMaterial({
             vertexColors: true,
             roughness: 0.6,
-            metalness: 0.1,
-            morphTargets: true,
-            morphNormals: true
+            metalness: 0.1
         });
-        mesh.material.needsUpdate = true;
     }
 
     /**

@@ -284,11 +284,10 @@ export class BlendshapeGenerator {
     }
 
     enableMorphOnMaterial(mesh) {
-        // Three.js r160+ automatically enables morph targets in shaders when
-        // geometry has morphAttributes. Just trigger shader recompile.
+        // Three.js r160: morph support is automatic when geometry has morphAttributes.
+        // Force shader recompile so new program includes morph target code.
         const updateMaterial = (mat) => {
-            mat.morphTargets = true;
-            mat.morphNormals = true;
+            // Increment version to invalidate cached WebGL program
             mat.needsUpdate = true;
         };
 
@@ -1763,10 +1762,10 @@ export class BlendshapeGenerator {
     }
 
     async applyMorphTargets(geometry, onProgress = null) {
-        const newGeometry = geometry.clone();
-        newGeometry.morphAttributes.position = [];
-        newGeometry.morphAttributes.normal = [];
-        newGeometry.morphTargetsRelative = true;
+        // IMPORTANT: Modify the ORIGINAL geometry directly (not a clone).
+        // Cloning breaks Three.js r160's morph target texture cache.
+        geometry.morphAttributes.position = [];
+        geometry.morphTargetsRelative = true;
 
         const dictionary = {};
         let index = 0;
@@ -1775,35 +1774,31 @@ export class BlendshapeGenerator {
         const shapeEntries = Object.entries(allShapes);
         const totalShapes = shapeEntries.length;
 
-        // Pre-build vertex→face lookup for efficient morph normal computation
-        const vertexFaceMap = this.buildVertexFaceMap(newGeometry);
-
         for (let s = 0; s < shapeEntries.length; s++) {
             const [name, buffer] = shapeEntries[s];
 
             const posAttr = new THREE.Float32BufferAttribute(buffer, 3);
             posAttr.name = name;
-            newGeometry.morphAttributes.position.push(posAttr);
-
-            // Compute morph normals for correct lighting
-            const normalBuffer = this.computeMorphNormals(newGeometry, buffer, vertexFaceMap);
-            const normAttr = new THREE.Float32BufferAttribute(normalBuffer, 3);
-            normAttr.name = name;
-            newGeometry.morphAttributes.normal.push(normAttr);
+            geometry.morphAttributes.position.push(posAttr);
 
             dictionary[name] = index++;
 
-            // Yield every 5 shapes to allow UI repaint
-            if (onProgress && s % 5 === 4) {
+            // Yield every 10 shapes to allow UI repaint
+            if (onProgress && s % 10 === 9) {
                 const progress = 0.25 + (s / totalShapes) * 0.7;
-                onProgress(progress, `Morph normals: ${s + 1}/${totalShapes}`);
+                onProgress(progress, `Applying: ${s + 1}/${totalShapes}`);
                 await new Promise(r => setTimeout(r, 0));
             }
         }
 
-        this.mesh.geometry = newGeometry;
+        // Set morph target dictionary and influences on the mesh
         this.mesh.morphTargetDictionary = dictionary;
         this.mesh.morphTargetInfluences = new Array(index).fill(0);
+
+        // Force Three.js to rebuild the morph targets texture
+        geometry.morphAttributes.position.forEach(attr => {
+            attr.needsUpdate = true;
+        });
     }
 
     /**
