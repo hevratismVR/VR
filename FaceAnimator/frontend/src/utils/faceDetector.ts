@@ -1,11 +1,13 @@
 import * as THREE from 'three'
 import type { BlendShapeMapping, BlendShapeCategory } from '../types'
 import { STANDARD_BLEND_SHAPES } from '../types'
+import { applyGeneratedBlendShapes } from './blendShapeGenerator'
 
 interface FaceDetectionResult {
   faceMesh: THREE.SkinnedMesh | THREE.Mesh | null
   blendShapes: BlendShapeMapping[]
   bones: THREE.Bone[]
+  generatedBlendShapes: boolean
 }
 
 // Common blend shape name patterns to detect
@@ -84,9 +86,10 @@ const NON_FACE_KEYWORDS = [
 
 export function detectFaceAndBlendShapes(scene: THREE.Group): FaceDetectionResult {
   let faceMesh: THREE.SkinnedMesh | THREE.Mesh | null = null
-  const blendShapes: BlendShapeMapping[] = []
+  let blendShapes: BlendShapeMapping[] = []
   const bones: THREE.Bone[] = []
   const foundBlendShapeNames = new Set<string>()
+  let generatedBlendShapes = false
 
   // First pass: collect all meshes and find potential face meshes
   const meshCandidates: Array<{ mesh: THREE.Mesh | THREE.SkinnedMesh; score: number }> = []
@@ -201,13 +204,22 @@ export function detectFaceAndBlendShapes(scene: THREE.Group): FaceDetectionResul
     }
   }
 
+  // If no blend shapes found and we have a face mesh, generate them automatically
+  if (faceMesh && blendShapes.length === 0) {
+    console.log('No blend shapes found, generating automatically...')
+    const generated = applyGeneratedBlendShapes(faceMesh)
+    blendShapes = generated.blendShapes
+    generatedBlendShapes = true
+    console.log(`Generated ${blendShapes.length} blend shapes`)
+  }
+
   // Sort blend shapes by category
   blendShapes.sort((a, b) => {
     const categoryOrder = ['eyes', 'mouth', 'eyebrows', 'nose', 'cheeks', 'other']
     return categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category)
   })
 
-  return { faceMesh, blendShapes, bones }
+  return { faceMesh, blendShapes, bones, generatedBlendShapes }
 }
 
 function formatDisplayName(name: string): string {
