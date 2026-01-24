@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { ModelLoader } from './model-loader.js';
 import { LandmarkDetector } from './landmark-detector.js';
 import { BlendshapeGenerator } from './blendshape-generator.js';
@@ -349,6 +350,9 @@ class App {
                 document.getElementById('mesh-select-label').classList.remove('hidden');
             }
 
+            // Auto-detect character type based on mesh composition
+            this.autoDetectCharacterType(this.modelData.meshes);
+
             // Enable next steps
             document.getElementById('detect-face-btn').disabled = false;
 
@@ -359,6 +363,47 @@ class App {
         }
 
         this.showProgress(false);
+    }
+
+    /**
+     * Auto-detect character type based on mesh composition.
+     * Multi-mesh models with small spherical parts are likely cartoon/stylized.
+     */
+    autoDetectCharacterType(meshes) {
+        if (meshes.length < 3) return; // Simple models default to human
+
+        // Count small spherical meshes (likely separate eyes/nose)
+        const overallBox = new THREE.Box3();
+        for (const mesh of meshes) {
+            mesh.updateWorldMatrix(true, false);
+            const box = new THREE.Box3().setFromBufferAttribute(
+                mesh.geometry.attributes.position
+            ).applyMatrix4(mesh.matrixWorld);
+            overallBox.union(box);
+        }
+        const modelHeight = overallBox.getSize(new THREE.Vector3()).y;
+
+        let sphericalCount = 0;
+        for (const mesh of meshes) {
+            const pos = mesh.geometry.attributes.position;
+            if (pos.count < 50) continue;
+
+            const box = new THREE.Box3().setFromBufferAttribute(pos);
+            const size = box.getSize(new THREE.Vector3());
+            const extent = Math.max(size.x, size.y, size.z);
+            const minDim = Math.min(size.x, size.y, size.z);
+
+            // Small, roughly spherical mesh (aspect ratio < 2, size < 30% of model)
+            if (extent < modelHeight * 0.3 && extent / (minDim + 0.001) < 2.0) {
+                sphericalCount++;
+            }
+        }
+
+        // If there are 2+ small spherical meshes, likely cartoon character
+        if (sphericalCount >= 2) {
+            const select = document.getElementById('character-type');
+            select.value = 'cartoon';
+        }
     }
 
     /**
