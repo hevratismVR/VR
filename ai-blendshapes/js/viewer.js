@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { DragControls } from 'three/addons/controls/DragControls.js';
 
 /**
  * 3D Viewport for previewing models with blendshapes.
@@ -14,6 +15,9 @@ export class Viewer {
         this.model = null;
         this.animFrameId = null;
         this.helpers = [];
+        this.dragControls = null;
+        this.landmarkSpheres = [];
+        this.onLandmarkMoved = null; // callback(name, newPosition)
 
         this.init();
     }
@@ -122,10 +126,10 @@ export class Viewer {
     }
 
     /**
-     * Show landmark detection results as colored dots.
+     * Show landmark detection results as draggable colored spheres.
      */
     showLandmarks(landmarks, mesh) {
-        // Remove old helpers
+        // Remove old helpers and drag controls
         this.clearHelpers();
 
         const colors = {
@@ -141,15 +145,25 @@ export class Viewer {
             lowerLip: 0xff4400
         };
 
+        this.landmarkSpheres = [];
+
+        // Compute sphere size relative to model
+        const box = new THREE.Box3().setFromObject(this.model || mesh);
+        const size = box.getSize(new THREE.Vector3());
+        const sphereRadius = Math.max(size.x, size.y, size.z) * 0.025;
+
         for (const [name, data] of Object.entries(landmarks)) {
             if (!data.center) continue;
 
             const color = colors[name] || 0xffffff;
 
-            // Show region center as sphere
             const sphere = new THREE.Mesh(
-                new THREE.SphereGeometry(0.015, 8, 8),
-                new THREE.MeshBasicMaterial({ color })
+                new THREE.SphereGeometry(sphereRadius, 12, 12),
+                new THREE.MeshBasicMaterial({
+                    color,
+                    transparent: true,
+                    opacity: 0.85
+                })
             );
 
             // Transform to world space
@@ -159,15 +173,73 @@ export class Viewer {
             }
 
             sphere.position.copy(worldPos);
+            sphere.userData.landmarkName = name;
+            sphere.userData.mesh = mesh;
+
             this.scene.add(sphere);
             this.helpers.push(sphere);
+            this.landmarkSpheres.push(sphere);
         }
+
+        // Set up drag controls for the spheres
+        this.setupDragControls();
+    }
+
+    /**
+     * Set up DragControls for landmark spheres.
+     */
+    setupDragControls() {
+        if (this.dragControls) {
+            this.dragControls.dispose();
+            this.dragControls = null;
+        }
+
+        if (this.landmarkSpheres.length === 0) return;
+
+        this.dragControls = new DragControls(
+            this.landmarkSpheres,
+            this.camera,
+            this.renderer.domElement
+        );
+
+        this.dragControls.addEventListener('dragstart', (event) => {
+            this.controls.enabled = false;
+            event.object.material.opacity = 1.0;
+            event.object.scale.setScalar(1.3);
+        });
+
+        this.dragControls.addEventListener('drag', (event) => {
+            const sphere = event.object;
+            const name = sphere.userData.landmarkName;
+
+            if (this.onLandmarkMoved && name) {
+                // Convert back to local space
+                const localPos = sphere.position.clone();
+                const mesh = sphere.userData.mesh;
+                if (mesh && mesh.parent) {
+                    mesh.worldToLocal(localPos);
+                }
+                this.onLandmarkMoved(name, localPos);
+            }
+        });
+
+        this.dragControls.addEventListener('dragend', (event) => {
+            this.controls.enabled = true;
+            event.object.material.opacity = 0.85;
+            event.object.scale.setScalar(1.0);
+        });
     }
 
     /**
      * Clear all helper objects.
      */
     clearHelpers() {
+        if (this.dragControls) {
+            this.dragControls.dispose();
+            this.dragControls = null;
+        }
+        this.landmarkSpheres = [];
+
         for (const helper of this.helpers) {
             this.scene.remove(helper);
             if (helper.geometry) helper.geometry.dispose();

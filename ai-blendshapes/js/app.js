@@ -23,6 +23,7 @@ class App {
 
         // State
         this.selectedAccessory = null;
+        this.landmarkOffsets = {}; // manual adjustments to landmark positions
         this.modelData = null;
         this.faceMesh = null;
         this.landmarks = null;
@@ -39,6 +40,11 @@ class App {
         // Initialize 3D viewer
         const canvas = document.getElementById('viewport');
         this.viewer = new Viewer(canvas);
+
+        // Set landmark drag callback
+        this.viewer.onLandmarkMoved = (name, newPos) => {
+            this.handleLandmarkMoved(name, newPos);
+        };
 
         // Bind UI events
         this.bindEvents();
@@ -261,6 +267,9 @@ class App {
         try {
             const intensity = parseFloat(document.getElementById('blend-intensity').value);
 
+            // Pass any manually adjusted landmark positions
+            this.blendshapeGenerator.manualLandmarks = { ...this.landmarkOffsets };
+
             const result = this.blendshapeGenerator.generate(
                 this.faceMesh,
                 this.landmarks,
@@ -292,9 +301,6 @@ class App {
             // Enable audio upload
             document.getElementById('audio-upload-btn').disabled = false;
             document.getElementById('export-glb-btn').disabled = false;
-
-            // Clear landmarks visualization
-            this.viewer.clearHelpers();
 
             const shapeCount = Object.keys(result.blendshapes).length;
             const visemeCount = Object.keys(result.visemes).length;
@@ -524,6 +530,15 @@ class App {
         this.generateBlendshapes();
 
         this.setStatus('Blendshapes regenerated with manual adjustments');
+    }
+
+    /**
+     * Handle a landmark point being dragged in the viewport.
+     */
+    handleLandmarkMoved(name, newPosition) {
+        // Store the new position for this landmark
+        this.landmarkOffsets[name] = newPosition.clone();
+        this.setStatus(`Moved ${name} - click "צור Blendshapes" to apply`);
     }
 
     /**

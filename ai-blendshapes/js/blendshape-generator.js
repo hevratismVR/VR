@@ -18,6 +18,8 @@ export class BlendshapeGenerator {
         // Manual offsets (set by UI)
         this.seamYOffset = 0;
         this.zThresholdOffset = 0;
+        // Manually adjusted landmark positions (from drag)
+        this.manualLandmarks = {};
     }
 
     /**
@@ -91,13 +93,21 @@ export class BlendshapeGenerator {
     computeReferencePoints(regions) {
         const positions = this.basePositions;
 
-        // Mouth center
+        // Mouth center - use manual position if available, otherwise compute
         const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
-        this.mouthCenter = {
-            x: this.getMidX(positions, mouthIndices),
-            y: this.getMidY(positions, mouthIndices),
-            z: this.getMidZ(positions, mouthIndices)
-        };
+        if (this.manualLandmarks.mouth) {
+            this.mouthCenter = {
+                x: this.manualLandmarks.mouth.x,
+                y: this.manualLandmarks.mouth.y,
+                z: this.manualLandmarks.mouth.z
+            };
+        } else {
+            this.mouthCenter = {
+                x: this.getMidX(positions, mouthIndices),
+                y: this.getMidY(positions, mouthIndices),
+                z: this.getMidZ(positions, mouthIndices)
+            };
+        }
 
         // Jaw pivot - behind and above the mouth center (ear level)
         const jawIndices = regions.jaw || [];
