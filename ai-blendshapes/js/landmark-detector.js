@@ -55,9 +55,11 @@ export class LandmarkDetector {
 
         // Strategy 1: Check mesh names for head/face keywords
         const headKeywords = ['head', 'face', 'skull', 'cranium', 'pnw', 'ראש', 'פנים'];
+        const bodyExcludeKeywords = ['body', 'torso', 'arm', 'leg', 'foot', 'hand', 'finger', 'hair', 'cloth', 'shirt', 'pant', 'shoe', 'גוף'];
         for (const mesh of meshes) {
             const name = (mesh.name || '').toLowerCase();
-            if (headKeywords.some(k => name.includes(k))) {
+            if (headKeywords.some(k => name.includes(k)) &&
+                !bodyExcludeKeywords.some(k => name.includes(k))) {
                 return mesh;
             }
         }
@@ -75,7 +77,6 @@ export class LandmarkDetector {
         const overallCenter = overallBox.getCenter(new THREE.Vector3());
         const overallSize = overallBox.getSize(new THREE.Vector3());
         const modelHeight = overallSize.y;
-        const modelTop = overallBox.max.y;
 
         // Strategy 3: Score each mesh
         let bestMesh = null;
@@ -88,6 +89,10 @@ export class LandmarkDetector {
             // Skip very small meshes (less than 100 vertices - probably eyes, teeth, etc.)
             if (vertexCount < 100) continue;
 
+            const name = (mesh.name || '').toLowerCase();
+            // Skip meshes with body-part names
+            if (bodyExcludeKeywords.some(k => name.includes(k))) continue;
+
             // Compute bounding box in world space
             const box = new THREE.Box3().setFromBufferAttribute(positions)
                 .applyMatrix4(mesh.matrixWorld);
@@ -96,7 +101,7 @@ export class LandmarkDetector {
 
             // Score 1: Height position (0-1, where 1 = top of model)
             const relativeHeight = (center.y - overallBox.min.y) / modelHeight;
-            const heightScore = relativeHeight * 10; // Heavy weight on being at top
+            const heightScore = relativeHeight * 10;
 
             // Score 2: Centered on X axis (head should be centered)
             const xOffset = Math.abs(center.x - overallCenter.x) / (overallSize.x + 0.001);
@@ -104,16 +109,29 @@ export class LandmarkDetector {
 
             // Score 3: Reasonable size (head is ~15-30% of model height)
             const sizeRatio = size.y / modelHeight;
-            const sizeScore = (sizeRatio > 0.1 && sizeRatio < 0.5) ? 2 : 0;
+            let sizeScore = 0;
+            if (sizeRatio > 0.1 && sizeRatio < 0.5) {
+                sizeScore = 3; // Ideal head size
+            } else if (sizeRatio >= 0.5 && sizeRatio < 0.7) {
+                sizeScore = 1; // Acceptable but not ideal
+            }
+            // Penalize meshes spanning most of the model (likely full body)
+            if (sizeRatio > 0.7) {
+                sizeScore = -5;
+            }
 
-            // Score 4: Vertex count bonus (face usually has many vertices)
-            const vertexScore = Math.min(2, vertexCount / 5000);
+            // Score 4: Vertex count (moderate bonus, not too high to avoid picking body meshes)
+            const vertexScore = Math.min(1.5, vertexCount / 10000);
 
-            // Score 5: Roughly compact shape (not a long limb)
+            // Score 5: Roughly compact shape (not a long limb or full body)
             const aspectRatio = Math.max(size.x, size.y, size.z) / (Math.min(size.x, size.y, size.z) + 0.001);
-            const compactScore = aspectRatio < 3 ? 2 : 0;
+            const compactScore = aspectRatio < 2.5 ? 3 : (aspectRatio < 4 ? 1 : -2);
 
-            const score = heightScore + centerScore + sizeScore + vertexScore + compactScore;
+            // Score 6: Bottom of mesh is in upper half of model (head starts above shoulders)
+            const meshBottom = (box.min.y - overallBox.min.y) / modelHeight;
+            const topStartScore = meshBottom > 0.5 ? 4 : (meshBottom > 0.3 ? 2 : 0);
+
+            const score = heightScore + centerScore + sizeScore + vertexScore + compactScore + topStartScore;
 
             if (score > bestScore) {
                 bestScore = score;
@@ -377,12 +395,13 @@ export class LandmarkDetector {
 
     /**
      * Detect face regions: mouth, eyes, nose, forehead, jaw, cheeks.
+     * Handles full-body meshes by isolating the head cluster.
      */
     detectFaceRegions(analysis, characterType) {
         const { vertices, center, size, forwardDir, symmetryAxis, protrusions } = analysis;
 
         // Determine face front vertices (facing forward)
-        const frontVertices = [];
+        let frontVertices = [];
         for (let i = 0; i < vertices.length; i++) {
             const toVertex = vertices[i].clone().sub(center);
             const forwardProjection = toVertex.dot(forwardDir);
@@ -392,16 +411,44 @@ export class LandmarkDetector {
             }
         }
 
-        // Divide face into vertical zones based on characterType
-        const zones = this.getZoneRatios(characterType);
-
         // Compute Y-axis range for front vertices
         let minY = Infinity, maxY = -Infinity;
+        let minX = Infinity, maxX = -Infinity;
         for (const fv of frontVertices) {
             if (fv.vertex.y < minY) minY = fv.vertex.y;
             if (fv.vertex.y > maxY) maxY = fv.vertex.y;
+            if (fv.vertex.x < minX) minX = fv.vertex.x;
+            if (fv.vertex.x > maxX) maxX = fv.vertex.x;
         }
-        const faceHeight = maxY - minY;
+        let faceHeight = maxY - minY;
+        const faceWidth = maxX - minX;
+
+        // HEAD ISOLATION: If front vertices span a disproportionately tall range,
+        // the mesh likely includes the body. Focus on the head at the top.
+        const heightToWidthRatio = faceHeight / (faceWidth + 0.001);
+        if (heightToWidthRatio > 2.0 && faceHeight > size.y * 0.5) {
+            // Find the head cluster: vertices in the top 30% of the Y range
+            // then expand slightly to include the jaw
+            const headTopThreshold = maxY - faceHeight * 0.30;
+
+            // Find the actual head cluster by looking for a gap/density change
+            // Use the top portion and then expand down to find chin
+            const headWidth = this.estimateHeadWidth(frontVertices, headTopThreshold, maxY, symmetryAxis);
+
+            // Head is roughly as wide as it is tall - use width to estimate head extent
+            const estimatedHeadHeight = headWidth * 1.3; // head is slightly taller than wide
+            const headBottom = Math.max(minY, maxY - estimatedHeadHeight);
+
+            // Filter front vertices to head region only
+            frontVertices = frontVertices.filter(fv => fv.vertex.y >= headBottom);
+
+            // Recompute bounds
+            minY = headBottom;
+            faceHeight = maxY - minY;
+        }
+
+        // Divide face into vertical zones based on characterType
+        const zones = this.getZoneRatios(characterType);
 
         // Categorize vertices into regions
         const regions = {
@@ -417,7 +464,14 @@ export class LandmarkDetector {
             lowerLip: []
         };
 
-        const symCenter = center[symmetryAxis];
+        // Compute X center from the head-isolated front vertices
+        let headMinX = Infinity, headMaxX = -Infinity;
+        for (const fv of frontVertices) {
+            if (fv.vertex[symmetryAxis] < headMinX) headMinX = fv.vertex[symmetryAxis];
+            if (fv.vertex[symmetryAxis] > headMaxX) headMaxX = fv.vertex[symmetryAxis];
+        }
+        const headWidth = headMaxX - headMinX;
+        const symCenter = (headMinX + headMaxX) / 2;
 
         for (const fv of frontVertices) {
             const relY = (fv.vertex.y - minY) / faceHeight; // 0=bottom, 1=top
@@ -426,9 +480,9 @@ export class LandmarkDetector {
             if (relY > zones.foreheadStart) {
                 regions.forehead.push(fv.index);
             } else if (relY > zones.eyeStart && relY < zones.eyeEnd) {
-                if (symOffset > size[symmetryAxis] * 0.08) {
+                if (symOffset > headWidth * 0.08) {
                     regions.eyeLeft.push(fv.index);
-                } else if (symOffset < -size[symmetryAxis] * 0.08) {
+                } else if (symOffset < -headWidth * 0.08) {
                     regions.eyeRight.push(fv.index);
                 } else {
                     regions.nose.push(fv.index);
@@ -436,7 +490,7 @@ export class LandmarkDetector {
             } else if (relY > zones.noseStart && relY <= zones.eyeStart) {
                 regions.nose.push(fv.index);
             } else if (relY > zones.mouthStart && relY <= zones.noseStart) {
-                if (Math.abs(symOffset) > size[symmetryAxis] * 0.15) {
+                if (Math.abs(symOffset) > headWidth * 0.15) {
                     if (symOffset > 0) regions.cheekLeft.push(fv.index);
                     else regions.cheekRight.push(fv.index);
                 } else {
@@ -455,6 +509,27 @@ export class LandmarkDetector {
         }
 
         return regions;
+    }
+
+    /**
+     * Estimate head width from vertices in the top portion of the mesh.
+     * Uses IQR-based filtering to exclude outliers (raised arms, accessories).
+     */
+    estimateHeadWidth(frontVertices, yMin, yMax, symmetryAxis) {
+        const xValues = [];
+        for (const fv of frontVertices) {
+            if (fv.vertex.y >= yMin && fv.vertex.y <= yMax) {
+                xValues.push(fv.vertex[symmetryAxis]);
+            }
+        }
+
+        if (xValues.length === 0) return 0;
+
+        // Use IQR to exclude outliers (e.g. raised arms)
+        xValues.sort((a, b) => a - b);
+        const q1 = xValues[Math.floor(xValues.length * 0.15)];
+        const q3 = xValues[Math.floor(xValues.length * 0.85)];
+        return q3 - q1;
     }
 
     /**

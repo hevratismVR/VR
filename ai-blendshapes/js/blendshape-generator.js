@@ -105,7 +105,29 @@ export class BlendshapeGenerator {
         const positions = this.basePositions;
 
         // Mouth center - use manual position if available, otherwise compute
-        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        let mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+
+        // If mouth region is very small, expand it by including nearby jaw/nose vertices
+        if (mouthIndices.length < 20) {
+            const noseIndices = regions.nose || [];
+            const jawIndices = regions.jaw || [];
+            if (noseIndices.length > 0 && jawIndices.length > 0) {
+                // Estimate mouth Y from bottom of nose to top of jaw
+                const noseMinY = this.getMinY(positions, noseIndices);
+                const jawMaxY = this.getMaxY(positions, jawIndices);
+                const estimatedMouthY = (noseMinY + jawMaxY) / 2;
+                const tolerance = this.scaleFactor * 0.08;
+
+                // Gather vertices near the estimated mouth Y
+                const allFaceIndices = [...noseIndices, ...jawIndices, ...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
+                for (const i of allFaceIndices) {
+                    if (Math.abs(positions.getY(i) - estimatedMouthY) < tolerance) {
+                        mouthIndices.push(i);
+                    }
+                }
+            }
+        }
+
         if (this.manualLandmarks.mouth) {
             this.mouthCenter = {
                 x: this.manualLandmarks.mouth.x,
@@ -350,7 +372,7 @@ export class BlendshapeGenerator {
         const lowerLipIndices = regions.lowerLip || [];
 
         let lipSeamY;
-        if (upperLipIndices.length > 0 && lowerLipIndices.length > 0) {
+        if (upperLipIndices.length > 5 && lowerLipIndices.length > 5) {
             // Lip seam = midpoint between min of upperLip and max of lowerLip
             let upperLipMinY = Infinity;
             for (const i of upperLipIndices) {
@@ -363,9 +385,30 @@ export class BlendshapeGenerator {
                 if (y > lowerLipMaxY) lowerLipMaxY = y;
             }
             lipSeamY = (upperLipMinY + lowerLipMaxY) / 2;
+        } else if ((regions.mouth || []).length > 5) {
+            // Mouth region exists but no proper upper/lower lip split
+            // Use the center of the mouth region as seam
+            const mouthIndices = regions.mouth;
+            let mouthMinY = Infinity, mouthMaxY = -Infinity;
+            for (const i of mouthIndices) {
+                const y = positions.getY(i);
+                if (y < mouthMinY) mouthMinY = y;
+                if (y > mouthMaxY) mouthMaxY = y;
+            }
+            // Place seam at 55% from bottom (slightly above center to get more lower lip)
+            lipSeamY = mouthMinY + (mouthMaxY - mouthMinY) * 0.55;
         } else {
-            // Fallback: use mouth center slightly raised
-            lipSeamY = this.mouthCenter.y + sf * 0.01;
+            // Fallback: estimate from nose and jaw reference points
+            // The lip seam is roughly 30% of the way from nose to jaw bottom
+            const noseIndices = regions.nose || [];
+            const jawIndices = regions.jaw || [];
+            if (noseIndices.length > 0 && jawIndices.length > 0) {
+                const noseBottomY = this.getMinY(positions, noseIndices);
+                const jawBottomY = this.getMinY(positions, jawIndices);
+                lipSeamY = noseBottomY - (noseBottomY - jawBottomY) * 0.3;
+            } else {
+                lipSeamY = this.mouthCenter.y + sf * 0.01;
+            }
         }
 
         // Find face bounds

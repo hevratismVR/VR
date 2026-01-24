@@ -165,10 +165,12 @@ export class Viewer {
 
         this.landmarkSpheres = [];
 
-        // Compute sphere size relative to model
-        const box = new THREE.Box3().setFromObject(this.model || mesh);
-        const size = box.getSize(new THREE.Vector3());
-        const sphereRadius = Math.max(size.x, size.y, size.z) * 0.025;
+        // Compute sphere size relative to FACE (not full model)
+        // Use face mesh bounding box, not the whole model (which includes arms/body)
+        const faceBox = new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position);
+        const faceSize = faceBox.getSize(new THREE.Vector3());
+        const faceExtent = Math.max(faceSize.x, faceSize.y, faceSize.z);
+        const sphereRadius = faceExtent * 0.012;
 
         for (const [name, data] of Object.entries(landmarks)) {
             if (!data.center) continue;
