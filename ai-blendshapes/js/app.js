@@ -1,6 +1,7 @@
 import { ModelLoader } from './model-loader.js';
 import { LandmarkDetector } from './landmark-detector.js';
 import { BlendshapeGenerator } from './blendshape-generator.js';
+import { AccessoriesManager } from './accessories-manager.js';
 import { AudioAnalyzer } from './audio-analyzer.js';
 import { LipSync } from './lip-sync.js';
 import { Exporter } from './exporter.js';
@@ -15,6 +16,7 @@ class App {
         this.modelLoader = new ModelLoader();
         this.landmarkDetector = new LandmarkDetector();
         this.blendshapeGenerator = new BlendshapeGenerator();
+        this.accessoriesManager = new AccessoriesManager();
         this.audioAnalyzer = new AudioAnalyzer();
         this.lipSync = new LipSync();
         this.exporter = new Exporter();
@@ -90,6 +92,13 @@ class App {
                 this.loadAudio(e.dataTransfer.files[0]);
             }
         });
+
+        // Accessories
+        this.bindAccessoryButton('upper-teeth', 'upperTeeth');
+        this.bindAccessoryButton('lower-teeth', 'lowerTeeth');
+        this.bindAccessoryButton('tongue', 'tongue');
+        this.bindAccessoryButton('eye-left', 'eyeLeft');
+        this.bindAccessoryButton('eye-right', 'eyeRight');
 
         // Lip sync generation
         document.getElementById('generate-lipsync-btn').addEventListener('click', () => this.generateLipSync());
@@ -257,6 +266,19 @@ class App {
 
             this.blendshapesGenerated = true;
 
+            // Set up accessories manager
+            this.accessoriesManager.setFace(this.faceMesh, this.regions, this.blendshapeGenerator);
+
+            // Enable accessory buttons
+            document.getElementById('upper-teeth-btn').disabled = false;
+            document.getElementById('lower-teeth-btn').disabled = false;
+            document.getElementById('tongue-btn').disabled = false;
+            document.getElementById('eye-left-btn').disabled = false;
+            document.getElementById('eye-right-btn').disabled = false;
+
+            // Start accessory update loop
+            this.startAccessoryUpdateLoop();
+
             // Update blendshapes UI list
             this.updateBlendshapesList(result);
 
@@ -276,6 +298,41 @@ class App {
         }
 
         this.showProgress(false);
+    }
+
+    /**
+     * Bind an accessory upload button.
+     */
+    bindAccessoryButton(htmlId, type) {
+        const btn = document.getElementById(`${htmlId}-btn`);
+        const input = document.getElementById(`${htmlId}-input`);
+        btn.addEventListener('click', () => input.click());
+        input.addEventListener('change', (e) => {
+            if (e.target.files[0]) this.loadAccessory(type, e.target.files[0], htmlId);
+        });
+    }
+
+    /**
+     * Load an accessory model and attach it to the face.
+     */
+    async loadAccessory(type, file, htmlId) {
+        this.setStatus(`Loading ${type}...`);
+
+        try {
+            const modelData = await this.modelLoader.load(file);
+            this.accessoriesManager.addAccessory(type, modelData.scene);
+
+            // Update UI
+            const btn = document.getElementById(`${htmlId}-btn`);
+            btn.classList.add('loaded');
+            const status = document.getElementById(`${htmlId}-status`);
+            status.textContent = 'V';
+
+            this.setStatus(`${type} loaded and attached`);
+        } catch (error) {
+            this.setStatus(`Error loading ${type}: ${error.message}`);
+            console.error('Accessory load error:', error);
+        }
     }
 
     /**
@@ -390,7 +447,7 @@ class App {
         this.showProgress(true);
 
         try {
-            const morphDict = this.faceMesh.geometry.morphTargetDictionary;
+            const morphDict = this.faceMesh.morphTargetDictionary || this.faceMesh.geometry.morphTargetDictionary;
 
             this.animationData = this.lipSync.generateAnimation(
                 this.audioAnalyzer.phonemes,
@@ -531,6 +588,18 @@ class App {
         }
 
         this.showProgress(false);
+    }
+
+    /**
+     * Start a loop that updates accessories based on morph target influences.
+     */
+    startAccessoryUpdateLoop() {
+        if (this._accessoryLoop) return;
+        const update = () => {
+            this._accessoryLoop = requestAnimationFrame(update);
+            this.accessoriesManager.update();
+        };
+        update();
     }
 
     /**

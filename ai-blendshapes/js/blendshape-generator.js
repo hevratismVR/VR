@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
 /**
- * Generates blendshapes (morph targets) automatically based on detected face regions.
- * Creates ARKit-compatible 52 blendshapes + 15 viseme shapes for lip sync.
+ * Professional blendshape generator.
+ * Creates ARKit-compatible 52 blendshapes + 15 visemes with proper deformation magnitudes.
  */
 export class BlendshapeGenerator {
     constructor() {
@@ -11,6 +11,10 @@ export class BlendshapeGenerator {
         this.mesh = null;
         this.basePositions = null;
         this.intensity = 1.0;
+        this.scaleFactor = 1;
+        this.faceHeight = 1;
+        this.mouthCenter = { x: 0, y: 0, z: 0 };
+        this.jawPivot = { x: 0, y: 0, z: 0 };
     }
 
     /**
@@ -19,10 +23,14 @@ export class BlendshapeGenerator {
     generate(mesh, landmarks, regions, intensity = 1.0) {
         this.mesh = mesh;
         this.basePositions = mesh.geometry.attributes.position.clone();
+        this.regions = regions;
 
-        // Compute scale factor based on actual face size in geometry space
-        this.scaleFactor = this.computeScaleFactor(regions);
-        this.intensity = intensity * this.scaleFactor;
+        // Compute scale factor based on actual face size
+        this.computeScaleFactor(regions);
+        this.intensity = intensity;
+
+        // Compute key reference points
+        this.computeReferencePoints(regions);
 
         const geometry = mesh.geometry;
 
@@ -41,20 +49,15 @@ export class BlendshapeGenerator {
         return {
             blendshapes: this.blendshapes,
             visemes: this.visemes,
-            morphTargetDictionary: geometry.morphTargetDictionary,
+            morphTargetDictionary: mesh.morphTargetDictionary,
             morphTargetInfluences: mesh.morphTargetInfluences
         };
     }
 
-    /**
-     * Compute a scale factor so displacements are proportional to the face size.
-     * Our base displacement values assume a face height of ~1 unit.
-     */
     computeScaleFactor(regions) {
         const positions = this.basePositions;
         let minY = Infinity, maxY = -Infinity;
 
-        // Use all face region vertices to find the face height
         const allIndices = [
             ...(regions.forehead || []),
             ...(regions.eyeLeft || []),
@@ -66,7 +69,11 @@ export class BlendshapeGenerator {
             ...(regions.lowerLip || [])
         ];
 
-        if (allIndices.length === 0) return 1;
+        if (allIndices.length === 0) {
+            this.scaleFactor = 1;
+            this.faceHeight = 1;
+            return;
+        }
 
         for (const i of allIndices) {
             const y = positions.getY(i);
@@ -74,22 +81,51 @@ export class BlendshapeGenerator {
             if (y > maxY) maxY = y;
         }
 
-        const faceHeight = maxY - minY;
-        // Our displacements are designed for a face ~1 unit tall
-        // Scale them to match the actual face size
-        return faceHeight > 0 ? faceHeight / 1.0 : 1;
+        this.faceHeight = maxY - minY;
+        this.scaleFactor = this.faceHeight > 0 ? this.faceHeight : 1;
     }
 
-    /**
-     * Enable morph targets on the mesh material.
-     * Forces shader recompile to include morph target code.
-     */
+    computeReferencePoints(regions) {
+        const positions = this.basePositions;
+
+        // Mouth center
+        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        this.mouthCenter = {
+            x: this.getMidX(positions, mouthIndices),
+            y: this.getMidY(positions, mouthIndices),
+            z: this.getMidZ(positions, mouthIndices)
+        };
+
+        // Jaw pivot - behind and above the mouth center (ear level)
+        const jawIndices = regions.jaw || [];
+        const jawMidY = this.getMidY(positions, jawIndices);
+        this.jawPivot = {
+            x: this.mouthCenter.x,
+            y: this.mouthCenter.y + this.scaleFactor * 0.15,
+            z: this.mouthCenter.z - this.scaleFactor * 0.25
+        };
+
+        // Mouth bounds
+        let mouthMinY = Infinity, mouthMaxY = -Infinity;
+        let mouthMinX = Infinity, mouthMaxX = -Infinity;
+        for (const i of mouthIndices) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+            if (y < mouthMinY) mouthMinY = y;
+            if (y > mouthMaxY) mouthMaxY = y;
+            if (x < mouthMinX) mouthMinX = x;
+            if (x > mouthMaxX) mouthMaxX = x;
+        }
+        this.mouthMinY = mouthMinY;
+        this.mouthMaxY = mouthMaxY;
+        this.mouthWidth = mouthMaxX - mouthMinX;
+        this.mouthHeight = mouthMaxY - mouthMinY;
+    }
+
     enableMorphOnMaterial(mesh) {
         const updateMaterial = (mat) => {
-            // Force shader recompile with morph targets
             mat.morphTargets = true;
             mat.needsUpdate = true;
-            // Clone and replace to force full recompile
             const newMat = mat.clone();
             newMat.needsUpdate = true;
             return newMat;
@@ -103,36 +139,34 @@ export class BlendshapeGenerator {
     }
 
     /**
-     * Generate ARKit-compatible blendshapes.
+     * Generate ARKit-compatible blendshapes with professional deformation magnitudes.
      */
     generateARKitBlendshapes(geometry, landmarks, regions) {
         const shapes = {};
-        const positions = this.basePositions;
-        const vertexCount = positions.count;
+        const vertexCount = this.basePositions.count;
 
-        // Define blendshape generators
         const shapeDefinitions = {
-            // Jaw - uses rotational displacement
-            jawOpen: () => this.createMouthOpen(regions, 0.2),
-            jawForward: () => this.createDisplacement(regions.jaw, regions.mouth, { z: 0.08 }),
-            jawLeft: () => this.createDisplacement(regions.jaw, regions.mouth, { x: 0.05 }),
-            jawRight: () => this.createDisplacement(regions.jaw, regions.mouth, { x: -0.05 }),
+            // Jaw - uses rotational displacement with large angle
+            jawOpen: () => this.createJawOpen(regions, 0.45), // ~25 degrees
+            jawForward: () => this.createJawForward(regions, 0.12),
+            jawLeft: () => this.createJawSlide(regions, 'left', 0.08),
+            jawRight: () => this.createJawSlide(regions, 'right', 0.08),
 
-            // Mouth
-            mouthOpen: () => this.createMouthOpen(regions, 0.15),
+            // Mouth - strong visible deformations
+            mouthOpen: () => this.createJawOpen(regions, 0.35), // less than jaw open
             mouthClose: () => this.createMouthClose(regions),
-            mouthSmileLeft: () => this.createSmile(regions, 'left', 0.15),
-            mouthSmileRight: () => this.createSmile(regions, 'right', 0.15),
-            mouthFrownLeft: () => this.createFrown(regions, 'left', 0.12),
-            mouthFrownRight: () => this.createFrown(regions, 'right', 0.12),
-            mouthPucker: () => this.createPucker(regions, 0.1),
-            mouthFunnel: () => this.createFunnel(regions, 0.08),
-            mouthStretchLeft: () => this.createStretch(regions, 'left', 0.12),
-            mouthStretchRight: () => this.createStretch(regions, 'right', 0.12),
-            mouthRollUpper: () => this.createLipRoll(regions, 'upper', 0.03),
-            mouthRollLower: () => this.createLipRoll(regions, 'lower', 0.04),
-            mouthShrugUpper: () => this.createDisplacement(regions.upperLip, null, { y: 0.03 }),
-            mouthShrugLower: () => this.createDisplacement(regions.lowerLip, null, { y: -0.02 }),
+            mouthSmileLeft: () => this.createSmile(regions, 'left'),
+            mouthSmileRight: () => this.createSmile(regions, 'right'),
+            mouthFrownLeft: () => this.createFrown(regions, 'left'),
+            mouthFrownRight: () => this.createFrown(regions, 'right'),
+            mouthPucker: () => this.createPucker(regions),
+            mouthFunnel: () => this.createFunnel(regions),
+            mouthStretchLeft: () => this.createStretch(regions, 'left'),
+            mouthStretchRight: () => this.createStretch(regions, 'right'),
+            mouthRollUpper: () => this.createLipRoll(regions, 'upper'),
+            mouthRollLower: () => this.createLipRoll(regions, 'lower'),
+            mouthShrugUpper: () => this.createLipShrug(regions, 'upper'),
+            mouthShrugLower: () => this.createLipShrug(regions, 'lower'),
             mouthPressLeft: () => this.createLipPress(regions, 'left'),
             mouthPressRight: () => this.createLipPress(regions, 'right'),
             mouthUpperUpLeft: () => this.createUpperLipUp(regions, 'left'),
@@ -140,7 +174,7 @@ export class BlendshapeGenerator {
             mouthLowerDownLeft: () => this.createLowerLipDown(regions, 'left'),
             mouthLowerDownRight: () => this.createLowerLipDown(regions, 'right'),
 
-            // Eyes
+            // Eyes - proportional to eye height
             eyeBlinkLeft: () => this.createBlink(regions, 'left'),
             eyeBlinkRight: () => this.createBlink(regions, 'right'),
             eyeWideLeft: () => this.createEyeWide(regions, 'left'),
@@ -157,14 +191,14 @@ export class BlendshapeGenerator {
             eyeLookOutRight: () => this.createEyeLook(regions, 'right', 'out'),
 
             // Brow
-            browDownLeft: () => this.createBrowMovement(regions, 'left', -0.04),
-            browDownRight: () => this.createBrowMovement(regions, 'right', -0.04),
-            browInnerUp: () => this.createBrowInnerUp(regions, 0.05),
-            browOuterUpLeft: () => this.createBrowOuterUp(regions, 'left', 0.05),
-            browOuterUpRight: () => this.createBrowOuterUp(regions, 'right', 0.05),
+            browDownLeft: () => this.createBrowMovement(regions, 'left', -1),
+            browDownRight: () => this.createBrowMovement(regions, 'right', -1),
+            browInnerUp: () => this.createBrowInnerUp(regions),
+            browOuterUpLeft: () => this.createBrowOuterUp(regions, 'left'),
+            browOuterUpRight: () => this.createBrowOuterUp(regions, 'right'),
 
             // Cheek
-            cheekPuff: () => this.createCheekPuff(regions, 0.06),
+            cheekPuff: () => this.createCheekPuff(regions),
             cheekSquintLeft: () => this.createCheekSquint(regions, 'left'),
             cheekSquintRight: () => this.createCheekSquint(regions, 'right'),
 
@@ -172,13 +206,13 @@ export class BlendshapeGenerator {
             noseSneerLeft: () => this.createNoseSneer(regions, 'left'),
             noseSneerRight: () => this.createNoseSneer(regions, 'right'),
 
-            // Tongue (approximated)
+            // Tongue
             tongueOut: () => this.createTongueOut(regions)
         };
 
         for (const [name, generator] of Object.entries(shapeDefinitions)) {
             const displacement = generator();
-            if (displacement) {
+            if (displacement && displacement.size > 0) {
                 shapes[name] = this.createMorphTarget(vertexCount, displacement);
             }
         }
@@ -186,155 +220,267 @@ export class BlendshapeGenerator {
         return shapes;
     }
 
-    /**
-     * Generate viseme shapes for lip sync.
-     * Standard viseme set for speech animation.
-     */
     generateVisemes(geometry, landmarks, regions) {
         const visemes = {};
         const vertexCount = this.basePositions.count;
 
         const visemeDefinitions = {
-            // Silence
-            viseme_sil: () => null, // neutral pose
-
-            // Consonants and vowels
-            viseme_PP: () => this.createVisemeClosed(regions), // P, B, M
-            viseme_FF: () => this.createVisemeFF(regions), // F, V
-            viseme_TH: () => this.createVisemeTH(regions), // Th
-            viseme_DD: () => this.createVisemeDD(regions), // T, D, N
-            viseme_kk: () => this.createVisemeKK(regions), // K, G
-            viseme_CH: () => this.createVisemeCH(regions), // Ch, J, Sh
-            viseme_SS: () => this.createVisemeSS(regions), // S, Z
-            viseme_nn: () => this.createVisemeNN(regions), // N, L
-            viseme_RR: () => this.createVisemeRR(regions), // R
-            viseme_aa: () => this.createVisemeAA(regions), // A
-            viseme_E: () => this.createVisemeE(regions), // E
-            viseme_I: () => this.createVisemeI(regions), // I
-            viseme_O: () => this.createVisemeO(regions), // O
-            viseme_U: () => this.createVisemeU(regions), // U
+            viseme_sil: () => new Map(),
+            viseme_PP: () => this.createVisemeClosed(regions),
+            viseme_FF: () => this.createVisemeFF(regions),
+            viseme_TH: () => this.createVisemeTH(regions),
+            viseme_DD: () => this.createJawOpen(regions, 0.08),
+            viseme_kk: () => this.createJawOpen(regions, 0.10),
+            viseme_CH: () => this.createVisemeCH(regions),
+            viseme_SS: () => this.createVisemeSS(regions),
+            viseme_nn: () => this.createJawOpen(regions, 0.06),
+            viseme_RR: () => this.createVisemeRR(regions),
+            viseme_aa: () => this.createJawOpen(regions, 0.25),
+            viseme_E: () => this.createVisemeE(regions),
+            viseme_I: () => this.createVisemeI(regions),
+            viseme_O: () => this.createVisemeO(regions),
+            viseme_U: () => this.createVisemeU(regions),
         };
 
         for (const [name, generator] of Object.entries(visemeDefinitions)) {
             const displacement = generator();
-            if (displacement) {
-                visemes[name] = this.createMorphTarget(vertexCount, displacement);
-            } else {
-                // Neutral/silence viseme - zero displacement
-                visemes[name] = this.createMorphTarget(vertexCount, new Map());
-            }
+            visemes[name] = this.createMorphTarget(vertexCount, displacement || new Map());
         }
 
         return visemes;
     }
 
+    // ========================================================================
+    // JAW & MOUTH
+    // ========================================================================
+
     /**
-     * Create a displacement map for given regions.
+     * Professional jaw open using rotational displacement around a hinge pivot.
+     * angle: rotation in radians (0.45 ≈ 25 degrees for full open)
      */
-    createDisplacement(primaryRegion, secondaryRegion, offset) {
+    createJawOpen(regions, angle) {
         const displacements = new Map();
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
 
-        const applyToRegion = (indices, strength) => {
-            if (!indices) return;
-            for (const i of indices) {
-                const dx = (offset.x || 0) * strength * this.intensity;
-                const dy = (offset.y || 0) * strength * this.intensity;
-                const dz = (offset.z || 0) * strength * this.intensity;
-                displacements.set(i, { x: dx, y: dy, z: dz });
+        const pivotY = this.jawPivot.y;
+        const pivotZ = this.jawPivot.z;
+
+        // Determine which vertices are in the "lower face" (jaw, lower lip, lower mouth)
+        const lowerLipIndices = new Set(regions.lowerLip || []);
+        const jawIndices = new Set(regions.jaw || []);
+        const mouthIndices = regions.mouth || [];
+
+        // Split mouth into upper and lower by Y
+        const mouthCenterY = this.mouthCenter.y;
+        const lowerMouthIndices = new Set();
+        const upperMouthIndices = new Set();
+        for (const i of mouthIndices) {
+            if (positions.getY(i) < mouthCenterY) {
+                lowerMouthIndices.add(i);
+            } else {
+                upperMouthIndices.add(i);
             }
-        };
+        }
 
-        applyToRegion(primaryRegion, 1.0);
-        if (secondaryRegion) {
-            applyToRegion(secondaryRegion, 0.5);
+        // All vertices that should rotate with the jaw
+        const rotatingSet = new Set([
+            ...lowerLipIndices,
+            ...jawIndices,
+            ...lowerMouthIndices
+        ]);
+
+        // Neck cutoff: don't affect vertices too far below the jaw
+        let jawMinY = Infinity;
+        for (const i of jawIndices) {
+            const y = positions.getY(i);
+            if (y < jawMinY) jawMinY = y;
+        }
+        // Falloff starts at the bottom of jaw region
+        const neckCutoff = jawMinY - sf * 0.05;
+        const falloffRange = sf * 0.15;
+
+        // Rotate lower face vertices
+        for (const i of rotatingSet) {
+            const y = positions.getY(i);
+            const z = positions.getZ(i);
+
+            // Neck protection: fade out below jaw
+            let falloff = 1.0;
+            if (y < jawMinY) {
+                const dist = jawMinY - y;
+                falloff = Math.max(0, 1 - dist / falloffRange);
+                if (falloff < 0.01) continue;
+            }
+
+            // Compute distance from pivot
+            const dy = y - pivotY;
+            const dz = z - pivotZ;
+            const dist = Math.sqrt(dy * dy + dz * dz);
+            if (dist < 0.001) continue;
+
+            // Rotate around pivot (negative angle = open downward)
+            const currentAngle = Math.atan2(dy, dz);
+            const rotAngle = -angle * this.intensity * falloff;
+            const newAngle = currentAngle + rotAngle;
+
+            const newDy = dist * Math.sin(newAngle) - dy;
+            const newDz = dist * Math.cos(newAngle) - dz;
+
+            displacements.set(i, { x: 0, y: newDy, z: newDz });
+        }
+
+        // Upper lip: slight outward push (lip curls up when mouth opens)
+        const upperLipIndices = regions.upperLip || [];
+        for (const i of upperLipIndices) {
+            displacements.set(i, {
+                x: 0,
+                y: sf * 0.02 * this.intensity,
+                z: sf * 0.015 * this.intensity
+            });
+        }
+
+        // Upper mouth vertices get slight separation
+        for (const i of upperMouthIndices) {
+            if (!displacements.has(i)) {
+                displacements.set(i, {
+                    x: 0,
+                    y: sf * 0.01 * this.intensity,
+                    z: sf * 0.005 * this.intensity
+                });
+            }
+        }
+
+        // Cheeks stretch when jaw opens
+        const cheekIndices = [...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
+        for (const i of cheekIndices) {
+            const y = positions.getY(i);
+            // Only affect cheek vertices near/below mouth level
+            const influence = Math.max(0, Math.min(1, (mouthCenterY - y) / (sf * 0.2)));
+            if (influence > 0.05) {
+                const existing = displacements.get(i) || { x: 0, y: 0, z: 0 };
+                displacements.set(i, {
+                    x: existing.x,
+                    y: existing.y - sf * 0.04 * angle * influence * this.intensity,
+                    z: existing.z + sf * 0.01 * angle * influence * this.intensity
+                });
+            }
         }
 
         return displacements;
     }
 
-    /**
-     * Create mouth open shape - jaw rotates open around hinge point.
-     * Uses rotational displacement for realistic jaw movement.
-     */
-    createMouthOpen(regions, amount) {
+    createJawForward(regions, amount) {
         const displacements = new Map();
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
 
-        // Find jaw pivot point (between mouth and jaw, back of the head)
-        const mouthCenterY = this.getMidY(positions, regions.mouth || []);
-        const mouthCenterX = this.getMidX(positions, regions.mouth || []);
-        const jawCenterY = this.getMidY(positions, regions.jaw || []);
+        const indices = [...(regions.jaw || []), ...(regions.lowerLip || [])];
+        const mouthLower = (regions.mouth || []).filter(i => positions.getY(i) < this.mouthCenter.y);
+        indices.push(...mouthLower);
 
-        // Pivot is slightly above mouth center, behind the face
-        const pivotY = mouthCenterY + (mouthCenterY - jawCenterY) * 0.3;
-        const pivotZ = this.getMidZ(positions, regions.mouth || []) - this.scaleFactor * 0.3;
-
-        // Rotation angle based on amount
-        const angle = amount * 0.8; // radians equivalent for displacement
-
-        // Lower lip and jaw - rotate downward around pivot with distance falloff
-        const lowerIndices = [...(regions.lowerLip || []), ...(regions.jaw || [])];
-
-        // Compute mouth bounds to create a falloff zone
-        let mouthMinY = Infinity;
-        for (const i of (regions.mouth || [])) {
-            const y = positions.getY(i);
-            if (y < mouthMinY) mouthMinY = y;
-        }
-        // Falloff distance: vertices far below mouth get less influence
-        const falloffRange = this.scaleFactor * 0.4;
-
-        for (const i of lowerIndices) {
-            const y = positions.getY(i);
-            const z = positions.getZ(i);
-
-            // Distance-based falloff: vertices close to mouth get full effect,
-            // vertices far below (neck) get almost none
-            const distFromMouth = Math.max(0, mouthMinY - y);
-            const falloff = Math.max(0, 1 - (distFromMouth / falloffRange));
-            if (falloff < 0.01) continue; // skip neck vertices
-
-            // Distance from pivot determines displacement magnitude
-            const dy = y - pivotY;
-            const dz = z - pivotZ;
-            const dist = Math.sqrt(dy * dy + dz * dz);
-
-            // Rotate the vertex around the pivot (jaw hinge rotation)
-            const currentAngle = Math.atan2(dy, dz);
-            const rotAngle = angle * this.intensity * falloff;
-            const newAngle = currentAngle - rotAngle;
-
-            const newDy = dist * Math.sin(newAngle) - dy;
-            const newDz = dist * Math.cos(newAngle) - dz;
-
+        for (const i of indices) {
             displacements.set(i, {
                 x: 0,
-                y: newDy,
-                z: newDz
+                y: 0,
+                z: sf * amount * this.intensity
             });
         }
 
-        // Upper lip - slight upward movement
+        return displacements;
+    }
+
+    createJawSlide(regions, side, amount) {
+        const displacements = new Map();
+        const sf = this.scaleFactor;
+        const dir = side === 'left' ? 1 : -1;
+
+        const indices = [...(regions.jaw || []), ...(regions.lowerLip || [])];
+        for (const i of indices) {
+            displacements.set(i, {
+                x: sf * amount * dir * this.intensity,
+                y: 0,
+                z: 0
+            });
+        }
+
+        return displacements;
+    }
+
+    createMouthClose(regions) {
+        const displacements = new Map();
+        const sf = this.scaleFactor;
+
         if (regions.upperLip) {
             for (const i of regions.upperLip) {
+                displacements.set(i, { x: 0, y: -sf * 0.015 * this.intensity, z: sf * 0.005 * this.intensity });
+            }
+        }
+        if (regions.lowerLip) {
+            for (const i of regions.lowerLip) {
+                displacements.set(i, { x: 0, y: sf * 0.015 * this.intensity, z: sf * 0.005 * this.intensity });
+            }
+        }
+        return displacements;
+    }
+
+    createSmile(regions, side) {
+        const displacements = new Map();
+        const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const dir = side === 'left' ? 1 : -1;
+        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const centerX = this.mouthCenter.x;
+
+        for (const i of mouthIndices) {
+            const x = positions.getX(i);
+            // Weight by how far this vertex is on the correct side
+            const sideWeight = side === 'left'
+                ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+            const influence = Math.min(1, sideWeight);
+
+            if (influence > 0.05) {
                 displacements.set(i, {
-                    x: 0,
-                    y: amount * 0.2 * this.intensity,
-                    z: amount * 0.05 * this.intensity
+                    x: dir * sf * 0.06 * influence * this.intensity,
+                    y: sf * 0.05 * influence * this.intensity,
+                    z: sf * 0.01 * influence * this.intensity
                 });
             }
         }
 
-        // Cheeks follow jaw slightly
-        const cheekIndices = [...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
+        // Cheeks rise on smile side
+        const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
         for (const i of cheekIndices) {
-            const y = positions.getY(i);
-            const influence = Math.max(0, (mouthCenterY - y) / (this.scaleFactor * 0.3));
-            if (influence > 0) {
+            displacements.set(i, {
+                x: dir * sf * 0.02 * this.intensity,
+                y: sf * 0.04 * this.intensity,
+                z: sf * 0.02 * this.intensity
+            });
+        }
+
+        return displacements;
+    }
+
+    createFrown(regions, side) {
+        const displacements = new Map();
+        const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const dir = side === 'left' ? 1 : -1;
+        const mouthIndices = [...(regions.mouth || []), ...(regions.lowerLip || [])];
+        const centerX = this.mouthCenter.x;
+
+        for (const i of mouthIndices) {
+            const x = positions.getX(i);
+            const sideWeight = side === 'left'
+                ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+            const influence = Math.min(1, sideWeight);
+
+            if (influence > 0.05) {
                 displacements.set(i, {
-                    x: 0,
-                    y: -amount * 0.3 * influence * this.intensity,
+                    x: dir * sf * 0.03 * influence * this.intensity,
+                    y: -sf * 0.06 * influence * this.intensity,
                     z: 0
                 });
             }
@@ -343,153 +489,108 @@ export class BlendshapeGenerator {
         return displacements;
     }
 
-    createMouthClose(regions) {
-        const displacements = new Map();
-        if (regions.upperLip) {
-            for (const i of regions.upperLip) {
-                displacements.set(i, { x: 0, y: -0.02 * this.intensity, z: 0 });
-            }
-        }
-        if (regions.lowerLip) {
-            for (const i of regions.lowerLip) {
-                displacements.set(i, { x: 0, y: 0.02 * this.intensity, z: 0 });
-            }
-        }
-        return displacements;
-    }
-
-    createSmile(regions, side, amount) {
-        const displacements = new Map();
-        const mouthIndices = [...(regions.mouth || [])];
-        const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
-        const positions = this.basePositions;
-        const dir = side === 'left' ? 1 : -1;
-
-        for (const i of mouthIndices) {
-            const x = positions.getX(i);
-            const centerX = this.getMidX(positions, mouthIndices);
-            const sideInfluence = side === 'left' ? Math.max(0, x - centerX) : Math.max(0, centerX - x);
-            const normalizedInfluence = Math.min(1, sideInfluence * 10);
-
-            displacements.set(i, {
-                x: dir * amount * 0.5 * normalizedInfluence * this.intensity,
-                y: amount * normalizedInfluence * this.intensity,
-                z: 0
-            });
-        }
-
-        for (const i of cheekIndices) {
-            displacements.set(i, {
-                x: dir * amount * 0.3 * this.intensity,
-                y: amount * 0.5 * this.intensity,
-                z: 0.02 * this.intensity
-            });
-        }
-
-        return displacements;
-    }
-
-    createFrown(regions, side, amount) {
-        const displacements = new Map();
-        const mouthIndices = [...(regions.mouth || [])];
-        const dir = side === 'left' ? 1 : -1;
-        const positions = this.basePositions;
-        const centerX = this.getMidX(positions, mouthIndices);
-
-        for (const i of mouthIndices) {
-            const x = positions.getX(i);
-            const sideInfluence = side === 'left' ? Math.max(0, x - centerX) : Math.max(0, centerX - x);
-            const normalizedInfluence = Math.min(1, sideInfluence * 10);
-
-            displacements.set(i, {
-                x: dir * amount * 0.3 * normalizedInfluence * this.intensity,
-                y: -amount * normalizedInfluence * this.intensity,
-                z: 0
-            });
-        }
-
-        return displacements;
-    }
-
-    createPucker(regions, amount) {
+    createPucker(regions) {
         const displacements = new Map();
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
         const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
-        const centerX = this.getMidX(positions, mouthIndices);
-        const centerY = this.getMidY(positions, mouthIndices);
+        const cx = this.mouthCenter.x;
+        const cy = this.mouthCenter.y;
 
         for (const i of mouthIndices) {
             const x = positions.getX(i);
             const y = positions.getY(i);
-            const dx = x - centerX;
-            const dy = y - centerY;
+            const dx = x - cx;
+            const dy = y - cy;
 
             displacements.set(i, {
-                x: -dx * 0.4 * this.intensity,
-                y: -dy * 0.3 * this.intensity,
-                z: amount * this.intensity
+                x: -dx * 0.5 * this.intensity,
+                y: -dy * 0.4 * this.intensity,
+                z: sf * 0.06 * this.intensity
             });
         }
 
         return displacements;
     }
 
-    createFunnel(regions, amount) {
+    createFunnel(regions) {
         const displacements = new Map();
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
         const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
-        const centerX = this.getMidX(positions, mouthIndices);
-        const centerY = this.getMidY(positions, mouthIndices);
+        const cx = this.mouthCenter.x;
+        const cy = this.mouthCenter.y;
 
         for (const i of mouthIndices) {
             const x = positions.getX(i);
             const y = positions.getY(i);
-            const dx = x - centerX;
-            const dy = y - centerY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+            const dx = x - cx;
+            const dy = y - cy;
+            const dist = Math.sqrt(dx * dx + dy * dy) / (this.mouthWidth * 0.5 + 0.001);
 
             displacements.set(i, {
-                x: -dx * 0.25 * this.intensity,
-                y: -dy * 0.2 * this.intensity,
-                z: amount * (1 - dist * 5) * this.intensity
+                x: -dx * 0.3 * this.intensity,
+                y: -dy * 0.25 * this.intensity,
+                z: sf * 0.04 * (1.2 - dist) * this.intensity
             });
         }
 
         return displacements;
     }
 
-    createStretch(regions, side, amount) {
+    createStretch(regions, side) {
         const displacements = new Map();
-        const mouthIndices = [...(regions.mouth || [])];
-        const dir = side === 'left' ? 1 : -1;
         const positions = this.basePositions;
-        const centerX = this.getMidX(positions, mouthIndices);
+        const sf = this.scaleFactor;
+        const dir = side === 'left' ? 1 : -1;
+        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const centerX = this.mouthCenter.x;
 
         for (const i of mouthIndices) {
             const x = positions.getX(i);
-            const sideInfluence = side === 'left' ? Math.max(0, x - centerX) : Math.max(0, centerX - x);
-            const normalizedInfluence = Math.min(1, sideInfluence * 10);
+            const sideWeight = side === 'left'
+                ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+            const influence = Math.min(1, sideWeight);
 
             displacements.set(i, {
-                x: dir * amount * normalizedInfluence * this.intensity,
+                x: dir * sf * 0.08 * influence * this.intensity,
                 y: 0,
-                z: -0.01 * normalizedInfluence * this.intensity
+                z: -sf * 0.01 * influence * this.intensity
             });
         }
 
         return displacements;
     }
 
-    createLipRoll(regions, part, amount) {
+    createLipRoll(regions, part) {
         const displacements = new Map();
+        const sf = this.scaleFactor;
         const indices = part === 'upper' ? (regions.upperLip || []) : (regions.lowerLip || []);
         const dir = part === 'upper' ? -1 : 1;
 
         for (const i of indices) {
             displacements.set(i, {
                 x: 0,
-                y: dir * amount * 0.5 * this.intensity,
-                z: -amount * this.intensity
+                y: dir * sf * 0.02 * this.intensity,
+                z: -sf * 0.03 * this.intensity
+            });
+        }
+
+        return displacements;
+    }
+
+    createLipShrug(regions, part) {
+        const displacements = new Map();
+        const sf = this.scaleFactor;
+        const indices = part === 'upper' ? (regions.upperLip || []) : (regions.lowerLip || []);
+        const dir = part === 'upper' ? 1 : -1;
+
+        for (const i of indices) {
+            displacements.set(i, {
+                x: 0,
+                y: dir * sf * 0.025 * this.intensity,
+                z: sf * 0.01 * this.intensity
             });
         }
 
@@ -498,19 +599,22 @@ export class BlendshapeGenerator {
 
     createLipPress(regions, side) {
         const displacements = new Map();
-        const mouthIndices = [...(regions.mouth || [])];
         const positions = this.basePositions;
-        const centerX = this.getMidX(positions, mouthIndices);
+        const sf = this.scaleFactor;
+        const mouthIndices = [...(regions.upperLip || []), ...(regions.lowerLip || [])];
+        const centerX = this.mouthCenter.x;
 
         for (const i of mouthIndices) {
             const x = positions.getX(i);
-            const sideInfluence = side === 'left' ? Math.max(0, x - centerX) : Math.max(0, centerX - x);
-            const normalizedInfluence = Math.min(1, sideInfluence * 10);
+            const sideWeight = side === 'left'
+                ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+            const influence = Math.min(1, sideWeight);
 
             displacements.set(i, {
                 x: 0,
-                y: -0.01 * normalizedInfluence * this.intensity,
-                z: -0.02 * normalizedInfluence * this.intensity
+                y: 0,
+                z: -sf * 0.02 * influence * this.intensity
             });
         }
 
@@ -519,19 +623,22 @@ export class BlendshapeGenerator {
 
     createUpperLipUp(regions, side) {
         const displacements = new Map();
-        const indices = regions.upperLip || [];
         const positions = this.basePositions;
-        const centerX = this.getMidX(positions, indices);
+        const sf = this.scaleFactor;
+        const indices = regions.upperLip || [];
+        const centerX = this.mouthCenter.x;
 
         for (const i of indices) {
             const x = positions.getX(i);
-            const sideInfluence = side === 'left' ? Math.max(0, (x - centerX) * 5 + 0.5) : Math.max(0, (centerX - x) * 5 + 0.5);
-            const normalizedInfluence = Math.min(1, sideInfluence);
+            const sideWeight = side === 'left'
+                ? Math.max(0, 0.5 + (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, 0.5 + (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+            const influence = Math.min(1, sideWeight);
 
             displacements.set(i, {
                 x: 0,
-                y: 0.04 * normalizedInfluence * this.intensity,
-                z: 0.01 * normalizedInfluence * this.intensity
+                y: sf * 0.035 * influence * this.intensity,
+                z: sf * 0.01 * influence * this.intensity
             });
         }
 
@@ -540,33 +647,40 @@ export class BlendshapeGenerator {
 
     createLowerLipDown(regions, side) {
         const displacements = new Map();
-        const indices = regions.lowerLip || [];
         const positions = this.basePositions;
-        const centerX = this.getMidX(positions, indices);
+        const sf = this.scaleFactor;
+        const indices = regions.lowerLip || [];
+        const centerX = this.mouthCenter.x;
 
         for (const i of indices) {
             const x = positions.getX(i);
-            const sideInfluence = side === 'left' ? Math.max(0, (x - centerX) * 5 + 0.5) : Math.max(0, (centerX - x) * 5 + 0.5);
-            const normalizedInfluence = Math.min(1, sideInfluence);
+            const sideWeight = side === 'left'
+                ? Math.max(0, 0.5 + (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, 0.5 + (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+            const influence = Math.min(1, sideWeight);
 
             displacements.set(i, {
                 x: 0,
-                y: -0.04 * normalizedInfluence * this.intensity,
-                z: 0.01 * normalizedInfluence * this.intensity
+                y: -sf * 0.035 * influence * this.intensity,
+                z: sf * 0.01 * influence * this.intensity
             });
         }
 
         return displacements;
     }
 
+    // ========================================================================
+    // EYES
+    // ========================================================================
+
     createBlink(regions, side) {
         const displacements = new Map();
-        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
         const positions = this.basePositions;
-        const centerY = this.getMidY(positions, eyeIndices);
-        const centerZ = this.getMidZ(positions, eyeIndices);
+        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+        if (eyeIndices.length === 0) return displacements;
 
-        // Find eye height for proper scaling
+        const centerY = this.getMidY(positions, eyeIndices);
+
         let minY = Infinity, maxY = -Infinity;
         for (const i of eyeIndices) {
             const y = positions.getY(i);
@@ -574,27 +688,25 @@ export class BlendshapeGenerator {
             if (y > maxY) maxY = y;
         }
         const eyeHeight = maxY - minY;
+        if (eyeHeight < 0.001) return displacements;
 
         for (const i of eyeIndices) {
             const y = positions.getY(i);
-            const z = positions.getZ(i);
-            const relY = (y - centerY) / (eyeHeight * 0.5 + 0.001); // -1 to 1
+            const relY = (y - centerY) / (eyeHeight * 0.5);
 
             if (relY > 0) {
-                // Upper eyelid - moves down to center, with slight Z push
-                const strength = relY; // more movement for vertices further from center
+                // Upper eyelid moves down strongly
                 displacements.set(i, {
                     x: 0,
-                    y: -relY * eyeHeight * 0.45 * this.intensity,
-                    z: 0.01 * strength * this.intensity
+                    y: -relY * eyeHeight * 0.48 * this.intensity,
+                    z: 0.005 * this.scaleFactor * relY * this.intensity
                 });
             } else {
-                // Lower eyelid - slight upward movement
-                const strength = -relY;
+                // Lower eyelid moves up slightly
                 displacements.set(i, {
                     x: 0,
-                    y: -relY * eyeHeight * 0.15 * this.intensity,
-                    z: 0.005 * strength * this.intensity
+                    y: -relY * eyeHeight * 0.12 * this.intensity,
+                    z: 0.003 * this.scaleFactor * (-relY) * this.intensity
                 });
             }
         }
@@ -604,18 +716,20 @@ export class BlendshapeGenerator {
 
     createEyeWide(regions, side) {
         const displacements = new Map();
-        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+        if (eyeIndices.length === 0) return displacements;
+
         const centerY = this.getMidY(positions, eyeIndices);
 
         for (const i of eyeIndices) {
             const y = positions.getY(i);
-            const distFromCenter = y - centerY;
-            const movement = distFromCenter > 0 ? 0.03 : -0.015;
+            const above = y > centerY;
 
             displacements.set(i, {
                 x: 0,
-                y: movement * this.intensity,
+                y: (above ? sf * 0.03 : -sf * 0.015) * this.intensity,
                 z: 0
             });
         }
@@ -625,25 +739,32 @@ export class BlendshapeGenerator {
 
     createEyeSquint(regions, side) {
         const displacements = new Map();
+        const positions = this.basePositions;
+        const sf = this.scaleFactor;
         const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
         const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
-        const positions = this.basePositions;
+        if (eyeIndices.length === 0) return displacements;
+
         const centerY = this.getMidY(positions, eyeIndices);
 
         for (const i of eyeIndices) {
             const y = positions.getY(i);
-            const distFromCenter = y - centerY;
-            const movement = distFromCenter > 0 ? -0.02 : 0.015;
+            const above = y > centerY;
 
             displacements.set(i, {
                 x: 0,
-                y: movement * this.intensity,
-                z: 0.01 * this.intensity
+                y: (above ? -sf * 0.02 : sf * 0.015) * this.intensity,
+                z: sf * 0.008 * this.intensity
             });
         }
 
-        for (const i of (cheekIndices || []).slice(0, Math.floor(cheekIndices.length * 0.3))) {
-            displacements.set(i, { x: 0, y: 0.02 * this.intensity, z: 0.01 * this.intensity });
+        // Push cheek up
+        for (const i of (cheekIndices || []).slice(0, Math.ceil(cheekIndices.length * 0.4))) {
+            displacements.set(i, {
+                x: 0,
+                y: sf * 0.02 * this.intensity,
+                z: sf * 0.01 * this.intensity
+            });
         }
 
         return displacements;
@@ -651,46 +772,63 @@ export class BlendshapeGenerator {
 
     createEyeLook(regions, side, direction) {
         const displacements = new Map();
+        const sf = this.scaleFactor;
         const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
 
-        const offset = { x: 0, y: 0, z: 0 };
+        // Eye look is subtle eyelid following
+        let dx = 0, dy = 0;
         switch (direction) {
-            case 'up': offset.y = 0.015; break;
-            case 'down': offset.y = -0.015; break;
-            case 'in': offset.x = side === 'left' ? -0.01 : 0.01; break;
-            case 'out': offset.x = side === 'left' ? 0.01 : -0.01; break;
+            case 'up': dy = sf * 0.012; break;
+            case 'down': dy = -sf * 0.012; break;
+            case 'in': dx = (side === 'left' ? -1 : 1) * sf * 0.008; break;
+            case 'out': dx = (side === 'left' ? 1 : -1) * sf * 0.008; break;
         }
 
         for (const i of eyeIndices) {
             displacements.set(i, {
-                x: offset.x * this.intensity,
-                y: offset.y * this.intensity,
-                z: offset.z * this.intensity
+                x: dx * this.intensity,
+                y: dy * this.intensity,
+                z: 0
             });
         }
 
         return displacements;
     }
 
-    createBrowMovement(regions, side, amount) {
+    // ========================================================================
+    // BROWS
+    // ========================================================================
+
+    createBrowMovement(regions, side, direction) {
         const displacements = new Map();
-        const foreheadIndices = regions.forehead || [];
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const foreheadIndices = regions.forehead || [];
+        if (foreheadIndices.length === 0) return displacements;
+
         const centerX = this.getMidX(positions, foreheadIndices);
         const minY = this.getMinY(positions, foreheadIndices);
+        const maxY = this.getMaxY(positions, foreheadIndices);
+        const browHeight = maxY - minY;
 
         for (const i of foreheadIndices) {
             const x = positions.getX(i);
             const y = positions.getY(i);
 
-            const sideInfluence = side === 'left' ? Math.max(0, (x - centerX) * 5 + 0.3) : Math.max(0, (centerX - x) * 5 + 0.3);
-            const heightInfluence = Math.max(0, 1 - (y - minY) * 5);
-            const influence = Math.min(1, sideInfluence) * Math.min(1, heightInfluence);
+            // Side influence
+            const sideWeight = side === 'left'
+                ? Math.max(0, 0.3 + (x - centerX) / (this.mouthWidth + 0.001))
+                : Math.max(0, 0.3 + (centerX - x) / (this.mouthWidth + 0.001));
+
+            // Height influence - brow is at bottom of forehead region
+            const heightWeight = Math.max(0, 1 - (y - minY) / (browHeight * 0.5 + 0.001));
+
+            const influence = Math.min(1, sideWeight) * Math.min(1, heightWeight);
 
             if (influence > 0.1) {
                 displacements.set(i, {
                     x: 0,
-                    y: amount * influence * this.intensity,
+                    y: direction * sf * 0.04 * influence * this.intensity,
                     z: 0
                 });
             }
@@ -699,25 +837,30 @@ export class BlendshapeGenerator {
         return displacements;
     }
 
-    createBrowInnerUp(regions, amount) {
+    createBrowInnerUp(regions) {
         const displacements = new Map();
-        const foreheadIndices = regions.forehead || [];
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const foreheadIndices = regions.forehead || [];
+        if (foreheadIndices.length === 0) return displacements;
+
         const centerX = this.getMidX(positions, foreheadIndices);
         const minY = this.getMinY(positions, foreheadIndices);
+        const maxY = this.getMaxY(positions, foreheadIndices);
+        const browHeight = maxY - minY;
 
         for (const i of foreheadIndices) {
             const x = positions.getX(i);
             const y = positions.getY(i);
 
-            const centerInfluence = Math.max(0, 1 - Math.abs(x - centerX) * 8);
-            const heightInfluence = Math.max(0, 1 - (y - minY) * 5);
-            const influence = centerInfluence * heightInfluence;
+            const centerWeight = Math.max(0, 1 - Math.abs(x - centerX) / (this.mouthWidth * 0.4 + 0.001));
+            const heightWeight = Math.max(0, 1 - (y - minY) / (browHeight * 0.4 + 0.001));
+            const influence = centerWeight * heightWeight;
 
             if (influence > 0.1) {
                 displacements.set(i, {
                     x: 0,
-                    y: amount * influence * this.intensity,
+                    y: sf * 0.05 * influence * this.intensity,
                     z: 0
                 });
             }
@@ -726,26 +869,34 @@ export class BlendshapeGenerator {
         return displacements;
     }
 
-    createBrowOuterUp(regions, side, amount) {
+    createBrowOuterUp(regions, side) {
         const displacements = new Map();
-        const foreheadIndices = regions.forehead || [];
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
+        const foreheadIndices = regions.forehead || [];
+        if (foreheadIndices.length === 0) return displacements;
+
         const centerX = this.getMidX(positions, foreheadIndices);
         const minY = this.getMinY(positions, foreheadIndices);
+        const maxY = this.getMaxY(positions, foreheadIndices);
+        const browHeight = maxY - minY;
 
         for (const i of foreheadIndices) {
             const x = positions.getX(i);
             const y = positions.getY(i);
 
             const dist = Math.abs(x - centerX);
-            const sideInfluence = side === 'left' ? (x > centerX ? dist * 5 : 0) : (x < centerX ? dist * 5 : 0);
-            const heightInfluence = Math.max(0, 1 - (y - minY) * 5);
-            const influence = Math.min(1, sideInfluence) * heightInfluence;
+            const outerWeight = side === 'left'
+                ? (x > centerX ? Math.min(1, dist / (this.mouthWidth * 0.5 + 0.001)) : 0)
+                : (x < centerX ? Math.min(1, dist / (this.mouthWidth * 0.5 + 0.001)) : 0);
+
+            const heightWeight = Math.max(0, 1 - (y - minY) / (browHeight * 0.4 + 0.001));
+            const influence = outerWeight * heightWeight;
 
             if (influence > 0.1) {
                 displacements.set(i, {
                     x: 0,
-                    y: amount * influence * this.intensity,
+                    y: sf * 0.05 * influence * this.intensity,
                     z: 0
                 });
             }
@@ -754,20 +905,25 @@ export class BlendshapeGenerator {
         return displacements;
     }
 
-    createCheekPuff(regions, amount) {
+    // ========================================================================
+    // CHEEKS & NOSE
+    // ========================================================================
+
+    createCheekPuff(regions) {
         const displacements = new Map();
+        const positions = this.basePositions;
+        const sf = this.scaleFactor;
         const allCheeks = [...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
+        const centerX = this.mouthCenter.x;
 
         for (const i of allCheeks) {
-            const positions = this.basePositions;
             const x = positions.getX(i);
-            const centerX = this.getMidX(positions, allCheeks);
             const dir = x > centerX ? 1 : -1;
 
             displacements.set(i, {
-                x: dir * amount * 0.5 * this.intensity,
+                x: dir * sf * 0.05 * this.intensity,
                 y: 0,
-                z: amount * this.intensity
+                z: sf * 0.06 * this.intensity
             });
         }
 
@@ -776,13 +932,14 @@ export class BlendshapeGenerator {
 
     createCheekSquint(regions, side) {
         const displacements = new Map();
+        const sf = this.scaleFactor;
         const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
 
         for (const i of cheekIndices) {
             displacements.set(i, {
                 x: 0,
-                y: 0.03 * this.intensity,
-                z: 0.02 * this.intensity
+                y: sf * 0.03 * this.intensity,
+                z: sf * 0.015 * this.intensity
             });
         }
 
@@ -791,21 +948,24 @@ export class BlendshapeGenerator {
 
     createNoseSneer(regions, side) {
         const displacements = new Map();
-        const noseIndices = regions.nose || [];
         const positions = this.basePositions;
-        const centerX = this.getMidX(positions, noseIndices);
+        const sf = this.scaleFactor;
+        const noseIndices = regions.nose || [];
+        const centerX = this.mouthCenter.x;
+        const dir = side === 'left' ? 1 : -1;
 
         for (const i of noseIndices) {
             const x = positions.getX(i);
-            const sideInfluence = side === 'left' ? Math.max(0, (x - centerX) * 8) : Math.max(0, (centerX - x) * 8);
-            const influence = Math.min(1, sideInfluence);
+            const sideWeight = side === 'left'
+                ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+            const influence = Math.min(1, sideWeight);
 
             if (influence > 0.1) {
-                const dir = side === 'left' ? 1 : -1;
                 displacements.set(i, {
-                    x: dir * 0.02 * influence * this.intensity,
-                    y: 0.03 * influence * this.intensity,
-                    z: 0.01 * influence * this.intensity
+                    x: dir * sf * 0.015 * influence * this.intensity,
+                    y: sf * 0.025 * influence * this.intensity,
+                    z: sf * 0.01 * influence * this.intensity
                 });
             }
         }
@@ -814,32 +974,25 @@ export class BlendshapeGenerator {
     }
 
     createTongueOut(regions) {
+        // Approximation: push lower-center mouth vertices forward and down
         const displacements = new Map();
-        const mouthIndices = regions.lowerLip || regions.mouth || [];
         const positions = this.basePositions;
-        const centerX = this.getMidX(positions, mouthIndices);
-        const centerY = this.getMidY(positions, mouthIndices);
+        const sf = this.scaleFactor;
+        const mouthIndices = regions.lowerLip || regions.mouth || [];
+        const cx = this.mouthCenter.x;
+        const cy = this.mouthCenter.y;
 
-        // Compute mouth width for relative threshold
-        let minX = Infinity, maxX = -Infinity;
-        for (const i of mouthIndices) {
-            const x = positions.getX(i);
-            if (x < minX) minX = x;
-            if (x > maxX) maxX = x;
-        }
-        const mouthWidth = maxX - minX;
-        const threshold = mouthWidth * 0.2;
-
-        // Select lower-center vertices as tongue proxy
         for (const i of mouthIndices) {
             const x = positions.getX(i);
             const y = positions.getY(i);
+            const distX = Math.abs(x - cx);
+            const below = y < cy;
 
-            if (Math.abs(x - centerX) < threshold && y < centerY) {
+            if (below && distX < this.mouthWidth * 0.25) {
                 displacements.set(i, {
                     x: 0,
-                    y: -0.06 * this.intensity,
-                    z: 0.08 * this.intensity
+                    y: -sf * 0.05 * this.intensity,
+                    z: sf * 0.08 * this.intensity
                 });
             }
         }
@@ -847,78 +1000,65 @@ export class BlendshapeGenerator {
         return displacements;
     }
 
-    // Viseme shapes
+    // ========================================================================
+    // VISEMES
+    // ========================================================================
+
     createVisemeClosed(regions) {
-        // P, B, M - lips pressed together
         const displacements = new Map();
-        if (regions.upperLip) {
-            for (const i of regions.upperLip) {
-                displacements.set(i, { x: 0, y: -0.01 * this.intensity, z: 0.01 * this.intensity });
-            }
+        const sf = this.scaleFactor;
+
+        for (const i of (regions.upperLip || [])) {
+            displacements.set(i, { x: 0, y: -sf * 0.008 * this.intensity, z: sf * 0.01 * this.intensity });
         }
-        if (regions.lowerLip) {
-            for (const i of regions.lowerLip) {
-                displacements.set(i, { x: 0, y: 0.01 * this.intensity, z: 0.01 * this.intensity });
-            }
+        for (const i of (regions.lowerLip || [])) {
+            displacements.set(i, { x: 0, y: sf * 0.008 * this.intensity, z: sf * 0.01 * this.intensity });
         }
+
         return displacements;
     }
 
     createVisemeFF(regions) {
-        // F, V - lower lip tucked under upper teeth
         const displacements = new Map();
-        if (regions.lowerLip) {
-            for (const i of regions.lowerLip) {
-                displacements.set(i, { x: 0, y: 0.02 * this.intensity, z: -0.02 * this.intensity });
-            }
+        const sf = this.scaleFactor;
+
+        for (const i of (regions.lowerLip || [])) {
+            displacements.set(i, {
+                x: 0,
+                y: sf * 0.015 * this.intensity,
+                z: -sf * 0.02 * this.intensity
+            });
         }
+
         return displacements;
     }
 
     createVisemeTH(regions) {
-        // TH - tongue between teeth, slight mouth open
         const displacements = new Map();
-        if (regions.upperLip) {
-            for (const i of regions.upperLip) {
-                displacements.set(i, { x: 0, y: 0.015 * this.intensity, z: 0 });
-            }
+        const sf = this.scaleFactor;
+
+        for (const i of (regions.upperLip || [])) {
+            displacements.set(i, { x: 0, y: sf * 0.012 * this.intensity, z: 0 });
         }
-        if (regions.lowerLip) {
-            for (const i of regions.lowerLip) {
-                displacements.set(i, { x: 0, y: -0.02 * this.intensity, z: 0.01 * this.intensity });
-            }
+        for (const i of (regions.lowerLip || [])) {
+            displacements.set(i, { x: 0, y: -sf * 0.015 * this.intensity, z: sf * 0.01 * this.intensity });
         }
+
         return displacements;
     }
 
-    createVisemeDD(regions) {
-        // T, D - tongue on alveolar ridge, slight open
-        return this.createMouthOpen(regions, 0.03);
-    }
-
-    createVisemeKK(regions) {
-        // K, G - back tongue raised, slight open
-        return this.createMouthOpen(regions, 0.04);
-    }
-
     createVisemeCH(regions) {
-        // Ch, Sh - rounded lips, slight open
-        const displacements = new Map();
-        const mouthIndices = [...(regions.mouth || []), ...(regions.upperLip || []), ...(regions.lowerLip || [])];
-        const positions = this.basePositions;
-        const centerX = this.getMidX(positions, mouthIndices);
-        const centerY = this.getMidY(positions, mouthIndices);
+        const pucker = this.createPucker(regions);
+        const open = this.createJawOpen(regions, 0.06);
 
-        for (const i of mouthIndices) {
-            const x = positions.getX(i);
-            const y = positions.getY(i);
-            const dx = x - centerX;
-            const dy = y - centerY;
-
+        // Merge: pucker * 0.5 + open
+        const displacements = new Map(open);
+        for (const [i, d] of pucker) {
+            const existing = displacements.get(i) || { x: 0, y: 0, z: 0 };
             displacements.set(i, {
-                x: -dx * 0.2 * this.intensity,
-                y: -dy * 0.15 * this.intensity,
-                z: 0.03 * this.intensity
+                x: existing.x + d.x * 0.5,
+                y: existing.y + d.y * 0.5,
+                z: existing.z + d.z * 0.5
             });
         }
 
@@ -926,111 +1066,96 @@ export class BlendshapeGenerator {
     }
 
     createVisemeSS(regions) {
-        // S, Z - narrow opening, teeth close
-        return this.createMouthOpen(regions, 0.02);
-    }
+        // Narrow opening, teeth close together
+        const displacements = this.createJawOpen(regions, 0.04);
+        const stretch = this.createStretch(regions, 'left');
 
-    createVisemeNN(regions) {
-        // N, L - slight open, tongue up
-        return this.createMouthOpen(regions, 0.025);
+        for (const [i, d] of stretch) {
+            const existing = displacements.get(i) || { x: 0, y: 0, z: 0 };
+            displacements.set(i, {
+                x: existing.x + d.x * 0.3,
+                y: existing.y + d.y * 0.3,
+                z: existing.z + d.z * 0.3
+            });
+        }
+
+        return displacements;
     }
 
     createVisemeRR(regions) {
-        // R - slight open, lips slightly rounded
-        const displacements = this.createMouthOpen(regions, 0.035);
-        const puckerDisp = this.createPucker(regions, 0.02);
-        // Merge
-        for (const [i, d] of puckerDisp) {
-            if (displacements.has(i)) {
-                const existing = displacements.get(i);
-                displacements.set(i, {
-                    x: existing.x + d.x * 0.5,
-                    y: existing.y + d.y * 0.5,
-                    z: existing.z + d.z * 0.5
-                });
-            } else {
-                displacements.set(i, d);
-            }
-        }
-        return displacements;
-    }
+        const open = this.createJawOpen(regions, 0.08);
+        const pucker = this.createPucker(regions);
 
-    createVisemeAA(regions) {
-        // A - wide open mouth
-        return this.createMouthOpen(regions, 0.1);
+        for (const [i, d] of pucker) {
+            const existing = open.get(i) || { x: 0, y: 0, z: 0 };
+            open.set(i, {
+                x: existing.x + d.x * 0.4,
+                y: existing.y + d.y * 0.4,
+                z: existing.z + d.z * 0.4
+            });
+        }
+
+        return open;
     }
 
     createVisemeE(regions) {
-        // E - wide, slight open
-        const displacements = this.createMouthOpen(regions, 0.04);
-        const stretchL = this.createStretch(regions, 'left', 0.03);
-        const stretchR = this.createStretch(regions, 'right', 0.03);
-
-        for (const [i, d] of stretchL) {
-            if (displacements.has(i)) {
-                const e = displacements.get(i);
-                displacements.set(i, { x: e.x + d.x, y: e.y + d.y, z: e.z + d.z });
-            } else {
-                displacements.set(i, d);
-            }
-        }
-        for (const [i, d] of stretchR) {
-            if (displacements.has(i)) {
-                const e = displacements.get(i);
-                displacements.set(i, { x: e.x + d.x, y: e.y + d.y, z: e.z + d.z });
-            } else {
-                displacements.set(i, d);
-            }
-        }
-
-        return displacements;
-    }
-
-    createVisemeI(regions) {
-        // I - narrow, wide
-        const displacements = this.createMouthOpen(regions, 0.02);
-        const stretchL = this.createStretch(regions, 'left', 0.04);
-        const stretchR = this.createStretch(regions, 'right', 0.04);
+        const open = this.createJawOpen(regions, 0.10);
+        const stretchL = this.createStretch(regions, 'left');
+        const stretchR = this.createStretch(regions, 'right');
 
         for (const map of [stretchL, stretchR]) {
             for (const [i, d] of map) {
-                if (displacements.has(i)) {
-                    const e = displacements.get(i);
-                    displacements.set(i, { x: e.x + d.x, y: e.y + d.y, z: e.z + d.z });
-                } else {
-                    displacements.set(i, d);
-                }
+                const e = open.get(i) || { x: 0, y: 0, z: 0 };
+                open.set(i, { x: e.x + d.x * 0.6, y: e.y + d.y * 0.6, z: e.z + d.z * 0.6 });
             }
         }
 
-        return displacements;
+        return open;
+    }
+
+    createVisemeI(regions) {
+        const open = this.createJawOpen(regions, 0.05);
+        const stretchL = this.createStretch(regions, 'left');
+        const stretchR = this.createStretch(regions, 'right');
+
+        for (const map of [stretchL, stretchR]) {
+            for (const [i, d] of map) {
+                const e = open.get(i) || { x: 0, y: 0, z: 0 };
+                open.set(i, { x: e.x + d.x * 0.7, y: e.y + d.y * 0.7, z: e.z + d.z * 0.7 });
+            }
+        }
+
+        return open;
     }
 
     createVisemeO(regions) {
-        // O - rounded, open
-        const displacements = this.createMouthOpen(regions, 0.07);
-        const pucker = this.createPucker(regions, 0.04);
+        const open = this.createJawOpen(regions, 0.18);
+        const pucker = this.createPucker(regions);
 
         for (const [i, d] of pucker) {
-            if (displacements.has(i)) {
-                const e = displacements.get(i);
-                displacements.set(i, { x: e.x + d.x * 0.7, y: e.y + d.y * 0.7, z: e.z + d.z * 0.7 });
-            } else {
-                displacements.set(i, d);
-            }
+            const e = open.get(i) || { x: 0, y: 0, z: 0 };
+            open.set(i, { x: e.x + d.x * 0.7, y: e.y + d.y * 0.7, z: e.z + d.z * 0.7 });
         }
 
-        return displacements;
+        return open;
     }
 
     createVisemeU(regions) {
-        // U - very rounded, small opening
-        return this.createPucker(regions, 0.05);
+        const open = this.createJawOpen(regions, 0.08);
+        const pucker = this.createPucker(regions);
+
+        for (const [i, d] of pucker) {
+            const e = open.get(i) || { x: 0, y: 0, z: 0 };
+            open.set(i, { x: e.x + d.x * 0.9, y: e.y + d.y * 0.9, z: e.z + d.z * 0.9 });
+        }
+
+        return open;
     }
 
-    /**
-     * Create a morph target buffer from displacement map.
-     */
+    // ========================================================================
+    // MORPH TARGET APPLICATION
+    // ========================================================================
+
     createMorphTarget(vertexCount, displacements) {
         const positions = new Float32Array(vertexCount * 3);
 
@@ -1043,12 +1168,7 @@ export class BlendshapeGenerator {
         return positions;
     }
 
-    /**
-     * Apply all generated morph targets to the mesh geometry.
-     * Creates a new geometry to ensure the renderer recognizes morph targets.
-     */
     applyMorphTargets(geometry) {
-        // Create new geometry with morph attributes built-in
         const newGeometry = geometry.clone();
         newGeometry.morphAttributes.position = [];
         newGeometry.morphTargetsRelative = true;
@@ -1056,7 +1176,6 @@ export class BlendshapeGenerator {
         const dictionary = {};
         let index = 0;
 
-        // Add blendshapes
         for (const [name, buffer] of Object.entries(this.blendshapes)) {
             const attr = new THREE.Float32BufferAttribute(buffer, 3);
             attr.name = name;
@@ -1064,7 +1183,6 @@ export class BlendshapeGenerator {
             dictionary[name] = index++;
         }
 
-        // Add visemes
         for (const [name, buffer] of Object.entries(this.visemes)) {
             const attr = new THREE.Float32BufferAttribute(buffer, 3);
             attr.name = name;
@@ -1072,15 +1190,15 @@ export class BlendshapeGenerator {
             dictionary[name] = index++;
         }
 
-        // Replace the mesh geometry with the new one
         this.mesh.geometry = newGeometry;
-
-        // Set morph target dictionary and influences on the mesh
         this.mesh.morphTargetDictionary = dictionary;
         this.mesh.morphTargetInfluences = new Array(index).fill(0);
     }
 
-    // Utility methods
+    // ========================================================================
+    // UTILITIES
+    // ========================================================================
+
     getMidX(positions, indices) {
         if (!indices || indices.length === 0) return 0;
         let sum = 0;
@@ -1110,5 +1228,15 @@ export class BlendshapeGenerator {
             if (y < min) min = y;
         }
         return min;
+    }
+
+    getMaxY(positions, indices) {
+        if (!indices || indices.length === 0) return 0;
+        let max = -Infinity;
+        for (const i of indices) {
+            const y = positions.getY(i);
+            if (y > max) max = y;
+        }
+        return max;
     }
 }

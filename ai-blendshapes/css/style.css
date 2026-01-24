@@ -345,6 +345,56 @@ h3 {
     transition: width 0.3s;
 }
 
+/* Accessories */
+.accessories-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.accessory-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.btn-small {
+    display: inline-block;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-small:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-small:hover:not(:disabled) {
+    background: var(--border);
+    border-color: var(--accent);
+}
+
+.btn-small.loaded {
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.accessory-status {
+    font-size: 0.65rem;
+    color: var(--success);
+    min-height: 14px;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
