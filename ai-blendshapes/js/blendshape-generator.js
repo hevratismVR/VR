@@ -823,10 +823,12 @@ export class BlendshapeGenerator {
     createBlink(regions, side) {
         const displacements = new Map();
         const positions = this.basePositions;
+        const sf = this.scaleFactor;
         const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
         if (eyeIndices.length === 0) return displacements;
 
         const centerY = this.getMidY(positions, eyeIndices);
+        const centerX = this.getMidX(positions, eyeIndices);
 
         let minY = Infinity, maxY = -Infinity;
         for (const i of eyeIndices) {
@@ -846,16 +848,37 @@ export class BlendshapeGenerator {
                 displacements.set(i, {
                     x: 0,
                     y: -relY * eyeHeight * 0.48 * this.intensity,
-                    z: 0.005 * this.scaleFactor * relY * this.intensity
+                    z: 0.005 * sf * relY * this.intensity
                 });
             } else {
                 // Lower eyelid moves up slightly
                 displacements.set(i, {
                     x: 0,
                     y: -relY * eyeHeight * 0.12 * this.intensity,
-                    z: 0.003 * this.scaleFactor * (-relY) * this.intensity
+                    z: 0.003 * sf * (-relY) * this.intensity
                 });
             }
+        }
+
+        // Slight upper cheek push (skin squishes when eyes close)
+        const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
+        for (const i of cheekIndices) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+            // Only affect cheek vertices near the eye (upper cheek area)
+            if (y < centerY - eyeHeight) continue;
+            const distFromEye = Math.sqrt(
+                (x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)
+            );
+            const maxDist = eyeHeight * 2.5;
+            if (distFromEye > maxDist) continue;
+
+            const falloff = 1 - distFromEye / maxDist;
+            displacements.set(i, {
+                x: 0,
+                y: sf * 0.008 * falloff * this.intensity,
+                z: sf * 0.005 * falloff * this.intensity
+            });
         }
 
         return displacements;
@@ -893,6 +916,7 @@ export class BlendshapeGenerator {
         if (eyeIndices.length === 0) return displacements;
 
         const centerY = this.getMidY(positions, eyeIndices);
+        const centerX = this.getMidX(positions, eyeIndices);
 
         for (const i of eyeIndices) {
             const y = positions.getY(i);
@@ -905,12 +929,22 @@ export class BlendshapeGenerator {
             });
         }
 
-        // Push cheek up
-        for (const i of (cheekIndices || []).slice(0, Math.ceil(cheekIndices.length * 0.4))) {
+        // Push upper cheek up with distance-based falloff from eye center
+        for (const i of (cheekIndices || [])) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+            // Only affect vertices near the eye (upper portion of cheek)
+            const dist = Math.sqrt(
+                (x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)
+            );
+            const maxDist = sf * 0.2;
+            if (dist > maxDist) continue;
+
+            const falloff = 1 - dist / maxDist;
             displacements.set(i, {
                 x: 0,
-                y: sf * 0.02 * this.intensity,
-                z: sf * 0.01 * this.intensity
+                y: sf * 0.025 * falloff * this.intensity,
+                z: sf * 0.012 * falloff * this.intensity
             });
         }
 
@@ -1120,15 +1154,51 @@ export class BlendshapeGenerator {
 
     createCheekSquint(regions, side) {
         const displacements = new Map();
+        const positions = this.basePositions;
         const sf = this.scaleFactor;
         const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
+        const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
+
+        // Compute eye center for distance-based falloff
+        let eyeCenterX, eyeCenterY;
+        if (eyeIndices.length > 0) {
+            eyeCenterX = this.getMidX(positions, eyeIndices);
+            eyeCenterY = this.getMidY(positions, eyeIndices);
+        } else {
+            eyeCenterX = this.mouthCenter.x;
+            eyeCenterY = this.mouthCenter.y + sf * 0.15;
+        }
 
         for (const i of cheekIndices) {
-            displacements.set(i, {
-                x: 0,
-                y: sf * 0.03 * this.intensity,
-                z: sf * 0.015 * this.intensity
-            });
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+
+            // Stronger effect closer to the eye, weaker further away
+            const dist = Math.sqrt(
+                (x - eyeCenterX) * (x - eyeCenterX) + (y - eyeCenterY) * (y - eyeCenterY)
+            );
+            const maxDist = sf * 0.25;
+            const falloff = Math.max(0, 1 - dist / maxDist);
+
+            if (falloff > 0.05) {
+                displacements.set(i, {
+                    x: 0,
+                    y: sf * 0.035 * falloff * this.intensity,
+                    z: sf * 0.02 * falloff * this.intensity
+                });
+            }
+        }
+
+        // Also slightly squint the lower eye vertices
+        for (const i of eyeIndices) {
+            const y = positions.getY(i);
+            if (y < eyeCenterY) {
+                displacements.set(i, {
+                    x: 0,
+                    y: sf * 0.01 * this.intensity,
+                    z: sf * 0.005 * this.intensity
+                });
+            }
         }
 
         return displacements;
