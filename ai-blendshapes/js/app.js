@@ -148,6 +148,18 @@ class App {
             `;
             infoBox.classList.remove('hidden');
 
+            // Populate mesh selection dropdown
+            if (this.modelData.meshes.length > 1) {
+                const meshSelect = document.getElementById('mesh-select');
+                meshSelect.innerHTML = '<option value="auto">אוטומטי (זיהוי AI)</option>';
+                this.modelData.meshes.forEach((mesh, idx) => {
+                    const name = mesh.name || `Mesh ${idx}`;
+                    const verts = mesh.geometry.attributes.position.count;
+                    meshSelect.innerHTML += `<option value="${idx}">${name} (${verts.toLocaleString()} v)</option>`;
+                });
+                document.getElementById('mesh-select-label').classList.remove('hidden');
+            }
+
             // Enable next steps
             document.getElementById('detect-face-btn').disabled = false;
 
@@ -171,9 +183,18 @@ class App {
 
         try {
             const characterType = document.getElementById('character-type').value;
+            const meshSelectValue = document.getElementById('mesh-select').value;
+
+            let meshesToDetect = this.modelData.meshes;
+
+            // If user manually selected a mesh, use only that one
+            if (meshSelectValue !== 'auto') {
+                const idx = parseInt(meshSelectValue);
+                meshesToDetect = [this.modelData.meshes[idx]];
+            }
 
             const result = this.landmarkDetector.detect(
-                this.modelData.meshes,
+                meshesToDetect,
                 characterType
             );
 

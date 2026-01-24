@@ -47,11 +47,37 @@ export class LandmarkDetector {
     }
 
     /**
-     * Find the mesh most likely to be the face by analyzing position and vertex density.
+     * Find the mesh most likely to be the face/head.
+     * Strategy: check names first, then find topmost centered mesh.
      */
     findFaceMesh(meshes) {
         if (meshes.length === 1) return meshes[0];
 
+        // Strategy 1: Check mesh names for head/face keywords
+        const headKeywords = ['head', 'face', 'skull', 'cranium', 'pnw', 'ראש', 'פנים'];
+        for (const mesh of meshes) {
+            const name = (mesh.name || '').toLowerCase();
+            if (headKeywords.some(k => name.includes(k))) {
+                return mesh;
+            }
+        }
+
+        // Strategy 2: Find the overall bounding box to understand model proportions
+        const overallBox = new THREE.Box3();
+        for (const mesh of meshes) {
+            mesh.updateWorldMatrix(true, false);
+            const meshBox = new THREE.Box3().setFromBufferAttribute(
+                mesh.geometry.attributes.position
+            ).applyMatrix4(mesh.matrixWorld);
+            overallBox.union(meshBox);
+        }
+
+        const overallCenter = overallBox.getCenter(new THREE.Vector3());
+        const overallSize = overallBox.getSize(new THREE.Vector3());
+        const modelHeight = overallSize.y;
+        const modelTop = overallBox.max.y;
+
+        // Strategy 3: Score each mesh
         let bestMesh = null;
         let bestScore = -Infinity;
 
@@ -59,21 +85,35 @@ export class LandmarkDetector {
             const positions = mesh.geometry.attributes.position;
             const vertexCount = positions.count;
 
-            // Compute bounding box in world space
-            mesh.geometry.computeBoundingBox();
-            const box = mesh.geometry.boundingBox.clone();
-            box.applyMatrix4(mesh.matrixWorld);
+            // Skip very small meshes (less than 100 vertices - probably eyes, teeth, etc.)
+            if (vertexCount < 100) continue;
 
+            // Compute bounding box in world space
+            const box = new THREE.Box3().setFromBufferAttribute(positions)
+                .applyMatrix4(mesh.matrixWorld);
             const center = box.getCenter(new THREE.Vector3());
             const size = box.getSize(new THREE.Vector3());
 
-            // Score based on: high Y position (head is usually on top),
-            // vertex density, and roughly spherical shape
-            const heightScore = center.y * 2;
-            const densityScore = vertexCount / (size.x * size.y * size.z + 0.001);
-            const sphereScore = 1 - Math.abs(size.x - size.z) / (size.x + size.z + 0.001);
+            // Score 1: Height position (0-1, where 1 = top of model)
+            const relativeHeight = (center.y - overallBox.min.y) / modelHeight;
+            const heightScore = relativeHeight * 10; // Heavy weight on being at top
 
-            const score = heightScore + densityScore * 0.01 + sphereScore;
+            // Score 2: Centered on X axis (head should be centered)
+            const xOffset = Math.abs(center.x - overallCenter.x) / (overallSize.x + 0.001);
+            const centerScore = (1 - xOffset) * 3;
+
+            // Score 3: Reasonable size (head is ~15-30% of model height)
+            const sizeRatio = size.y / modelHeight;
+            const sizeScore = (sizeRatio > 0.1 && sizeRatio < 0.5) ? 2 : 0;
+
+            // Score 4: Vertex count bonus (face usually has many vertices)
+            const vertexScore = Math.min(2, vertexCount / 5000);
+
+            // Score 5: Roughly compact shape (not a long limb)
+            const aspectRatio = Math.max(size.x, size.y, size.z) / (Math.min(size.x, size.y, size.z) + 0.001);
+            const compactScore = aspectRatio < 3 ? 2 : 0;
+
+            const score = heightScore + centerScore + sizeScore + vertexScore + compactScore;
 
             if (score > bestScore) {
                 bestScore = score;
@@ -81,7 +121,7 @@ export class LandmarkDetector {
             }
         }
 
-        return bestMesh;
+        return bestMesh || meshes[0];
     }
 
     /**
