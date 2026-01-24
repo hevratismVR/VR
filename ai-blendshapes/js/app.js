@@ -157,6 +157,7 @@ class App {
         // Export
         document.getElementById('export-glb-btn').addEventListener('click', () => this.exportGLB());
         document.getElementById('export-animation-btn').addEventListener('click', () => this.exportAnimation());
+        document.getElementById('export-json-btn').addEventListener('click', () => this.exportJSON());
 
         // Test all blendshapes
         document.getElementById('test-all-btn').addEventListener('click', () => this.testAllBlendshapes());
@@ -329,9 +330,10 @@ class App {
             // Update blendshapes UI list
             this.updateBlendshapesList(result);
 
-            // Enable audio upload and test
+            // Enable audio upload, test, and exports
             document.getElementById('audio-upload-btn').disabled = false;
             document.getElementById('export-glb-btn').disabled = false;
+            document.getElementById('export-json-btn').disabled = false;
             document.getElementById('test-all-btn').disabled = false;
 
             const shapeCount = Object.keys(result.blendshapes).length;
@@ -954,6 +956,23 @@ class App {
         }
 
         this.showProgress(false);
+    }
+
+    /**
+     * Export blendshape data as JSON.
+     */
+    exportJSON() {
+        if (!this.faceMesh) return;
+
+        try {
+            const json = this.exporter.exportBlendshapeJSON(this.faceMesh);
+            const blob = new Blob([json], { type: 'application/json' });
+            this.exporter.downloadBlob(blob, 'blendshapes-data.json');
+            this.setStatus('JSON exported successfully!');
+        } catch (error) {
+            this.setStatus(`JSON export error: ${error.message}`);
+            console.error('JSON export error:', error);
+        }
     }
 
     /**
