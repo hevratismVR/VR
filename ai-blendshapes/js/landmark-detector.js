@@ -212,7 +212,7 @@ export class LandmarkDetector {
             spatialHash.get(key).push(i);
         }
 
-        const tolerance = cellSize * 2;
+        const tolerance = cellSize * 1.5;
 
         for (const axis of ['x', 'y', 'z']) {
             let symmetryScore = 0;
@@ -222,15 +222,27 @@ export class LandmarkDetector {
                 const reflected = v.clone();
                 reflected[axis] = 2 * center[axis] - reflected[axis];
 
-                // Check spatial hash cells near the reflected position
-                const key = hashVertex(reflected);
-                const candidates = spatialHash.get(key) || [];
+                // Check 3x3x3 neighborhood of cells around reflected position
+                const rix = Math.floor((reflected.x - bbox.min.x) / cellSize);
+                const riy = Math.floor((reflected.y - bbox.min.y) / cellSize);
+                const riz = Math.floor((reflected.z - bbox.min.z) / cellSize);
 
                 let found = false;
-                for (const ci of candidates) {
-                    if (reflected.distanceTo(vertices[ci]) < tolerance) {
-                        found = true;
-                        break;
+                outer:
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dz = -1; dz <= 1; dz++) {
+                            const key = `${rix + dx},${riy + dy},${riz + dz}`;
+                            const candidates = spatialHash.get(key);
+                            if (!candidates) continue;
+
+                            for (const ci of candidates) {
+                                if (reflected.distanceTo(vertices[ci]) < tolerance) {
+                                    found = true;
+                                    break outer;
+                                }
+                            }
+                        }
                     }
                 }
 
