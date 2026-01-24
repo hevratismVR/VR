@@ -35,6 +35,13 @@ export class BlendshapeGenerator {
      */
     async generate(mesh, landmarks, regions, intensity = 1.0, onProgress = null) {
         this.mesh = mesh;
+
+        // If regenerating with active CPU morphs, restore base positions first
+        if (this._baseArray && this._currentWeights && Object.keys(this._currentWeights).length > 0) {
+            mesh.geometry.attributes.position.array.set(this._baseArray);
+            mesh.geometry.attributes.position.needsUpdate = true;
+        }
+
         this.basePositions = mesh.geometry.attributes.position.clone();
         this.regions = regions;
 
@@ -93,11 +100,36 @@ export class BlendshapeGenerator {
         this._baseArray = new Float32Array(posAttr.array);
         this._currentWeights = {};
         this._allShapes = { ...this.blendshapes, ...this.visemes };
+
+        // Pre-compute sparse index lists for each morph target.
+        // Only store vertex indices with non-zero displacement.
+        // This makes setWeight() O(affected_vertices) instead of O(all_vertices).
+        this._sparseIndices = {};
+        for (const [name, buffer] of Object.entries(this._allShapes)) {
+            const indices = [];
+            for (let i = 0; i < buffer.length; i += 3) {
+                if (buffer[i] !== 0 || buffer[i + 1] !== 0 || buffer[i + 2] !== 0) {
+                    indices.push(i);
+                }
+            }
+            this._sparseIndices[name] = indices;
+        }
+
+        // Disable frustum culling: CPU morphing moves vertices outside
+        // the original bounding sphere, which could cause the mesh to disappear.
+        this.mesh.frustumCulled = false;
+
+        console.log('[CPU Morph] Initialized:', {
+            vertexCount: posAttr.count,
+            morphCount: Object.keys(this._allShapes).length,
+            totalNonZero: Object.values(this._sparseIndices).reduce((s, a) => s + a.length, 0)
+        });
     }
 
     /**
      * Set a blendshape weight using direct CPU vertex displacement.
      * This bypasses the Three.js morph target system entirely.
+     * Uses sparse indexing: only updates vertices with non-zero displacement.
      * @param {string} name - Blendshape name
      * @param {number} weight - Weight value 0-1
      */
@@ -114,10 +146,21 @@ export class BlendshapeGenerator {
         if (Math.abs(deltaWeight) < 0.0001) return;
 
         const positions = this.mesh.geometry.attributes.position.array;
+        const indices = this._sparseIndices[name];
 
-        // Apply delta: positions += morphBuffer * deltaWeight
-        for (let i = 0; i < positions.length; i++) {
-            positions[i] += morphBuffer[i] * deltaWeight;
+        if (indices) {
+            // Sparse path: only update affected vertices
+            for (let k = 0; k < indices.length; k++) {
+                const i = indices[k];
+                positions[i] += morphBuffer[i] * deltaWeight;
+                positions[i + 1] += morphBuffer[i + 1] * deltaWeight;
+                positions[i + 2] += morphBuffer[i + 2] * deltaWeight;
+            }
+        } else {
+            // Fallback: full buffer scan
+            for (let i = 0; i < positions.length; i++) {
+                positions[i] += morphBuffer[i] * deltaWeight;
+            }
         }
 
         this.mesh.geometry.attributes.position.needsUpdate = true;
@@ -150,14 +193,25 @@ export class BlendshapeGenerator {
         // Reset to base
         positions.set(this._baseArray);
 
-        // Apply all active weights
+        // Apply all active weights using sparse indices
+        this._currentWeights = {};
         for (const [name, weight] of Object.entries(weights)) {
             if (weight < 0.0001) continue;
             const morphBuffer = this._allShapes[name];
             if (!morphBuffer) continue;
 
-            for (let i = 0; i < positions.length; i++) {
-                positions[i] += morphBuffer[i] * weight;
+            const indices = this._sparseIndices[name];
+            if (indices) {
+                for (let k = 0; k < indices.length; k++) {
+                    const i = indices[k];
+                    positions[i] += morphBuffer[i] * weight;
+                    positions[i + 1] += morphBuffer[i + 1] * weight;
+                    positions[i + 2] += morphBuffer[i + 2] * weight;
+                }
+            } else {
+                for (let i = 0; i < positions.length; i++) {
+                    positions[i] += morphBuffer[i] * weight;
+                }
             }
 
             this._currentWeights[name] = weight;

@@ -1021,22 +1021,20 @@ class App {
 
     computeMorphQuality() {
         const quality = {};
-        if (!this.faceMesh || !this.faceMesh.morphTargetDictionary) return quality;
+        if (!this.blendshapeGenerator || !this.blendshapeGenerator._allShapes) return quality;
 
-        const dict = this.faceMesh.morphTargetDictionary;
-        const morphPositions = this.faceMesh.geometry.morphAttributes.position;
-        if (!morphPositions) return quality;
+        const allShapes = this.blendshapeGenerator._allShapes;
+        const sf = this.blendshapeGenerator.scaleFactor || 1;
 
-        const sf = this.blendshapeGenerator ? this.blendshapeGenerator.scaleFactor : 1;
-
-        for (const [name, idx] of Object.entries(dict)) {
-            const posAttr = morphPositions[idx];
-            if (!posAttr) { quality[name] = 'empty'; continue; }
-
+        for (const [name, buffer] of Object.entries(allShapes)) {
+            // Sample up to 1000 vertices for performance (avoid freezing on large models)
+            const vertexCount = buffer.length / 3;
+            const stride = Math.max(1, Math.floor(vertexCount / 1000));
             let maxDisp = 0;
-            for (let i = 0; i < posAttr.count; i++) {
-                const dx = posAttr.getX(i), dy = posAttr.getY(i), dz = posAttr.getZ(i);
-                const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+            for (let i = 0; i < vertexCount; i += stride) {
+                const off = i * 3;
+                const d = Math.sqrt(buffer[off] ** 2 + buffer[off + 1] ** 2 + buffer[off + 2] ** 2);
                 if (d > maxDisp) maxDisp = d;
             }
 
