@@ -134,6 +134,9 @@ class App {
         // Export
         document.getElementById('export-glb-btn').addEventListener('click', () => this.exportGLB());
         document.getElementById('export-animation-btn').addEventListener('click', () => this.exportAnimation());
+
+        // Test all blendshapes
+        document.getElementById('test-all-btn').addEventListener('click', () => this.testAllBlendshapes());
     }
 
     /**
@@ -303,9 +306,10 @@ class App {
             // Update blendshapes UI list
             this.updateBlendshapesList(result);
 
-            // Enable audio upload
+            // Enable audio upload and test
             document.getElementById('audio-upload-btn').disabled = false;
             document.getElementById('export-glb-btn').disabled = false;
+            document.getElementById('test-all-btn').disabled = false;
 
             const shapeCount = Object.keys(result.blendshapes).length;
             const visemeCount = Object.keys(result.visemes).length;
@@ -636,6 +640,60 @@ class App {
         item.appendChild(value);
 
         return item;
+    }
+
+    /**
+     * Test all blendshapes by cycling through each one.
+     */
+    async testAllBlendshapes() {
+        if (!this.faceMesh || !this.faceMesh.morphTargetDictionary) return;
+
+        const dictionary = this.faceMesh.morphTargetDictionary;
+        const names = Object.keys(dictionary);
+        const btn = document.getElementById('test-all-btn');
+
+        btn.disabled = true;
+        btn.textContent = 'Testing...';
+
+        // Reset all first
+        for (let i = 0; i < this.faceMesh.morphTargetInfluences.length; i++) {
+            this.faceMesh.morphTargetInfluences[i] = 0;
+        }
+
+        for (const name of names) {
+            const idx = dictionary[name];
+
+            // Animate in (ramp up over 150ms)
+            const steps = 5;
+            for (let s = 1; s <= steps; s++) {
+                this.faceMesh.morphTargetInfluences[idx] = s / steps;
+                await this.delay(30);
+            }
+
+            // Hold for 300ms
+            this.setStatus(`Testing: ${name}`);
+            await this.delay(300);
+
+            // Animate out (ramp down over 150ms)
+            for (let s = steps - 1; s >= 0; s--) {
+                this.faceMesh.morphTargetInfluences[idx] = s / steps;
+                await this.delay(30);
+            }
+
+            // Brief pause between shapes
+            await this.delay(50);
+        }
+
+        this.setStatus('Test complete');
+        btn.disabled = false;
+        btn.textContent = 'בדוק הכל \u25B6';
+    }
+
+    /**
+     * Simple delay helper.
+     */
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     /**
