@@ -240,7 +240,7 @@ export class LipSync {
             this.animationData.totalFrames - 1
         );
 
-        const dictionary = this.mesh.geometry.morphTargetDictionary;
+        const dictionary = this.(mesh.morphTargetDictionary || mesh.geometry.morphTargetDictionary);
 
         for (const [name, curve] of Object.entries(tracks)) {
             const idx = dictionary[name];
@@ -305,7 +305,7 @@ export class LipSync {
      * Set a specific blendshape weight (for manual control).
      */
     setBlendshapeWeight(mesh, name, weight) {
-        const dictionary = mesh.geometry.morphTargetDictionary;
+        const dictionary = (mesh.morphTargetDictionary || mesh.geometry.morphTargetDictionary);
         if (!dictionary || dictionary[name] === undefined) return;
 
         const idx = dictionary[name];

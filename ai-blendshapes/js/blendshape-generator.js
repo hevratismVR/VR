@@ -82,16 +82,23 @@ export class BlendshapeGenerator {
 
     /**
      * Enable morph targets on the mesh material.
+     * Forces shader recompile to include morph target code.
      */
     enableMorphOnMaterial(mesh) {
+        const updateMaterial = (mat) => {
+            // Force shader recompile with morph targets
+            mat.morphTargets = true;
+            mat.needsUpdate = true;
+            // Clone and replace to force full recompile
+            const newMat = mat.clone();
+            newMat.needsUpdate = true;
+            return newMat;
+        };
+
         if (Array.isArray(mesh.material)) {
-            mesh.material.forEach(mat => {
-                mat.morphTargets = true;
-                mat.needsUpdate = true;
-            });
+            mesh.material = mesh.material.map(updateMaterial);
         } else if (mesh.material) {
-            mesh.material.morphTargets = true;
-            mesh.material.needsUpdate = true;
+            mesh.material = updateMaterial(mesh.material);
         }
     }
 
@@ -980,9 +987,16 @@ export class BlendshapeGenerator {
             dictionary[name] = index++;
         }
 
-        // Set morph target dictionary and influences on the mesh (not geometry)
+        // Set morph target dictionary and influences on the mesh
         this.mesh.morphTargetDictionary = dictionary;
         this.mesh.morphTargetInfluences = new Array(index).fill(0);
+
+        // Force Three.js to recognize the new morph attributes
+        // by incrementing the geometry version and disposing cached program
+        geometry.dispose();
+        geometry.morphAttributes.position.forEach(attr => {
+            attr.needsUpdate = true;
+        });
     }
 
     // Utility methods
