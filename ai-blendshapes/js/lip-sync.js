@@ -7,7 +7,10 @@ export class LipSync {
         this.animationData = null;
         this.isPlaying = false;
         this.currentTime = 0;
+        this.pausedAt = 0; // time position when paused
         this.audioSource = null;
+        this.audioContext = null;
+        this.audioBuffer = null;
         this.startTimestamp = 0;
         this.mesh = null;
         this.morphTargetDictionary = null;
@@ -64,8 +67,9 @@ export class LipSync {
                 } else if (viseme === 'viseme_E' || viseme === 'viseme_I') {
                     if (tracks['jawOpen']) tracks['jawOpen'][frame] += weight * 0.3;
                     if (tracks['mouthOpen']) tracks['mouthOpen'][frame] += weight * 0.4;
-                } else if (viseme === 'viseme_U' || viseme === 'viseme_O') {
+                } else if (viseme === 'viseme_U') {
                     if (tracks['jawOpen']) tracks['jawOpen'][frame] += weight * 0.4;
+                    if (tracks['mouthOpen']) tracks['mouthOpen'][frame] += weight * 0.3;
                 }
             }
 
@@ -180,25 +184,31 @@ export class LipSync {
 
     /**
      * Start playing the lip sync animation with audio.
+     * Supports resume from paused position.
      */
     play(mesh, audioBuffer, audioContext) {
         this.mesh = mesh;
+        this.audioBuffer = audioBuffer;
+        this.audioContext = audioContext;
         this.isPlaying = true;
 
-        // Create and play audio
+        const resumeFrom = this.pausedAt;
+
+        // Create and play audio from the resume position
         if (audioBuffer && audioContext) {
             this.audioSource = audioContext.createBufferSource();
             this.audioSource.buffer = audioBuffer;
             this.audioSource.connect(audioContext.destination);
-            this.audioSource.start(0);
+            this.audioSource.start(0, resumeFrom);
 
             this.audioSource.onended = () => {
                 this.stop();
             };
         }
 
-        this.startTimestamp = performance.now();
-        this.currentTime = 0;
+        // Adjust start timestamp so currentTime calculation resumes correctly
+        this.startTimestamp = performance.now() - (resumeFrom * 1000);
+        this.currentTime = resumeFrom;
 
         this.animate();
     }
@@ -251,15 +261,18 @@ export class LipSync {
     }
 
     /**
-     * Pause the animation.
+     * Pause the animation, saving position for resume.
      */
     pause() {
         this.isPlaying = false;
+        this.pausedAt = this.currentTime; // save position for resume
         if (this.animFrameId) {
             cancelAnimationFrame(this.animFrameId);
+            this.animFrameId = null;
         }
         if (this.audioSource) {
             try { this.audioSource.stop(); } catch (e) {}
+            this.audioSource = null;
         }
     }
 
@@ -269,9 +282,11 @@ export class LipSync {
     stop() {
         this.isPlaying = false;
         this.currentTime = 0;
+        this.pausedAt = 0; // reset resume position
 
         if (this.animFrameId) {
             cancelAnimationFrame(this.animFrameId);
+            this.animFrameId = null;
         }
 
         if (this.audioSource) {
@@ -296,6 +311,7 @@ export class LipSync {
      */
     seek(time) {
         this.currentTime = time;
+        this.pausedAt = time; // so resume starts from seeked position
         if (!this.isPlaying) {
             this.updateMorphTargets(time);
         }

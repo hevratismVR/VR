@@ -973,10 +973,15 @@ export class BlendshapeGenerator {
             const influence = Math.min(1, sideWeight) * Math.min(1, heightWeight);
 
             if (influence > 0.1) {
+                // z-component: browDown pushes skin forward (bunching), browUp flattens
+                const zDisp = direction < 0
+                    ? sf * 0.015 * influence * this.intensity   // furrowing pushes forward
+                    : -sf * 0.005 * influence * this.intensity; // raising flattens slightly
+
                 displacements.set(i, {
                     x: 0,
                     y: direction * sf * 0.04 * influence * this.intensity,
-                    z: 0
+                    z: zDisp
                 });
             }
         }
@@ -1008,7 +1013,7 @@ export class BlendshapeGenerator {
                 displacements.set(i, {
                     x: 0,
                     y: sf * 0.05 * influence * this.intensity,
-                    z: 0
+                    z: -sf * 0.005 * influence * this.intensity // skin flattens when raised
                 });
             }
         }
@@ -1044,7 +1049,7 @@ export class BlendshapeGenerator {
                 displacements.set(i, {
                     x: 0,
                     y: sf * 0.05 * influence * this.intensity,
-                    z: 0
+                    z: -sf * 0.005 * influence * this.intensity // skin flattens when raised
                 });
             }
         }
@@ -1063,6 +1068,7 @@ export class BlendshapeGenerator {
         const allCheeks = [...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
         const centerX = this.mouthCenter.x;
 
+        // Puff cheeks outward
         for (const i of allCheeks) {
             const x = positions.getX(i);
             const dir = x > centerX ? 1 : -1;
@@ -1072,6 +1078,41 @@ export class BlendshapeGenerator {
                 y: 0,
                 z: sf * 0.06 * this.intensity
             });
+        }
+
+        // Press lips together (mouth closes during puff)
+        const upperLipIndices = regions.upperLip || [];
+        for (const i of upperLipIndices) {
+            displacements.set(i, {
+                x: 0,
+                y: -sf * 0.01 * this.intensity,
+                z: sf * 0.008 * this.intensity
+            });
+        }
+        const lowerLipIndices = regions.lowerLip || [];
+        for (const i of lowerLipIndices) {
+            displacements.set(i, {
+                x: 0,
+                y: sf * 0.01 * this.intensity,
+                z: sf * 0.008 * this.intensity
+            });
+        }
+
+        // Slightly push jaw area outward as well
+        const jawIndices = regions.jaw || [];
+        for (const i of jawIndices) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+            // Only upper jaw area
+            if (y > this.mouthCenter.y - sf * 0.1) {
+                const dir = x > centerX ? 1 : -1;
+                const weight = Math.max(0, 1 - Math.abs(y - this.mouthCenter.y) / (sf * 0.1));
+                displacements.set(i, {
+                    x: dir * sf * 0.02 * weight * this.intensity,
+                    y: 0,
+                    z: sf * 0.03 * weight * this.intensity
+                });
+            }
         }
 
         return displacements;
@@ -1101,18 +1142,66 @@ export class BlendshapeGenerator {
         const centerX = this.mouthCenter.x;
         const dir = side === 'left' ? 1 : -1;
 
+        // Nostril area: raise and flare
         for (const i of noseIndices) {
             const x = positions.getX(i);
+            const y = positions.getY(i);
             const sideWeight = side === 'left'
                 ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
                 : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
             const influence = Math.min(1, sideWeight);
 
             if (influence > 0.1) {
+                // Lower nose vertices (nostrils) get more flare, upper get more raise
+                const lowerWeight = Math.max(0, (this.mouthCenter.y - y) / (sf * 0.1 + 0.001));
+                const nostrilFlare = Math.min(1, lowerWeight) * 0.6 + 0.4;
+
                 displacements.set(i, {
-                    x: dir * sf * 0.015 * influence * this.intensity,
-                    y: sf * 0.025 * influence * this.intensity,
-                    z: sf * 0.01 * influence * this.intensity
+                    x: dir * sf * 0.02 * influence * nostrilFlare * this.intensity,
+                    y: sf * 0.03 * influence * this.intensity,
+                    z: sf * 0.015 * influence * this.intensity
+                });
+            }
+        }
+
+        // Nasolabial fold: raise the cheek area between nose and mouth corner
+        const cheekIndices = side === 'left' ? (regions.cheekLeft || []) : (regions.cheekRight || []);
+        for (const i of cheekIndices) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+
+            // Only affect vertices near the nose-to-mouth-corner line
+            const distFromCenter = Math.abs(x - centerX);
+            if (distFromCenter > this.mouthWidth * 0.6) continue;
+            if (y < this.mouthCenter.y - sf * 0.05) continue; // below mouth
+
+            const proximity = 1 - distFromCenter / (this.mouthWidth * 0.6);
+            const vertWeight = Math.max(0, 1 - Math.abs(y - this.mouthCenter.y) / (sf * 0.12));
+            const influence = proximity * vertWeight;
+
+            if (influence > 0.1) {
+                displacements.set(i, {
+                    x: 0,
+                    y: sf * 0.02 * influence * this.intensity,
+                    z: sf * 0.012 * influence * this.intensity
+                });
+            }
+        }
+
+        // Upper lip: slight raise on the sneer side
+        const upperLipIndices = regions.upperLip || [];
+        for (const i of upperLipIndices) {
+            const x = positions.getX(i);
+            const sideWeight = side === 'left'
+                ? Math.max(0, (x - centerX) / (this.mouthWidth * 0.5 + 0.001))
+                : Math.max(0, (centerX - x) / (this.mouthWidth * 0.5 + 0.001));
+            const influence = Math.min(1, sideWeight) * 0.5;
+
+            if (influence > 0.05) {
+                displacements.set(i, {
+                    x: 0,
+                    y: sf * 0.015 * influence * this.intensity,
+                    z: sf * 0.005 * influence * this.intensity
                 });
             }
         }
