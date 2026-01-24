@@ -343,10 +343,32 @@ export class BlendshapeGenerator {
         const sf = this.scaleFactor;
         const vertexCount = positions.count;
 
-        // The "seam line" is where the mouth splits open
-        const seamY = this.mouthCenter.y;
+        // The lip seam line is where upper and lower lip MEET
+        // (NOT mouthCenter.y which is the geometric center of the whole mouth region)
+        // Use the boundary between upperLip and lowerLip regions
+        const upperLipIndices = regions.upperLip || [];
+        const lowerLipIndices = regions.lowerLip || [];
 
-        // Find face bounds for thresholds
+        let lipSeamY;
+        if (upperLipIndices.length > 0 && lowerLipIndices.length > 0) {
+            // Lip seam = midpoint between min of upperLip and max of lowerLip
+            let upperLipMinY = Infinity;
+            for (const i of upperLipIndices) {
+                const y = positions.getY(i);
+                if (y < upperLipMinY) upperLipMinY = y;
+            }
+            let lowerLipMaxY = -Infinity;
+            for (const i of lowerLipIndices) {
+                const y = positions.getY(i);
+                if (y > lowerLipMaxY) lowerLipMaxY = y;
+            }
+            lipSeamY = (upperLipMinY + lowerLipMaxY) / 2;
+        } else {
+            // Fallback: use mouth center slightly raised
+            lipSeamY = this.mouthCenter.y + sf * 0.01;
+        }
+
+        // Find face bounds
         const allFaceIndices = [
             ...(regions.forehead || []),
             ...(regions.eyeLeft || []),
@@ -369,51 +391,69 @@ export class BlendshapeGenerator {
             if (z < faceMinZ) faceMinZ = z;
         }
 
-        // Use manually positioned jaw bottom if available
         if (this.manualJawBottom !== null && this.manualJawBottom !== undefined) {
             faceMinY = this.manualJawBottom;
         }
 
-        const jawLength = seamY - faceMinY;
+        const jawLength = lipSeamY - faceMinY;
         if (jawLength < 0.001) return displacements;
 
-        // Z threshold: only affect front-facing vertices (front 70% of face depth)
+        // Z threshold: only affect front-facing vertices
         const faceDepth = faceMaxZ - faceMinZ;
         const zAdjust = this.zThresholdOffset ? this.zThresholdOffset * faceDepth * 0.3 : 0;
         const zThreshold = faceMinZ + faceDepth * 0.3 + zAdjust;
 
-        // Maximum displacement at full jaw open (chin drops this much)
+        // Maximum displacement
         const maxDrop = sf * 0.18 * angle * this.intensity;
-        // Slight backward pull for realism
         const maxBack = -sf * 0.03 * angle * this.intensity;
 
-        // Neck cutoff
+        // Neck fade
         const neckFadeRange = sf * 0.08;
 
-        // Upper face set - never moves
+        // Upper face: never moves with jaw (handled separately at end)
         const upperFaceSet = new Set([
             ...(regions.forehead || []),
             ...(regions.eyeLeft || []),
             ...(regions.eyeRight || []),
-            ...(regions.upperLip || [])
+            ...(regions.nose || []),
+            ...upperLipIndices
         ]);
 
-        // Iterate ALL vertices spatially
+        // Lower lip set: these get strong immediate movement
+        const lowerLipSet = new Set(lowerLipIndices);
+
+        // Iterate all vertices spatially
         for (let i = 0; i < vertexCount; i++) {
             if (upperFaceSet.has(i)) continue;
 
             const y = positions.getY(i);
             const z = positions.getZ(i);
 
-            // Skip vertices above the seam line
-            if (y >= seamY) continue;
+            // Skip vertices well above the lip seam (upper face)
+            if (y > lipSeamY + sf * 0.01 && !lowerLipSet.has(i)) continue;
 
             // Skip back-of-head vertices
             if (z < zThreshold) continue;
 
-            // Weight: 0 at seam, 1 at chin
-            const distBelowSeam = seamY - y;
-            let weight = Math.min(1.0, distBelowSeam / (jawLength * 0.7));
+            let weight;
+
+            if (lowerLipSet.has(i)) {
+                // Lower lip: strong opening weight (0.5-0.7 depending on distance from seam)
+                const distFromSeam = lipSeamY - y;
+                const lipHeight = lipSeamY - this.getMinY(positions, lowerLipIndices);
+                const lipFrac = lipHeight > 0.001 ? distFromSeam / lipHeight : 0.5;
+                weight = 0.5 + lipFrac * 0.3; // 0.5 at lip seam, 0.8 at bottom of lower lip
+            } else if (y < lipSeamY) {
+                // Below lip seam (jaw/chin area): ramp from 0.7 to 1.0
+                const distBelowSeam = lipSeamY - y;
+                const frac = Math.min(1.0, distBelowSeam / (jawLength * 0.6));
+                weight = 0.7 + frac * 0.3; // 0.7 near seam, 1.0 at chin
+            } else {
+                // Slightly above seam (lip border): tiny weight for smooth transition
+                const distAboveSeam = y - lipSeamY;
+                weight = Math.max(0, 0.3 - distAboveSeam / (sf * 0.02));
+                if (weight < 0.01) continue;
+            }
 
             // Neck fade: vertices below face bottom get reduced
             if (y < faceMinY) {
@@ -423,7 +463,6 @@ export class BlendshapeGenerator {
 
             if (weight < 0.01) continue;
 
-            // Apply downward translation + slight backward pull
             displacements.set(i, {
                 x: 0,
                 y: -maxDrop * weight,
@@ -431,13 +470,45 @@ export class BlendshapeGenerator {
             });
         }
 
-        // Upper lip: slight upward push (lip separates when jaw opens)
-        for (const i of (regions.upperLip || [])) {
+        // Upper lip: push UP to enhance the opening appearance
+        for (const i of upperLipIndices) {
+            const z = positions.getZ(i);
+            if (z < zThreshold) continue;
             displacements.set(i, {
                 x: 0,
-                y: sf * 0.02 * angle * this.intensity,
-                z: sf * 0.015 * angle * this.intensity
+                y: sf * 0.03 * angle * this.intensity,
+                z: sf * 0.02 * angle * this.intensity
             });
+        }
+
+        // Lip corners: pull slightly inward/down for realism
+        const mouthIndices = regions.mouth || [];
+        if (mouthIndices.length > 0) {
+            const mouthMinX = this.getMinX(positions, mouthIndices);
+            const mouthMaxX = this.getMaxX(positions, mouthIndices);
+            const mouthWidth = mouthMaxX - mouthMinX;
+            const cornerThreshold = mouthWidth * 0.35;
+
+            for (const i of mouthIndices) {
+                const x = positions.getX(i);
+                const z = positions.getZ(i);
+                if (z < zThreshold) continue;
+                const xDist = Math.min(
+                    Math.abs(x - mouthMinX),
+                    Math.abs(x - mouthMaxX)
+                );
+                if (xDist < cornerThreshold) {
+                    const cornerWeight = 1 - xDist / cornerThreshold;
+                    const existing = displacements.get(i) || { x: 0, y: 0, z: 0 };
+                    // Pull corners inward and slightly down
+                    const inwardDir = x < this.mouthCenter.x ? 1 : -1;
+                    displacements.set(i, {
+                        x: existing.x + inwardDir * sf * 0.01 * angle * cornerWeight * this.intensity,
+                        y: existing.y - sf * 0.01 * angle * cornerWeight * this.intensity,
+                        z: existing.z
+                    });
+                }
+            }
         }
 
         return displacements;
@@ -1705,6 +1776,26 @@ export class BlendshapeGenerator {
         for (const i of indices) {
             const y = positions.getY(i);
             if (y > max) max = y;
+        }
+        return max;
+    }
+
+    getMinX(positions, indices) {
+        if (!indices || indices.length === 0) return 0;
+        let min = Infinity;
+        for (const i of indices) {
+            const x = positions.getX(i);
+            if (x < min) min = x;
+        }
+        return min;
+    }
+
+    getMaxX(positions, indices) {
+        if (!indices || indices.length === 0) return 0;
+        let max = -Infinity;
+        for (const i of indices) {
+            const x = positions.getX(i);
+            if (x > max) max = x;
         }
         return max;
     }
