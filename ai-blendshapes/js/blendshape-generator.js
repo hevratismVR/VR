@@ -1485,13 +1485,16 @@ export class BlendshapeGenerator {
 
         const allShapes = { ...this.blendshapes, ...this.visemes };
 
+        // Pre-build vertex→face lookup for efficient morph normal computation
+        const vertexFaceMap = this.buildVertexFaceMap(newGeometry);
+
         for (const [name, buffer] of Object.entries(allShapes)) {
             const posAttr = new THREE.Float32BufferAttribute(buffer, 3);
             posAttr.name = name;
             newGeometry.morphAttributes.position.push(posAttr);
 
             // Compute morph normals for correct lighting
-            const normalBuffer = this.computeMorphNormals(newGeometry, buffer);
+            const normalBuffer = this.computeMorphNormals(newGeometry, buffer, vertexFaceMap);
             const normAttr = new THREE.Float32BufferAttribute(normalBuffer, 3);
             normAttr.name = name;
             newGeometry.morphAttributes.normal.push(normAttr);
@@ -1505,10 +1508,36 @@ export class BlendshapeGenerator {
     }
 
     /**
-     * Compute morph target normals (delta from base normals).
-     * Only recomputes normals for faces containing displaced vertices.
+     * Build a map from vertex index → list of face indices that contain it.
+     * Built once and reused across all morph targets for O(affectedFaces) per target
+     * instead of O(allFaces).
      */
-    computeMorphNormals(geometry, positionDeltas) {
+    buildVertexFaceMap(geometry) {
+        const indices = geometry.index ? geometry.index.array : null;
+        const vertexCount = this.basePositions.count;
+        const faceCount = indices ? indices.length / 3 : vertexCount / 3;
+
+        const map = new Array(vertexCount);
+        for (let i = 0; i < vertexCount; i++) map[i] = [];
+
+        for (let f = 0; f < faceCount; f++) {
+            const a = indices ? indices[f * 3] : f * 3;
+            const b = indices ? indices[f * 3 + 1] : f * 3 + 1;
+            const c = indices ? indices[f * 3 + 2] : f * 3 + 2;
+            map[a].push(f);
+            map[b].push(f);
+            map[c].push(f);
+        }
+
+        return map;
+    }
+
+    /**
+     * Compute morph target normals (delta from base normals).
+     * Uses vertex→face map to only process faces containing displaced vertices.
+     * Performance: O(affectedFaces) instead of O(allFaces) per morph target.
+     */
+    computeMorphNormals(geometry, positionDeltas, vertexFaceMap) {
         const basePos = this.basePositions;
         const baseNormals = geometry.attributes.normal;
         const vertexCount = basePos.count;
@@ -1519,23 +1548,33 @@ export class BlendshapeGenerator {
         const indices = geometry.index ? geometry.index.array : null;
 
         // Find displaced vertices
-        const displacedSet = new Set();
+        const displacedVerts = [];
         for (let i = 0; i < vertexCount; i++) {
             const dx = positionDeltas[i * 3];
             const dy = positionDeltas[i * 3 + 1];
             const dz = positionDeltas[i * 3 + 2];
             if (dx * dx + dy * dy + dz * dz > 1e-8) {
-                displacedSet.add(i);
+                displacedVerts.push(i);
             }
         }
 
-        if (displacedSet.size === 0) return normalDeltas;
+        if (displacedVerts.length === 0) return normalDeltas;
+
+        const displacedSet = new Set(displacedVerts);
+
+        // Collect unique affected faces using vertex→face map
+        const affectedFaces = new Set();
+        for (const vi of displacedVerts) {
+            if (vertexFaceMap[vi]) {
+                for (const f of vertexFaceMap[vi]) {
+                    affectedFaces.add(f);
+                }
+            }
+        }
 
         // Accumulate face normals for affected vertices
         const normAccum = new Float32Array(vertexCount * 3);
         const normCount = new Uint16Array(vertexCount);
-
-        const faceCount = indices ? indices.length / 3 : vertexCount / 3;
 
         const vA = new THREE.Vector3();
         const vB = new THREE.Vector3();
@@ -1544,13 +1583,10 @@ export class BlendshapeGenerator {
         const edge2 = new THREE.Vector3();
         const faceNormal = new THREE.Vector3();
 
-        for (let f = 0; f < faceCount; f++) {
+        for (const f of affectedFaces) {
             const a = indices ? indices[f * 3] : f * 3;
             const b = indices ? indices[f * 3 + 1] : f * 3 + 1;
             const c = indices ? indices[f * 3 + 2] : f * 3 + 2;
-
-            // Skip face if no displaced vertices in it
-            if (!displacedSet.has(a) && !displacedSet.has(b) && !displacedSet.has(c)) continue;
 
             // Displaced positions
             vA.set(
@@ -1573,7 +1609,7 @@ export class BlendshapeGenerator {
             edge2.subVectors(vC, vA);
             faceNormal.crossVectors(edge1, edge2);
 
-            // Accumulate for affected vertices
+            // Accumulate for displaced vertices in this face
             for (const vi of [a, b, c]) {
                 if (displacedSet.has(vi)) {
                     normAccum[vi * 3] += faceNormal.x;
@@ -1585,7 +1621,7 @@ export class BlendshapeGenerator {
         }
 
         // Normalize and compute delta from base normals
-        for (const vi of displacedSet) {
+        for (const vi of displacedVerts) {
             if (normCount[vi] === 0) continue;
             let nx = normAccum[vi * 3];
             let ny = normAccum[vi * 3 + 1];

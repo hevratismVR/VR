@@ -14,6 +14,12 @@ export class AudioAnalyzer {
      * Load and analyze an audio file.
      */
     async analyze(file) {
+        // Close previous context to avoid browser resource exhaustion
+        // (browsers limit active AudioContexts to ~6-8)
+        if (this.audioContext && this.audioContext.state !== 'closed') {
+            try { await this.audioContext.close(); } catch (e) {}
+        }
+
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         const arrayBuffer = await file.arrayBuffer();

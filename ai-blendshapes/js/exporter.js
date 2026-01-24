@@ -154,34 +154,53 @@ export class Exporter {
 
     /**
      * Export blendshape data as JSON (for custom engines).
+     * Includes both position and normal deltas for proper rendering.
      */
     exportBlendshapeJSON(mesh) {
         const dictionary = mesh.morphTargetDictionary || mesh.geometry.morphTargetDictionary;
-        const morphAttributes = mesh.geometry.morphAttributes.position;
+        const morphPositions = mesh.geometry.morphAttributes.position;
+        const morphNormals = mesh.geometry.morphAttributes.normal;
 
-        if (!dictionary || !morphAttributes) {
+        if (!dictionary || !morphPositions) {
             throw new Error('No blendshape data to export');
         }
 
+        const hasNormals = morphNormals && morphNormals.length === morphPositions.length;
+
         const data = {
-            version: '1.0',
+            version: '1.1',
             generator: 'AI Blendshapes Generator',
             vertexCount: mesh.geometry.attributes.position.count,
+            hasNormals,
             blendshapes: {}
         };
 
         for (const [name, index] of Object.entries(dictionary)) {
-            const attr = morphAttributes[index];
+            const posAttr = morphPositions[index];
+            const normAttr = hasNormals ? morphNormals[index] : null;
             const deltas = [];
 
             // Only store non-zero deltas for efficiency
-            for (let i = 0; i < attr.count; i++) {
-                const x = attr.getX(i);
-                const y = attr.getY(i);
-                const z = attr.getZ(i);
+            for (let i = 0; i < posAttr.count; i++) {
+                const px = posAttr.getX(i);
+                const py = posAttr.getY(i);
+                const pz = posAttr.getZ(i);
 
-                if (Math.abs(x) > 0.0001 || Math.abs(y) > 0.0001 || Math.abs(z) > 0.0001) {
-                    deltas.push({ index: i, x, y, z });
+                if (Math.abs(px) > 0.0001 || Math.abs(py) > 0.0001 || Math.abs(pz) > 0.0001) {
+                    const entry = { index: i, x: px, y: py, z: pz };
+
+                    if (normAttr) {
+                        const nx = normAttr.getX(i);
+                        const ny = normAttr.getY(i);
+                        const nz = normAttr.getZ(i);
+                        if (Math.abs(nx) > 0.0001 || Math.abs(ny) > 0.0001 || Math.abs(nz) > 0.0001) {
+                            entry.nx = nx;
+                            entry.ny = ny;
+                            entry.nz = nz;
+                        }
+                    }
+
+                    deltas.push(entry);
                 }
             }
 

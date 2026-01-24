@@ -750,6 +750,7 @@ class App {
     createBlendshapeSlider(name) {
         const item = document.createElement('div');
         item.className = 'blendshape-item';
+        item.dataset.shapeName = name;
 
         const label = document.createElement('label');
         label.textContent = name.replace('viseme_', '').replace(/([A-Z])/g, ' $1').trim();
@@ -966,7 +967,7 @@ class App {
     }
 
     /**
-     * Update playback UI (timeline, time display).
+     * Update playback UI (timeline, time display, and blendshape sliders).
      */
     updatePlaybackUI(currentTime, duration) {
         const progress = (currentTime / duration) * 100;
@@ -981,11 +982,42 @@ class App {
         document.getElementById('time-display').textContent =
             `${formatTime(currentTime)} / ${formatTime(duration)}`;
 
+        // Update blendshape sliders to reflect current morph weights
+        if (this.faceMesh && this.faceMesh.morphTargetInfluences) {
+            this.updateBlendshapeSliderValues();
+        }
+
         // If animation ended
         if (currentTime >= duration) {
             document.getElementById('play-btn').disabled = false;
             document.getElementById('pause-btn').disabled = true;
             this.setStatus('Playback complete');
+        }
+    }
+
+    /**
+     * Sync blendshape slider UI with current morph target weights.
+     */
+    updateBlendshapeSliderValues() {
+        const dictionary = this.faceMesh.morphTargetDictionary;
+        const influences = this.faceMesh.morphTargetInfluences;
+        if (!dictionary || !influences) return;
+
+        // Throttle: only update every 3rd frame to avoid excessive DOM writes
+        this._sliderUpdateCounter = (this._sliderUpdateCounter || 0) + 1;
+        if (this._sliderUpdateCounter % 3 !== 0) return;
+
+        const items = document.querySelectorAll('.blendshape-item[data-shape-name]');
+        for (const item of items) {
+            const name = item.dataset.shapeName;
+            const idx = dictionary[name];
+            if (idx === undefined) continue;
+
+            const weight = influences[idx] || 0;
+            const slider = item.querySelector('input[type="range"]');
+            const valueSpan = item.querySelector('.value');
+            if (slider) slider.value = weight.toFixed(3);
+            if (valueSpan) valueSpan.textContent = weight.toFixed(2);
         }
     }
 

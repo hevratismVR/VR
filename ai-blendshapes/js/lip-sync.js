@@ -312,11 +312,31 @@ export class LipSync {
 
     /**
      * Seek to a specific time.
+     * If playing, restarts audio from the new position.
      */
     seek(time) {
         this.currentTime = time;
-        this.pausedAt = time; // so resume starts from seeked position
-        if (!this.isPlaying) {
+        this.pausedAt = time;
+
+        if (this.isPlaying) {
+            // Stop current audio source
+            if (this.audioSource) {
+                try { this.audioSource.stop(); } catch (e) {}
+                this.audioSource = null;
+            }
+
+            // Restart audio from new position
+            if (this.audioBuffer && this.audioContext) {
+                this.audioSource = this.audioContext.createBufferSource();
+                this.audioSource.buffer = this.audioBuffer;
+                this.audioSource.connect(this.audioContext.destination);
+                this.audioSource.start(0, time);
+                this.audioSource.onended = () => { this.stop(); };
+            }
+
+            // Adjust start timestamp for correct time calculation
+            this.startTimestamp = performance.now() - (time * 1000);
+        } else {
             this.updateMorphTargets(time);
         }
     }
