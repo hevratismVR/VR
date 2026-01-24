@@ -15,13 +15,20 @@ export class Exporter {
     async exportGLB(scene, mesh, animationData = null) {
         const exportScene = scene.clone(true);
 
-        // Find the mesh in the cloned scene
+        // Find the mesh with morph targets in the cloned scene
         let exportMesh = null;
         exportScene.traverse((child) => {
-            if (child.isMesh && child.geometry.morphAttributes.position) {
+            if (child.isMesh && child.geometry.morphAttributes &&
+                child.geometry.morphAttributes.position &&
+                child.geometry.morphAttributes.position.length > 0) {
                 exportMesh = child;
             }
         });
+
+        // Ensure mesh has a name for animation track binding
+        if (exportMesh && !exportMesh.name) {
+            exportMesh.name = 'FaceMesh';
+        }
 
         // Build animation clip if we have animation data
         let animations = [];
@@ -87,7 +94,7 @@ export class Exporter {
      */
     buildAnimationClip(animationData, mesh) {
         const { tracks, duration, fps, totalFrames } = animationData;
-        const dictionary = mesh.geometry.morphTargetDictionary;
+        const dictionary = mesh.morphTargetDictionary || mesh.geometry.morphTargetDictionary;
 
         if (!dictionary) return null;
 
@@ -149,7 +156,7 @@ export class Exporter {
      * Export blendshape data as JSON (for custom engines).
      */
     exportBlendshapeJSON(mesh) {
-        const dictionary = mesh.geometry.morphTargetDictionary;
+        const dictionary = mesh.morphTargetDictionary || mesh.geometry.morphTargetDictionary;
         const morphAttributes = mesh.geometry.morphAttributes.position;
 
         if (!dictionary || !morphAttributes) {

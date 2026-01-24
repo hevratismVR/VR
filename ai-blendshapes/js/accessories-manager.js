@@ -242,60 +242,52 @@ export class AccessoriesManager {
     }
 
     /**
-     * Update accessories that follow jaw rotation.
+     * Update accessories that follow jaw movement.
+     * Uses translation-based displacement to match the face blendshapes.
      */
     updateJawFollower(mesh, attachment, influences, dictionary) {
         const gen = this.blendshapeGenerator;
         if (!gen) return;
+        const sf = gen.scaleFactor;
 
-        // Get jaw open amount
+        // Get jaw open and mouth open influence values
         const jawOpenIdx = dictionary['jawOpen'];
         const mouthOpenIdx = dictionary['mouthOpen'];
-        let jawAngle = 0;
+        let totalDrop = 0;
+        let totalBack = 0;
 
-        if (jawOpenIdx !== undefined) {
-            jawAngle += (influences[jawOpenIdx] || 0) * 0.45;
+        // Match the translation-based displacement from blendshape-generator
+        // maxDrop = sf * 0.18 * angle * intensity (accessories get full weight)
+        if (jawOpenIdx !== undefined && influences[jawOpenIdx] > 0.001) {
+            const jawInfluence = influences[jawOpenIdx];
+            totalDrop += sf * 0.18 * 0.45 * jawInfluence;
+            totalBack += sf * 0.03 * 0.45 * jawInfluence;
         }
-        if (mouthOpenIdx !== undefined) {
-            jawAngle += (influences[mouthOpenIdx] || 0) * 0.35;
+        if (mouthOpenIdx !== undefined && influences[mouthOpenIdx] > 0.001) {
+            const mouthInfluence = influences[mouthOpenIdx];
+            totalDrop += sf * 0.18 * 0.35 * mouthInfluence;
+            totalBack += sf * 0.03 * 0.35 * mouthInfluence;
         }
 
-        if (jawAngle > 0.001) {
-            // Rotate around jaw pivot
-            const pivotY = attachment.pivotY;
-            const pivotZ = attachment.pivotZ;
-
-            const posY = mesh.position.y;
-            const posZ = mesh.position.z;
-
-            const dy = posY - pivotY;
-            const dz = posZ - pivotZ;
-            const dist = Math.sqrt(dy * dy + dz * dz);
-
-            if (dist > 0.001) {
-                const currentAngle = Math.atan2(dy, dz);
-                const newAngle = currentAngle - jawAngle;
-
-                mesh.position.y = pivotY + dist * Math.sin(newAngle);
-                mesh.position.z = pivotZ + dist * Math.cos(newAngle);
-                mesh.rotation.x -= jawAngle;
-            }
+        if (totalDrop > 0.0001) {
+            mesh.position.y -= totalDrop;
+            mesh.position.z -= totalBack;
         }
 
         // Jaw forward
         const jawFwdIdx = dictionary['jawForward'];
         if (jawFwdIdx !== undefined && influences[jawFwdIdx] > 0.001) {
-            mesh.position.z += gen.scaleFactor * 0.12 * influences[jawFwdIdx];
+            mesh.position.z += sf * 0.12 * influences[jawFwdIdx];
         }
 
         // Jaw slide
         const jawLeftIdx = dictionary['jawLeft'];
         const jawRightIdx = dictionary['jawRight'];
         if (jawLeftIdx !== undefined && influences[jawLeftIdx] > 0.001) {
-            mesh.position.x += gen.scaleFactor * 0.08 * influences[jawLeftIdx];
+            mesh.position.x += sf * 0.08 * influences[jawLeftIdx];
         }
         if (jawRightIdx !== undefined && influences[jawRightIdx] > 0.001) {
-            mesh.position.x -= gen.scaleFactor * 0.08 * influences[jawRightIdx];
+            mesh.position.x -= sf * 0.08 * influences[jawRightIdx];
         }
     }
 
