@@ -728,12 +728,17 @@ class App {
     /**
      * Play the lip sync animation with audio.
      */
-    play() {
+    async play() {
         if (!this.animationData || !this.faceMesh) return;
 
         // Need a fresh audio context if previous was closed
-        if (this.audioContext && this.audioContext.state === 'closed') {
-            this.audioContext = new AudioContext();
+        if (!this.audioContext || this.audioContext.state === 'closed') {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        // Resume if suspended (browser policy requires user gesture)
+        if (this.audioContext.state === 'suspended') {
+            await this.audioContext.resume();
         }
 
         this.lipSync.play(this.faceMesh, this.audioBuffer, this.audioContext);
