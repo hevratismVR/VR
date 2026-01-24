@@ -489,3 +489,20 @@ h3 {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent);
 }
+
+/* Viewport info label */
+.viewport-label {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--accent);
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 5;
+    white-space: nowrap;
+}

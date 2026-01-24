@@ -161,6 +161,30 @@ class App {
 
         // Test all blendshapes
         document.getElementById('test-all-btn').addEventListener('click', () => this.testAllBlendshapes());
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ignore if user is typing in an input/select
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+            switch (e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    if (this.animationData) {
+                        if (this.lipSync.isPlaying) {
+                            this.pause();
+                        } else {
+                            this.play();
+                        }
+                    }
+                    break;
+                case 'KeyR':
+                    if (this.animationData) {
+                        this.reset();
+                    }
+                    break;
+            }
+        });
     }
 
     /**
@@ -788,6 +812,7 @@ class App {
         const dictionary = this.faceMesh.morphTargetDictionary;
         const names = Object.keys(dictionary);
         const btn = document.getElementById('test-all-btn');
+        const viewportLabel = document.getElementById('viewport-label');
 
         btn.disabled = true;
         btn.textContent = 'Testing...';
@@ -802,6 +827,16 @@ class App {
             const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
             const slider = sliderItem ? sliderItem.querySelector('input[type="range"]') : null;
             const valueSpan = sliderItem ? sliderItem.querySelector('.value') : null;
+
+            // Scroll to show the active blendshape in the panel
+            if (sliderItem) {
+                sliderItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                sliderItem.style.background = 'rgba(233,69,96,0.15)';
+            }
+
+            // Show name in viewport
+            viewportLabel.textContent = name;
+            viewportLabel.classList.remove('hidden');
 
             // Animate in (ramp up over 150ms)
             const steps = 5;
@@ -826,10 +861,14 @@ class App {
                 await this.delay(30);
             }
 
+            // Clear highlight
+            if (sliderItem) sliderItem.style.background = '';
+
             // Brief pause between shapes
             await this.delay(50);
         }
 
+        viewportLabel.classList.add('hidden');
         this.setStatus('Test complete');
         btn.disabled = false;
         btn.textContent = 'בדוק הכל \u25B6';
