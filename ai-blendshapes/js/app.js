@@ -1077,26 +1077,8 @@ class App {
         slider.addEventListener('input', () => {
             const weight = parseFloat(slider.value);
             value.textContent = weight.toFixed(2);
-            this.lipSync.setBlendshapeWeight(this.faceMesh, name, weight);
-
-            // One-time debug verification
-            if (!this._morphDebugLogged) {
-                this._morphDebugLogged = true;
-                const dict = this.faceMesh?.morphTargetDictionary;
-                const infl = this.faceMesh?.morphTargetInfluences;
-                const geo = this.faceMesh?.geometry;
-                console.log('[Slider Debug] Morph target state:', {
-                    meshExists: !!this.faceMesh,
-                    dictionarySize: dict ? Object.keys(dict).length : 0,
-                    influencesLength: infl?.length || 0,
-                    morphAttributeCount: geo?.morphAttributes?.position?.length || 0,
-                    morphTargetsRelative: geo?.morphTargetsRelative,
-                    sliderName: name,
-                    sliderWeight: weight,
-                    influenceIdx: dict?.[name],
-                    influenceValue: infl?.[dict?.[name]]
-                });
-            }
+            // CPU-based morphing: directly update vertex positions
+            this.blendshapeGenerator.setWeight(name, weight);
         });
 
         // Click label to show weight heatmap
@@ -1151,10 +1133,9 @@ class App {
      * Test all blendshapes by cycling through each one.
      */
     async testAllBlendshapes() {
-        if (!this.faceMesh || !this.faceMesh.morphTargetDictionary) return;
+        if (!this.blendshapeGenerator || !this.blendshapeGenerator._allShapes) return;
 
-        const dictionary = this.faceMesh.morphTargetDictionary;
-        const names = Object.keys(dictionary);
+        const names = Object.keys(this.blendshapeGenerator._allShapes);
         const btn = document.getElementById('test-all-btn');
         const viewportLabel = document.getElementById('viewport-label');
 
@@ -1163,14 +1144,11 @@ class App {
         btn.textContent = '\u25A0 Stop';
 
         // Reset all first
-        for (let i = 0; i < this.faceMesh.morphTargetInfluences.length; i++) {
-            this.faceMesh.morphTargetInfluences[i] = 0;
-        }
+        this.blendshapeGenerator.resetAllWeights();
 
         for (const name of names) {
             if (this._testAllAbort) break;
 
-            const idx = dictionary[name];
             const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
             const slider = sliderItem ? sliderItem.querySelector('input[type="range"]') : null;
             const valueSpan = sliderItem ? sliderItem.querySelector('.value') : null;
@@ -1189,14 +1167,14 @@ class App {
             const steps = 5;
             for (let s = 1; s <= steps && !this._testAllAbort; s++) {
                 const weight = s / steps;
-                this.faceMesh.morphTargetInfluences[idx] = weight;
+                this.blendshapeGenerator.setWeight(name, weight);
                 if (slider) slider.value = weight.toFixed(2);
                 if (valueSpan) valueSpan.textContent = weight.toFixed(2);
                 await this.delay(30);
             }
 
             if (this._testAllAbort) {
-                this.faceMesh.morphTargetInfluences[idx] = 0;
+                this.blendshapeGenerator.setWeight(name, 0);
                 if (slider) slider.value = '0';
                 if (valueSpan) valueSpan.textContent = '0';
                 if (sliderItem) sliderItem.style.background = '';
@@ -1210,7 +1188,7 @@ class App {
             // Animate out (ramp down over 150ms)
             for (let s = steps - 1; s >= 0 && !this._testAllAbort; s--) {
                 const weight = s / steps;
-                this.faceMesh.morphTargetInfluences[idx] = weight;
+                this.blendshapeGenerator.setWeight(name, weight);
                 if (slider) slider.value = weight.toFixed(2);
                 if (valueSpan) valueSpan.textContent = weight.toFixed(2);
                 await this.delay(30);
@@ -1240,15 +1218,7 @@ class App {
      * Apply an expression preset by setting multiple blendshape weights.
      */
     applyExpressionPreset(preset) {
-        if (!this.faceMesh || !this.faceMesh.morphTargetDictionary) return;
-
-        const dict = this.faceMesh.morphTargetDictionary;
-        const influences = this.faceMesh.morphTargetInfluences;
-
-        // Reset all first
-        for (let i = 0; i < influences.length; i++) {
-            influences[i] = 0;
-        }
+        if (!this.blendshapeGenerator || !this.blendshapeGenerator._allShapes) return;
 
         // Expression definitions: blendshape name -> weight
         const expressions = {
@@ -1284,19 +1254,17 @@ class App {
 
         const weights = expressions[preset] || {};
 
-        for (const [name, weight] of Object.entries(weights)) {
-            if (name in dict) {
-                influences[dict[name]] = weight;
-            }
-        }
+        // Apply all weights at once using CPU morphing
+        this.blendshapeGenerator.setWeights(weights);
 
         // Update sliders to match
-        for (const [name, idx] of Object.entries(dict)) {
+        const allNames = Object.keys(this.blendshapeGenerator._allShapes);
+        for (const name of allNames) {
             const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
             if (sliderItem) {
                 const slider = sliderItem.querySelector('input[type="range"]');
                 const valueSpan = sliderItem.querySelector('.value');
-                const w = influences[idx];
+                const w = weights[name] || 0;
                 if (slider) slider.value = w.toFixed(2);
                 if (valueSpan) valueSpan.textContent = w > 0 ? w.toFixed(2) : '0';
             }
@@ -1426,6 +1394,7 @@ class App {
             await this.audioContext.resume();
         }
 
+        this.lipSync.blendshapeGenerator = this.blendshapeGenerator;
         this.lipSync.play(this.faceMesh, this.audioBuffer, this.audioContext);
 
         document.getElementById('play-btn').disabled = true;
@@ -1473,7 +1442,7 @@ class App {
             `${formatTime(currentTime)} / ${formatTime(duration)}`;
 
         // Update blendshape sliders to reflect current morph weights
-        if (this.faceMesh && this.faceMesh.morphTargetInfluences) {
+        if (this.blendshapeGenerator && this.blendshapeGenerator._currentWeights) {
             this.updateBlendshapeSliderValues();
         }
 
@@ -1489,21 +1458,17 @@ class App {
      * Sync blendshape slider UI with current morph target weights.
      */
     updateBlendshapeSliderValues() {
-        const dictionary = this.faceMesh.morphTargetDictionary;
-        const influences = this.faceMesh.morphTargetInfluences;
-        if (!dictionary || !influences) return;
+        if (!this.blendshapeGenerator || !this.blendshapeGenerator._currentWeights) return;
 
         // Throttle: only update every 3rd frame to avoid excessive DOM writes
         this._sliderUpdateCounter = (this._sliderUpdateCounter || 0) + 1;
         if (this._sliderUpdateCounter % 3 !== 0) return;
 
+        const currentWeights = this.blendshapeGenerator._currentWeights;
         const items = document.querySelectorAll('.blendshape-item[data-shape-name]');
         for (const item of items) {
             const name = item.dataset.shapeName;
-            const idx = dictionary[name];
-            if (idx === undefined) continue;
-
-            const weight = influences[idx] || 0;
+            const weight = currentWeights[name] || 0;
             const slider = item.querySelector('input[type="range"]');
             const valueSpan = item.querySelector('.value');
             if (slider) slider.value = weight.toFixed(3);
@@ -1517,6 +1482,13 @@ class App {
     async exportGLB() {
         this.setStatus('Exporting GLB...');
         this.showProgress(true);
+
+        // Temporarily restore base positions for correct export
+        const savedWeights = this.blendshapeGenerator?._currentWeights
+            ? { ...this.blendshapeGenerator._currentWeights } : null;
+        if (savedWeights && this.blendshapeGenerator._baseArray) {
+            this.blendshapeGenerator.resetAllWeights();
+        }
 
         try {
             // Build accessory info for baking jaw/eye tracking into animation
@@ -1541,6 +1513,11 @@ class App {
         } catch (error) {
             this.setStatus(`Export error: ${error.message}`);
             console.error('Export error:', error);
+        }
+
+        // Restore CPU morph weights after export
+        if (savedWeights && this.blendshapeGenerator) {
+            this.blendshapeGenerator.setWeights(savedWeights);
         }
 
         this.showProgress(false);

@@ -303,7 +303,7 @@ export class LipSync {
 
     /**
      * Update mesh morph targets at the given time.
-     * Uses linear interpolation between frames for smooth playback.
+     * Uses CPU-based vertex displacement via BlendshapeGenerator.
      */
     updateMorphTargets(time) {
         if (!this.mesh || !this.animationData) return;
@@ -314,15 +314,13 @@ export class LipSync {
         const frame1 = Math.min(frame0 + 1, totalFrames - 1);
         const t = exactFrame - frame0; // interpolation factor (0-1)
 
-        const dictionary = (this.mesh.morphTargetDictionary || this.mesh.geometry.morphTargetDictionary);
-
-        for (const [name, curve] of Object.entries(tracks)) {
-            const idx = dictionary[name];
-            if (idx !== undefined && this.mesh.morphTargetInfluences) {
-                // Linear interpolation between adjacent frames
+        // Use CPU morphing if blendshapeGenerator is available
+        if (this.blendshapeGenerator) {
+            for (const [name, curve] of Object.entries(tracks)) {
                 const v0 = curve[frame0] || 0;
                 const v1 = curve[frame1] || 0;
-                this.mesh.morphTargetInfluences[idx] = v0 + (v1 - v0) * t;
+                const weight = v0 + (v1 - v0) * t;
+                this.blendshapeGenerator.setWeight(name, weight);
             }
         }
     }
@@ -361,11 +359,9 @@ export class LipSync {
             this.audioSource = null;
         }
 
-        // Reset all morph targets
-        if (this.mesh && this.mesh.morphTargetInfluences) {
-            for (let i = 0; i < this.mesh.morphTargetInfluences.length; i++) {
-                this.mesh.morphTargetInfluences[i] = 0;
-            }
+        // Reset all morph targets using CPU morphing
+        if (this.blendshapeGenerator) {
+            this.blendshapeGenerator.resetAllWeights();
         }
 
         if (this.onUpdate) {

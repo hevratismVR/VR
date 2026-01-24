@@ -18,6 +18,10 @@ export class BlendshapeGenerator {
         // Manual offsets (set by UI)
         this.seamYOffset = 0;
         this.zThresholdOffset = 0;
+
+        // CPU morphing state
+        this._currentWeights = {};   // name → current weight value
+        this._baseArray = null;      // Float32Array copy of original positions
         // Manually adjusted landmark positions (from drag)
         this.manualLandmarks = {};
         // Character type (affects magnitude)
@@ -63,10 +67,14 @@ export class BlendshapeGenerator {
         // Apply morph targets to the mesh (async for progress reporting)
         await this.applyMorphTargets(geometry, onProgress);
 
-        // Enable morphTargets on material
-        this.enableMorphOnMaterial(mesh);
+        // NOTE: We do NOT call enableMorphOnMaterial() here.
+        // Vertex deformation is handled entirely on the CPU (setWeight/setWeights).
+        // morphAttributes are kept on the geometry for heatmap visualization and GLB export.
 
         if (onProgress) onProgress(1.0, 'Complete');
+
+        // Initialize CPU-based morphing (fallback for Three.js morph system)
+        this._initCPUMorph();
 
         return {
             blendshapes: this.blendshapes,
@@ -74,6 +82,88 @@ export class BlendshapeGenerator {
             morphTargetDictionary: mesh.morphTargetDictionary,
             morphTargetInfluences: mesh.morphTargetInfluences
         };
+    }
+
+    /**
+     * Initialize CPU-based morph target blending.
+     * Stores a copy of base positions for direct vertex manipulation.
+     */
+    _initCPUMorph() {
+        const posAttr = this.mesh.geometry.attributes.position;
+        this._baseArray = new Float32Array(posAttr.array);
+        this._currentWeights = {};
+        this._allShapes = { ...this.blendshapes, ...this.visemes };
+    }
+
+    /**
+     * Set a blendshape weight using direct CPU vertex displacement.
+     * This bypasses the Three.js morph target system entirely.
+     * @param {string} name - Blendshape name
+     * @param {number} weight - Weight value 0-1
+     */
+    setWeight(name, weight) {
+        if (!this._baseArray || !this.mesh) return;
+
+        const morphBuffer = this._allShapes[name];
+        if (!morphBuffer) return;
+
+        const oldWeight = this._currentWeights[name] || 0;
+        const deltaWeight = weight - oldWeight;
+        this._currentWeights[name] = weight;
+
+        if (Math.abs(deltaWeight) < 0.0001) return;
+
+        const positions = this.mesh.geometry.attributes.position.array;
+
+        // Apply delta: positions += morphBuffer * deltaWeight
+        for (let i = 0; i < positions.length; i++) {
+            positions[i] += morphBuffer[i] * deltaWeight;
+        }
+
+        this.mesh.geometry.attributes.position.needsUpdate = true;
+    }
+
+    /**
+     * Reset all blendshape weights to zero (restore base positions).
+     */
+    resetAllWeights() {
+        if (!this._baseArray || !this.mesh) return;
+
+        const positions = this.mesh.geometry.attributes.position.array;
+        positions.set(this._baseArray);
+        this.mesh.geometry.attributes.position.needsUpdate = true;
+
+        this._currentWeights = {};
+    }
+
+    /**
+     * Set multiple weights at once (for presets/animations).
+     * More efficient than calling setWeight() multiple times as it
+     * rebuilds positions from base in one pass.
+     * @param {Object} weights - { name: weight } map
+     */
+    setWeights(weights) {
+        if (!this._baseArray || !this.mesh) return;
+
+        const positions = this.mesh.geometry.attributes.position.array;
+
+        // Reset to base
+        positions.set(this._baseArray);
+
+        // Apply all active weights
+        for (const [name, weight] of Object.entries(weights)) {
+            if (weight < 0.0001) continue;
+            const morphBuffer = this._allShapes[name];
+            if (!morphBuffer) continue;
+
+            for (let i = 0; i < positions.length; i++) {
+                positions[i] += morphBuffer[i] * weight;
+            }
+
+            this._currentWeights[name] = weight;
+        }
+
+        this.mesh.geometry.attributes.position.needsUpdate = true;
     }
 
     computeScaleFactor(regions) {
@@ -2286,8 +2376,5 @@ export class BlendshapeGenerator {
 
         // Use Three.js built-in to set up dictionary/influences
         mesh.updateMorphTargets();
-
-        // Enable morphTargets on material
-        this.enableMorphOnMaterial(mesh);
     }
 }
