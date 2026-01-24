@@ -59,6 +59,21 @@
                         </button>
                     </div>
                     <div id="blendshapes-info" class="info-box hidden"></div>
+                    <!-- Manual adjustments after generation -->
+                    <div id="manual-adjust" class="manual-adjust hidden">
+                        <h3>כוונון ידני</h3>
+                        <div class="transform-row">
+                            <label>קו הפה (Y)</label>
+                            <input type="range" id="seam-y-offset" min="-50" max="50" value="0" step="1">
+                            <span class="transform-val" id="seam-y-val">0</span>
+                        </div>
+                        <div class="transform-row">
+                            <label>עומק חיתוך (Z)</label>
+                            <input type="range" id="z-threshold-offset" min="-50" max="50" value="0" step="1">
+                            <span class="transform-val" id="z-threshold-val">0</span>
+                        </div>
+                        <button class="btn btn-secondary" id="regenerate-btn">צור מחדש</button>
+                    </div>
                 </div>
 
                 <div class="section">
@@ -90,6 +105,46 @@
                             <button class="btn btn-small" id="eye-right-btn" disabled>עין ימין</button>
                             <span class="accessory-status" id="eye-right-status"></span>
                         </div>
+                    </div>
+                    <!-- Accessory Transform Controls -->
+                    <div id="accessory-transform" class="transform-panel hidden">
+                        <h3 id="accessory-transform-title">מיקום אביזר</h3>
+                        <div class="transform-row">
+                            <label>X</label>
+                            <input type="range" id="acc-pos-x" min="-100" max="100" value="0" step="1">
+                            <span class="transform-val" id="acc-pos-x-val">0</span>
+                        </div>
+                        <div class="transform-row">
+                            <label>Y</label>
+                            <input type="range" id="acc-pos-y" min="-100" max="100" value="0" step="1">
+                            <span class="transform-val" id="acc-pos-y-val">0</span>
+                        </div>
+                        <div class="transform-row">
+                            <label>Z</label>
+                            <input type="range" id="acc-pos-z" min="-100" max="100" value="0" step="1">
+                            <span class="transform-val" id="acc-pos-z-val">0</span>
+                        </div>
+                        <div class="transform-row">
+                            <label>סיבוב X</label>
+                            <input type="range" id="acc-rot-x" min="-180" max="180" value="0" step="1">
+                            <span class="transform-val" id="acc-rot-x-val">0°</span>
+                        </div>
+                        <div class="transform-row">
+                            <label>סיבוב Y</label>
+                            <input type="range" id="acc-rot-y" min="-180" max="180" value="0" step="1">
+                            <span class="transform-val" id="acc-rot-y-val">0°</span>
+                        </div>
+                        <div class="transform-row">
+                            <label>סיבוב Z</label>
+                            <input type="range" id="acc-rot-z" min="-180" max="180" value="0" step="1">
+                            <span class="transform-val" id="acc-rot-z-val">0°</span>
+                        </div>
+                        <div class="transform-row">
+                            <label>גודל</label>
+                            <input type="range" id="acc-scale" min="10" max="500" value="100" step="5">
+                            <span class="transform-val" id="acc-scale-val">100%</span>
+                        </div>
+                        <button class="btn btn-small" id="acc-remove-btn">הסר אביזר</button>
                     </div>
                 </div>
 

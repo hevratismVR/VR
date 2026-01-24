@@ -345,6 +345,63 @@ h3 {
     transition: width 0.3s;
 }
 
+/* Transform Controls */
+.transform-panel {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.transform-panel h3,
+.manual-adjust h3 {
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.transform-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+}
+
+.transform-row label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    min-width: 48px;
+    text-align: right;
+}
+
+.transform-row input[type="range"] {
+    flex: 1;
+    height: 3px;
+    accent-color: var(--accent);
+}
+
+.transform-val {
+    font-size: 0.68rem;
+    color: var(--text-primary);
+    min-width: 32px;
+    text-align: left;
+}
+
+.manual-adjust {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
 /* Accessories */
 .accessories-grid {
     display: grid;

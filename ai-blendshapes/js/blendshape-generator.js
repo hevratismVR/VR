@@ -15,6 +15,9 @@ export class BlendshapeGenerator {
         this.faceHeight = 1;
         this.mouthCenter = { x: 0, y: 0, z: 0 };
         this.jawPivot = { x: 0, y: 0, z: 0 };
+        // Manual offsets (set by UI)
+        this.seamYOffset = 0;
+        this.zThresholdOffset = 0;
     }
 
     /**
@@ -120,6 +123,11 @@ export class BlendshapeGenerator {
         this.mouthMaxY = mouthMaxY;
         this.mouthWidth = mouthMaxX - mouthMinX;
         this.mouthHeight = mouthMaxY - mouthMinY;
+
+        // Apply manual offsets from UI
+        if (this.seamYOffset) {
+            this.mouthCenter.y += this.seamYOffset * this.scaleFactor * 0.3;
+        }
     }
 
     enableMorphOnMaterial(mesh) {
@@ -297,7 +305,8 @@ export class BlendshapeGenerator {
 
         // Z threshold: only affect front-facing vertices (front 70% of face depth)
         const faceDepth = faceMaxZ - faceMinZ;
-        const zThreshold = faceMinZ + faceDepth * 0.3;
+        const zAdjust = this.zThresholdOffset ? this.zThresholdOffset * faceDepth * 0.3 : 0;
+        const zThreshold = faceMinZ + faceDepth * 0.3 + zAdjust;
 
         // Maximum displacement at full jaw open (chin drops this much)
         const maxDrop = sf * 0.18 * angle * this.intensity;

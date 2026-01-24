@@ -22,6 +22,7 @@ class App {
         this.exporter = new Exporter();
 
         // State
+        this.selectedAccessory = null;
         this.modelData = null;
         this.faceMesh = null;
         this.landmarks = null;
@@ -115,6 +116,9 @@ class App {
                 this.lipSync.seek(time);
             }
         });
+
+        // Transform controls for accessories and manual adjustments
+        this.bindTransformControls();
 
         // Export
         document.getElementById('export-glb-btn').addEventListener('click', () => this.exportGLB());
@@ -276,6 +280,9 @@ class App {
             document.getElementById('eye-left-btn').disabled = false;
             document.getElementById('eye-right-btn').disabled = false;
 
+            // Show manual adjustment panel
+            document.getElementById('manual-adjust').classList.remove('hidden');
+
             // Start accessory update loop
             this.startAccessoryUpdateLoop();
 
@@ -302,11 +309,21 @@ class App {
 
     /**
      * Bind an accessory upload button.
+     * First click opens file dialog. After loaded, clicking selects it for transform.
      */
     bindAccessoryButton(htmlId, type) {
         const btn = document.getElementById(`${htmlId}-btn`);
         const input = document.getElementById(`${htmlId}-input`);
-        btn.addEventListener('click', () => input.click());
+
+        btn.addEventListener('click', () => {
+            if (this.accessoriesManager.accessories[type]) {
+                // Already loaded - select for transform editing
+                this.selectAccessory(type, htmlId);
+            } else {
+                input.click();
+            }
+        });
+
         input.addEventListener('change', (e) => {
             if (e.target.files[0]) this.loadAccessory(type, e.target.files[0], htmlId);
         });
@@ -328,11 +345,185 @@ class App {
             const status = document.getElementById(`${htmlId}-status`);
             status.textContent = 'V';
 
-            this.setStatus(`${type} loaded and attached`);
+            // Auto-select this accessory for transform
+            this.selectAccessory(type, htmlId);
+
+            this.setStatus(`${type} loaded - use sliders to position`);
         } catch (error) {
             this.setStatus(`Error loading ${type}: ${error.message}`);
             console.error('Accessory load error:', error);
         }
+    }
+
+    /**
+     * Select an accessory for transform editing.
+     */
+    selectAccessory(type, htmlId) {
+        this.selectedAccessory = type;
+
+        const mesh = this.accessoriesManager.accessories[type];
+        if (!mesh) return;
+
+        const panel = document.getElementById('accessory-transform');
+        panel.classList.remove('hidden');
+
+        const names = {
+            upperTeeth: 'שיניים עליונות',
+            lowerTeeth: 'שיניים תחתונות',
+            tongue: 'לשון',
+            eyeLeft: 'עין שמאל',
+            eyeRight: 'עין ימין'
+        };
+        document.getElementById('accessory-transform-title').textContent = `מיקום: ${names[type] || type}`;
+
+        // Scale slider range based on face size
+        const sf = this.blendshapeGenerator.scaleFactor || 1;
+        const range = sf * 0.5;
+
+        // Set slider ranges dynamically
+        ['acc-pos-x', 'acc-pos-y', 'acc-pos-z'].forEach(id => {
+            const el = document.getElementById(id);
+            el.min = -100;
+            el.max = 100;
+            el.value = 0;
+        });
+
+        // Reset all sliders
+        document.getElementById('acc-pos-x').value = 0;
+        document.getElementById('acc-pos-y').value = 0;
+        document.getElementById('acc-pos-z').value = 0;
+        document.getElementById('acc-rot-x').value = 0;
+        document.getElementById('acc-rot-y').value = 0;
+        document.getElementById('acc-rot-z').value = 0;
+        document.getElementById('acc-scale').value = 100;
+
+        document.getElementById('acc-pos-x-val').textContent = '0';
+        document.getElementById('acc-pos-y-val').textContent = '0';
+        document.getElementById('acc-pos-z-val').textContent = '0';
+        document.getElementById('acc-rot-x-val').textContent = '0°';
+        document.getElementById('acc-rot-y-val').textContent = '0°';
+        document.getElementById('acc-rot-z-val').textContent = '0°';
+        document.getElementById('acc-scale-val').textContent = '100%';
+
+        // Store base transform for relative adjustments
+        this._accBasePos = mesh.position.clone();
+        this._accBaseRot = mesh.rotation.clone();
+        this._accBaseScale = mesh.scale.x;
+
+        // Highlight selected button
+        document.querySelectorAll('.btn-small.loaded').forEach(b => b.style.outline = '');
+        const btn = document.getElementById(`${htmlId}-btn`);
+        btn.style.outline = '2px solid var(--accent)';
+    }
+
+    /**
+     * Bind transform control sliders.
+     */
+    bindTransformControls() {
+        const sf = () => this.blendshapeGenerator.scaleFactor || 1;
+
+        // Position sliders
+        ['x', 'y', 'z'].forEach(axis => {
+            document.getElementById(`acc-pos-${axis}`).addEventListener('input', (e) => {
+                if (!this.selectedAccessory) return;
+                const mesh = this.accessoriesManager.accessories[this.selectedAccessory];
+                if (!mesh) return;
+
+                const val = parseFloat(e.target.value);
+                const offset = (val / 100) * sf() * 0.3;
+                document.getElementById(`acc-pos-${axis}-val`).textContent = val.toFixed(0);
+
+                mesh.position[axis] = this._accBasePos[axis] + offset;
+
+                // Update attachment base position for animation
+                const attachment = this.accessoriesManager.attachments[this.selectedAccessory];
+                if (attachment) {
+                    attachment.basePosition.copy(mesh.position);
+                }
+            });
+        });
+
+        // Rotation sliders
+        ['x', 'y', 'z'].forEach(axis => {
+            document.getElementById(`acc-rot-${axis}`).addEventListener('input', (e) => {
+                if (!this.selectedAccessory) return;
+                const mesh = this.accessoriesManager.accessories[this.selectedAccessory];
+                if (!mesh) return;
+
+                const deg = parseFloat(e.target.value);
+                document.getElementById(`acc-rot-${axis}-val`).textContent = `${deg.toFixed(0)}°`;
+                const rad = deg * Math.PI / 180;
+
+                mesh.rotation[axis] = this._accBaseRot[axis] + rad;
+
+                const attachment = this.accessoriesManager.attachments[this.selectedAccessory];
+                if (attachment) {
+                    attachment.baseRotation.copy(mesh.rotation);
+                }
+            });
+        });
+
+        // Scale slider
+        document.getElementById('acc-scale').addEventListener('input', (e) => {
+            if (!this.selectedAccessory) return;
+            const mesh = this.accessoriesManager.accessories[this.selectedAccessory];
+            if (!mesh) return;
+
+            const pct = parseFloat(e.target.value);
+            document.getElementById('acc-scale-val').textContent = `${pct.toFixed(0)}%`;
+            const scale = this._accBaseScale * (pct / 100);
+            mesh.scale.setScalar(scale);
+        });
+
+        // Remove button
+        document.getElementById('acc-remove-btn').addEventListener('click', () => {
+            if (!this.selectedAccessory) return;
+            this.accessoriesManager.removeAccessory(this.selectedAccessory);
+
+            // Reset UI
+            const allTypes = { upperTeeth: 'upper-teeth', lowerTeeth: 'lower-teeth', tongue: 'tongue', eyeLeft: 'eye-left', eyeRight: 'eye-right' };
+            const htmlId = allTypes[this.selectedAccessory];
+            if (htmlId) {
+                const btn = document.getElementById(`${htmlId}-btn`);
+                btn.classList.remove('loaded');
+                btn.style.outline = '';
+                document.getElementById(`${htmlId}-status`).textContent = '';
+            }
+
+            document.getElementById('accessory-transform').classList.add('hidden');
+            this.selectedAccessory = null;
+            this.setStatus('Accessory removed');
+        });
+
+        // Seam line / Z threshold adjustments
+        document.getElementById('seam-y-offset').addEventListener('input', (e) => {
+            document.getElementById('seam-y-val').textContent = e.target.value;
+        });
+        document.getElementById('z-threshold-offset').addEventListener('input', (e) => {
+            document.getElementById('z-threshold-val').textContent = e.target.value;
+        });
+        document.getElementById('regenerate-btn').addEventListener('click', () => {
+            this.regenerateWithOffsets();
+        });
+    }
+
+    /**
+     * Regenerate blendshapes with manual seam/Z offsets.
+     */
+    regenerateWithOffsets() {
+        if (!this.faceMesh || !this.regions) return;
+
+        const seamOffset = parseFloat(document.getElementById('seam-y-offset').value) / 100;
+        const zOffset = parseFloat(document.getElementById('z-threshold-offset').value) / 100;
+
+        // Pass offsets to blendshape generator
+        this.blendshapeGenerator.seamYOffset = seamOffset;
+        this.blendshapeGenerator.zThresholdOffset = zOffset;
+
+        // Regenerate
+        this.generateBlendshapes();
+
+        this.setStatus('Blendshapes regenerated with manual adjustments');
     }
 
     /**
