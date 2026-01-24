@@ -533,7 +533,9 @@ class App {
     }
 }
 
-// Initialize app
-window.addEventListener('DOMContentLoaded', () => {
+// Initialize app - modules are deferred, so DOM is likely ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => new App());
+} else {
     new App();
-});
+}

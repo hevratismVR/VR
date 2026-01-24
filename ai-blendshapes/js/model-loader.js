@@ -1,19 +1,25 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 export class ModelLoader {
     constructor() {
         this.gltfLoader = new GLTFLoader();
-        this.fbxLoader = new FBXLoader();
-        this.objLoader = new OBJLoader();
+        this.fbxLoader = null;
+        this.objLoader = null;
+    }
 
-        // Setup Draco decoder for compressed meshes
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/');
-        this.gltfLoader.setDRACOLoader(dracoLoader);
+    async loadFBXLoader() {
+        if (!this.fbxLoader) {
+            const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js');
+            this.fbxLoader = new FBXLoader();
+        }
+    }
+
+    async loadOBJLoader() {
+        if (!this.objLoader) {
+            const { OBJLoader } = await import('three/addons/loaders/OBJLoader.js');
+            this.objLoader = new OBJLoader();
+        }
     }
 
     async load(file) {
@@ -28,9 +34,11 @@ export class ModelLoader {
                     model = await this.loadGLTF(url);
                     break;
                 case 'fbx':
+                    await this.loadFBXLoader();
                     model = await this.loadFBX(url);
                     break;
                 case 'obj':
+                    await this.loadOBJLoader();
                     model = await this.loadOBJ(url);
                     break;
                 default:

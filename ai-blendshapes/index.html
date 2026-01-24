@@ -126,11 +126,30 @@
     <script type="importmap">
     {
         "imports": {
-            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
         }
     }
     </script>
     <script type="module" src="js/app.js"></script>
+    <script>
+        // Fallback: if module fails, still enable file upload
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var btn = document.getElementById('model-upload-btn');
+                var input = document.getElementById('model-input');
+                if (btn && !btn._bound) {
+                    btn.addEventListener('click', function() { input.click(); });
+                    btn._bound = true;
+                }
+                var audioBtn = document.getElementById('audio-upload-btn');
+                var audioInput = document.getElementById('audio-input');
+                if (audioBtn && !audioBtn._bound) {
+                    audioBtn.addEventListener('click', function() { audioInput.click(); });
+                    audioBtn._bound = true;
+                }
+            }, 2000);
+        });
+    </script>
 </body>
 </html>
