@@ -255,63 +255,96 @@ export class BlendshapeGenerator {
     // ========================================================================
 
     /**
-     * Professional jaw open using rotational displacement around a hinge pivot.
+     * Professional jaw open using spatial vertex selection.
+     * Instead of only rotating detected jaw/mouth vertices (too few),
+     * rotates ALL vertices below the mouth seam line with distance-based weight.
      * angle: rotation in radians (0.45 ≈ 25 degrees for full open)
      */
     createJawOpen(regions, angle) {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
+        const vertexCount = positions.count;
 
         const pivotY = this.jawPivot.y;
         const pivotZ = this.jawPivot.z;
 
-        // Determine which vertices are in the "lower face" (jaw, lower lip, lower mouth)
-        const lowerLipIndices = new Set(regions.lowerLip || []);
-        const jawIndices = new Set(regions.jaw || []);
-        const mouthIndices = regions.mouth || [];
+        // The "seam line" is where the mouth opens - between upper and lower lips
+        // Use the center Y of the mouth region as the split
+        const seamY = this.mouthCenter.y;
+        const mouthZ = this.mouthCenter.z;
 
-        // Split mouth into upper and lower by Y
-        const mouthCenterY = this.mouthCenter.y;
-        const lowerMouthIndices = new Set();
-        const upperMouthIndices = new Set();
-        for (const i of mouthIndices) {
-            if (positions.getY(i) < mouthCenterY) {
-                lowerMouthIndices.add(i);
-            } else {
-                upperMouthIndices.add(i);
-            }
+        // Find the lowest point of the face (bottom of chin/jaw)
+        // Use ALL face region vertices to determine bounds
+        const allFaceIndices = [
+            ...(regions.forehead || []),
+            ...(regions.eyeLeft || []),
+            ...(regions.eyeRight || []),
+            ...(regions.nose || []),
+            ...(regions.mouth || []),
+            ...(regions.jaw || []),
+            ...(regions.upperLip || []),
+            ...(regions.lowerLip || []),
+            ...(regions.cheekLeft || []),
+            ...(regions.cheekRight || [])
+        ];
+
+        let faceMinY = Infinity, faceMaxZ = -Infinity, faceMinZ = Infinity;
+        for (const i of allFaceIndices) {
+            const y = positions.getY(i);
+            const z = positions.getZ(i);
+            if (y < faceMinY) faceMinY = y;
+            if (z > faceMaxZ) faceMaxZ = z;
+            if (z < faceMinZ) faceMinZ = z;
         }
 
-        // All vertices that should rotate with the jaw
-        const rotatingSet = new Set([
-            ...lowerLipIndices,
-            ...jawIndices,
-            ...lowerMouthIndices
+        // The distance from seam to chin - this is where rotation goes 0→1
+        const jawLength = seamY - faceMinY;
+        if (jawLength < 0.001) return displacements;
+
+        // Z threshold: only affect front-facing vertices
+        // Face depth = faceMaxZ - faceMinZ. Front half is > midZ
+        const faceDepth = faceMaxZ - faceMinZ;
+        const zThreshold = faceMinZ + faceDepth * 0.3; // only front 70% of face
+
+        // Neck cutoff: beyond chin, fade out quickly
+        const neckFadeStart = faceMinY;
+        const neckFadeRange = sf * 0.08;
+
+        // Upper face set - vertices that should NEVER rotate
+        const upperFaceSet = new Set([
+            ...(regions.forehead || []),
+            ...(regions.eyeLeft || []),
+            ...(regions.eyeRight || []),
+            ...(regions.upperLip || [])
         ]);
 
-        // Neck cutoff: don't affect vertices too far below the jaw
-        let jawMinY = Infinity;
-        for (const i of jawIndices) {
-            const y = positions.getY(i);
-            if (y < jawMinY) jawMinY = y;
-        }
-        // Falloff starts at the bottom of jaw region
-        const neckCutoff = jawMinY - sf * 0.05;
-        const falloffRange = sf * 0.15;
+        // Iterate ALL vertices spatially
+        for (let i = 0; i < vertexCount; i++) {
+            // Skip upper face regions entirely
+            if (upperFaceSet.has(i)) continue;
 
-        // Rotate lower face vertices
-        for (const i of rotatingSet) {
             const y = positions.getY(i);
             const z = positions.getZ(i);
 
-            // Neck protection: fade out below jaw
-            let falloff = 1.0;
-            if (y < jawMinY) {
-                const dist = jawMinY - y;
-                falloff = Math.max(0, 1 - dist / falloffRange);
-                if (falloff < 0.01) continue;
+            // Skip vertices above the seam line
+            if (y >= seamY) continue;
+
+            // Skip back-of-head vertices
+            if (z < zThreshold) continue;
+
+            // Compute rotation weight based on distance below seam
+            const distBelowSeam = seamY - y;
+            let weight = Math.min(1.0, distBelowSeam / (jawLength * 0.6));
+
+            // Neck fade: reduce weight for vertices below the chin
+            if (y < neckFadeStart) {
+                const neckDist = neckFadeStart - y;
+                const neckFade = Math.max(0, 1 - neckDist / neckFadeRange);
+                weight *= neckFade;
             }
+
+            if (weight < 0.01) continue;
 
             // Compute distance from pivot
             const dy = y - pivotY;
@@ -321,7 +354,7 @@ export class BlendshapeGenerator {
 
             // Rotate around pivot (negative angle = open downward)
             const currentAngle = Math.atan2(dy, dz);
-            const rotAngle = -angle * this.intensity * falloff;
+            const rotAngle = -angle * this.intensity * weight;
             const newAngle = currentAngle + rotAngle;
 
             const newDy = dist * Math.sin(newAngle) - dy;
@@ -330,41 +363,13 @@ export class BlendshapeGenerator {
             displacements.set(i, { x: 0, y: newDy, z: newDz });
         }
 
-        // Upper lip: slight outward push (lip curls up when mouth opens)
-        const upperLipIndices = regions.upperLip || [];
-        for (const i of upperLipIndices) {
+        // Upper lip: slight outward push (lip separates when jaw opens)
+        for (const i of (regions.upperLip || [])) {
             displacements.set(i, {
                 x: 0,
-                y: sf * 0.02 * this.intensity,
-                z: sf * 0.015 * this.intensity
+                y: sf * 0.015 * angle * this.intensity,
+                z: sf * 0.01 * angle * this.intensity
             });
-        }
-
-        // Upper mouth vertices get slight separation
-        for (const i of upperMouthIndices) {
-            if (!displacements.has(i)) {
-                displacements.set(i, {
-                    x: 0,
-                    y: sf * 0.01 * this.intensity,
-                    z: sf * 0.005 * this.intensity
-                });
-            }
-        }
-
-        // Cheeks stretch when jaw opens
-        const cheekIndices = [...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
-        for (const i of cheekIndices) {
-            const y = positions.getY(i);
-            // Only affect cheek vertices near/below mouth level
-            const influence = Math.max(0, Math.min(1, (mouthCenterY - y) / (sf * 0.2)));
-            if (influence > 0.05) {
-                const existing = displacements.get(i) || { x: 0, y: 0, z: 0 };
-                displacements.set(i, {
-                    x: existing.x,
-                    y: existing.y - sf * 0.04 * angle * influence * this.intensity,
-                    z: existing.z + sf * 0.01 * angle * influence * this.intensity
-                });
-            }
         }
 
         return displacements;
@@ -374,16 +379,23 @@ export class BlendshapeGenerator {
         const displacements = new Map();
         const positions = this.basePositions;
         const sf = this.scaleFactor;
+        const vertexCount = positions.count;
+        const seamY = this.mouthCenter.y;
+        const zThreshold = this.mouthCenter.z - sf * 0.3;
 
-        const indices = [...(regions.jaw || []), ...(regions.lowerLip || [])];
-        const mouthLower = (regions.mouth || []).filter(i => positions.getY(i) < this.mouthCenter.y);
-        indices.push(...mouthLower);
+        for (let i = 0; i < vertexCount; i++) {
+            const y = positions.getY(i);
+            const z = positions.getZ(i);
+            if (y >= seamY || z < zThreshold) continue;
 
-        for (const i of indices) {
+            const distBelow = seamY - y;
+            const weight = Math.min(1, distBelow / (sf * 0.2));
+            if (weight < 0.01) continue;
+
             displacements.set(i, {
                 x: 0,
                 y: 0,
-                z: sf * amount * this.intensity
+                z: sf * amount * weight * this.intensity
             });
         }
 
@@ -392,13 +404,24 @@ export class BlendshapeGenerator {
 
     createJawSlide(regions, side, amount) {
         const displacements = new Map();
+        const positions = this.basePositions;
         const sf = this.scaleFactor;
+        const vertexCount = positions.count;
+        const seamY = this.mouthCenter.y;
+        const zThreshold = this.mouthCenter.z - sf * 0.3;
         const dir = side === 'left' ? 1 : -1;
 
-        const indices = [...(regions.jaw || []), ...(regions.lowerLip || [])];
-        for (const i of indices) {
+        for (let i = 0; i < vertexCount; i++) {
+            const y = positions.getY(i);
+            const z = positions.getZ(i);
+            if (y >= seamY || z < zThreshold) continue;
+
+            const distBelow = seamY - y;
+            const weight = Math.min(1, distBelow / (sf * 0.2));
+            if (weight < 0.01) continue;
+
             displacements.set(i, {
-                x: sf * amount * dir * this.intensity,
+                x: sf * amount * dir * weight * this.intensity,
                 y: 0,
                 z: 0
             });
