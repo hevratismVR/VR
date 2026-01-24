@@ -286,6 +286,9 @@ export class BlendshapeGenerator {
     enableMorphOnMaterial(mesh) {
         // Three.js r160: morph support is automatic when geometry has morphAttributes.
         // Force shader recompile so new program includes morph target code.
+        const morphCount = mesh.geometry.morphAttributes.position
+            ? mesh.geometry.morphAttributes.position.length : 0;
+
         const updateMaterial = (mat) => {
             // Increment version to invalidate cached WebGL program
             mat.needsUpdate = true;
@@ -296,6 +299,13 @@ export class BlendshapeGenerator {
         } else if (mesh.material) {
             updateMaterial(mesh.material);
         }
+
+        console.log('[BlendshapeGenerator] Material updated for morphs:', {
+            meshName: mesh.name || '(unnamed)',
+            morphCount,
+            materialType: mesh.material?.type || 'unknown',
+            influencesLength: mesh.morphTargetInfluences?.length || 0
+        });
     }
 
     /**
@@ -1764,11 +1774,20 @@ export class BlendshapeGenerator {
     async applyMorphTargets(geometry, onProgress = null) {
         // IMPORTANT: Modify the ORIGINAL geometry directly (not a clone).
         // Cloning breaks Three.js r160's morph target texture cache.
+
+        // If regenerating, invalidate WebGLMorphtargets cache by changing influence count.
+        // The cache checks (entry.count !== objectInfluences.length) to decide rebuild.
+        if (geometry.morphAttributes.position && geometry.morphAttributes.position.length > 0) {
+            // Temporarily set different length to force texture rebuild on next render
+            this.mesh.morphTargetInfluences = [];
+        }
+
         geometry.morphAttributes.position = [];
         geometry.morphTargetsRelative = true;
 
         const dictionary = {};
         let index = 0;
+        let maxDisplacement = 0;
 
         const allShapes = { ...this.blendshapes, ...this.visemes };
         const shapeEntries = Object.entries(allShapes);
@@ -1776,6 +1795,15 @@ export class BlendshapeGenerator {
 
         for (let s = 0; s < shapeEntries.length; s++) {
             const [name, buffer] = shapeEntries[s];
+
+            // Track max displacement for debug (sample first 3 shapes only to avoid perf hit)
+            if (s < 3) {
+                const step = Math.max(1, Math.floor(buffer.length / 3000)) * 3;
+                for (let i = 0; i < buffer.length; i += step) {
+                    const d = Math.sqrt(buffer[i] ** 2 + buffer[i + 1] ** 2 + buffer[i + 2] ** 2);
+                    if (d > maxDisplacement) maxDisplacement = d;
+                }
+            }
 
             const posAttr = new THREE.Float32BufferAttribute(buffer, 3);
             posAttr.name = name;
@@ -1791,13 +1819,26 @@ export class BlendshapeGenerator {
             }
         }
 
-        // Set morph target dictionary and influences on the mesh
-        this.mesh.morphTargetDictionary = dictionary;
-        this.mesh.morphTargetInfluences = new Array(index).fill(0);
+        // Use Three.js built-in method to set up morph target dictionary/influences.
+        // This reads morphAttributes.position[i].name to build the dictionary.
+        this.mesh.updateMorphTargets();
 
-        // Force Three.js to rebuild the morph targets texture
-        geometry.morphAttributes.position.forEach(attr => {
-            attr.needsUpdate = true;
+        // Fallback: if updateMorphTargets didn't set up properly, do it manually
+        if (!this.mesh.morphTargetDictionary || Object.keys(this.mesh.morphTargetDictionary).length === 0) {
+            console.warn('[BlendshapeGenerator] updateMorphTargets() failed, using manual setup');
+            this.mesh.morphTargetDictionary = dictionary;
+            this.mesh.morphTargetInfluences = new Array(index).fill(0);
+        }
+
+        console.log('[BlendshapeGenerator] Morph targets applied:', {
+            meshName: this.mesh.name || '(unnamed)',
+            vertexCount: geometry.attributes.position.count,
+            morphTargetCount: index,
+            maxDisplacement: maxDisplacement.toFixed(4),
+            geometryId: geometry.id,
+            morphAttributesLength: geometry.morphAttributes.position.length,
+            dictionaryKeys: Object.keys(this.mesh.morphTargetDictionary || {}).length,
+            influencesLength: this.mesh.morphTargetInfluences?.length || 0
         });
     }
 
@@ -2223,26 +2264,28 @@ export class BlendshapeGenerator {
 
     /**
      * Apply morph targets to an auxiliary mesh (eyes, nose).
+     * Modifies the ORIGINAL geometry directly (no clone) to avoid breaking
+     * Three.js r160's morph target texture cache.
      */
     applyAuxiliaryMorphTargets(mesh, shapes) {
         const geometry = mesh.geometry;
-        const newGeometry = geometry.clone();
-        newGeometry.morphAttributes.position = [];
-        newGeometry.morphTargetsRelative = true;
 
-        const dictionary = {};
-        let index = 0;
+        // Invalidate morph texture cache if regenerating
+        if (geometry.morphAttributes.position && geometry.morphAttributes.position.length > 0) {
+            mesh.morphTargetInfluences = [];
+        }
+
+        geometry.morphAttributes.position = [];
+        geometry.morphTargetsRelative = true;
 
         for (const [name, buffer] of Object.entries(shapes)) {
             const posAttr = new THREE.Float32BufferAttribute(buffer, 3);
             posAttr.name = name;
-            newGeometry.morphAttributes.position.push(posAttr);
-            dictionary[name] = index++;
+            geometry.morphAttributes.position.push(posAttr);
         }
 
-        mesh.geometry = newGeometry;
-        mesh.morphTargetDictionary = dictionary;
-        mesh.morphTargetInfluences = new Array(index).fill(0);
+        // Use Three.js built-in to set up dictionary/influences
+        mesh.updateMorphTargets();
 
         // Enable morphTargets on material
         this.enableMorphOnMaterial(mesh);

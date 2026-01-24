@@ -1078,6 +1078,25 @@ class App {
             const weight = parseFloat(slider.value);
             value.textContent = weight.toFixed(2);
             this.lipSync.setBlendshapeWeight(this.faceMesh, name, weight);
+
+            // One-time debug verification
+            if (!this._morphDebugLogged) {
+                this._morphDebugLogged = true;
+                const dict = this.faceMesh?.morphTargetDictionary;
+                const infl = this.faceMesh?.morphTargetInfluences;
+                const geo = this.faceMesh?.geometry;
+                console.log('[Slider Debug] Morph target state:', {
+                    meshExists: !!this.faceMesh,
+                    dictionarySize: dict ? Object.keys(dict).length : 0,
+                    influencesLength: infl?.length || 0,
+                    morphAttributeCount: geo?.morphAttributes?.position?.length || 0,
+                    morphTargetsRelative: geo?.morphTargetsRelative,
+                    sliderName: name,
+                    sliderWeight: weight,
+                    influenceIdx: dict?.[name],
+                    influenceValue: infl?.[dict?.[name]]
+                });
+            }
         });
 
         // Click label to show weight heatmap
