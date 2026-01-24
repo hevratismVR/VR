@@ -240,22 +240,26 @@ export class LipSync {
 
     /**
      * Update mesh morph targets at the given time.
+     * Uses linear interpolation between frames for smooth playback.
      */
     updateMorphTargets(time) {
         if (!this.mesh || !this.animationData) return;
 
-        const { tracks, fps } = this.animationData;
-        const frame = Math.min(
-            Math.floor(time * fps),
-            this.animationData.totalFrames - 1
-        );
+        const { tracks, fps, totalFrames } = this.animationData;
+        const exactFrame = time * fps;
+        const frame0 = Math.min(Math.floor(exactFrame), totalFrames - 1);
+        const frame1 = Math.min(frame0 + 1, totalFrames - 1);
+        const t = exactFrame - frame0; // interpolation factor (0-1)
 
         const dictionary = (this.mesh.morphTargetDictionary || this.mesh.geometry.morphTargetDictionary);
 
         for (const [name, curve] of Object.entries(tracks)) {
             const idx = dictionary[name];
             if (idx !== undefined && this.mesh.morphTargetInfluences) {
-                this.mesh.morphTargetInfluences[idx] = curve[frame] || 0;
+                // Linear interpolation between adjacent frames
+                const v0 = curve[frame0] || 0;
+                const v1 = curve[frame1] || 0;
+                this.mesh.morphTargetInfluences[idx] = v0 + (v1 - v0) * t;
             }
         }
     }
