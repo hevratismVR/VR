@@ -185,18 +185,18 @@ export class BlendshapeGenerator {
     }
 
     enableMorphOnMaterial(mesh) {
+        // Three.js r160+ automatically enables morph targets in shaders when
+        // geometry has morphAttributes. Just trigger shader recompile.
         const updateMaterial = (mat) => {
             mat.morphTargets = true;
+            mat.morphNormals = true;
             mat.needsUpdate = true;
-            const newMat = mat.clone();
-            newMat.needsUpdate = true;
-            return newMat;
         };
 
         if (Array.isArray(mesh.material)) {
-            mesh.material = mesh.material.map(updateMaterial);
+            mesh.material.forEach(updateMaterial);
         } else if (mesh.material) {
-            mesh.material = updateMaterial(mesh.material);
+            updateMaterial(mesh.material);
         }
     }
 

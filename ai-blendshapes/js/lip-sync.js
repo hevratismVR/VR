@@ -95,25 +95,54 @@ export class LipSync {
     }
 
     /**
-     * Get the phoneme active at a specific time.
+     * Get the phoneme active at a specific time using binary search.
      */
     getPhonemeAt(phonemes, time) {
-        for (const p of phonemes) {
+        const idx = this.findPhonemeIndex(phonemes, time);
+        if (idx >= 0 && idx < phonemes.length) {
+            const p = phonemes[idx];
             if (time >= p.start && time < p.end) return p;
         }
         return { viseme: 'viseme_sil', start: time, end: time, energy: 0 };
     }
 
     /**
+     * Binary search for the first phoneme whose end > time.
+     */
+    findPhonemeIndex(phonemes, time) {
+        let lo = 0, hi = phonemes.length - 1;
+        while (lo <= hi) {
+            const mid = (lo + hi) >> 1;
+            if (phonemes[mid].end <= time) {
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+        return lo;
+    }
+
+    /**
      * Compute blend weights with smooth transitions between phonemes.
+     * Uses binary search to find relevant phonemes, then iterates only the local window.
      */
     computeBlendWeights(phonemes, time) {
         const weights = {};
         const transitionDuration = this.transitionSpeed;
 
-        for (let i = 0; i < phonemes.length; i++) {
+        // Binary search: find first phoneme that could be relevant
+        // (a phoneme is relevant if time < p.end + transitionDuration)
+        let startIdx = this.findPhonemeIndex(phonemes, time - transitionDuration);
+        if (startIdx > 0) startIdx--;
+
+        for (let i = startIdx; i < phonemes.length; i++) {
             const p = phonemes[i];
-            if (time < p.start - transitionDuration || time > p.end + transitionDuration) continue;
+
+            // Past the relevant window - stop searching
+            if (p.start > time + transitionDuration) break;
+
+            // Skip if completely out of range
+            if (time > p.end + transitionDuration) continue;
 
             let weight = 0;
 

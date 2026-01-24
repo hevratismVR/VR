@@ -799,11 +799,17 @@ class App {
 
         for (const name of names) {
             const idx = dictionary[name];
+            const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
+            const slider = sliderItem ? sliderItem.querySelector('input[type="range"]') : null;
+            const valueSpan = sliderItem ? sliderItem.querySelector('.value') : null;
 
             // Animate in (ramp up over 150ms)
             const steps = 5;
             for (let s = 1; s <= steps; s++) {
-                this.faceMesh.morphTargetInfluences[idx] = s / steps;
+                const weight = s / steps;
+                this.faceMesh.morphTargetInfluences[idx] = weight;
+                if (slider) slider.value = weight.toFixed(2);
+                if (valueSpan) valueSpan.textContent = weight.toFixed(2);
                 await this.delay(30);
             }
 
@@ -813,7 +819,10 @@ class App {
 
             // Animate out (ramp down over 150ms)
             for (let s = steps - 1; s >= 0; s--) {
-                this.faceMesh.morphTargetInfluences[idx] = s / steps;
+                const weight = s / steps;
+                this.faceMesh.morphTargetInfluences[idx] = weight;
+                if (slider) slider.value = weight.toFixed(2);
+                if (valueSpan) valueSpan.textContent = weight.toFixed(2);
                 await this.delay(30);
             }
 
@@ -849,6 +858,18 @@ class App {
             this.setStatus('Generate blendshapes first!');
             return;
         }
+
+        // Stop any active playback and reset animation state
+        this.lipSync.stop();
+        this.animationData = null;
+        document.getElementById('play-btn').disabled = true;
+        document.getElementById('pause-btn').disabled = true;
+        document.getElementById('reset-btn').disabled = true;
+        document.getElementById('timeline').disabled = true;
+        document.getElementById('timeline').value = 0;
+        document.getElementById('time-display').textContent = '0:00 / 0:00';
+        document.getElementById('export-animation-btn').disabled = true;
+        document.getElementById('generate-lipsync-btn').disabled = true;
 
         this.setStatus('Analyzing audio...');
         this.showProgress(true);
