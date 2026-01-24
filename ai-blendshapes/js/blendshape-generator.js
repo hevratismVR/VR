@@ -20,6 +20,9 @@ export class BlendshapeGenerator {
         this.zThresholdOffset = 0;
         // Manually adjusted landmark positions (from drag)
         this.manualLandmarks = {};
+        // Character type (affects magnitude)
+        this.characterType = 'human';
+        this.magnitudeScale = 1.0;
     }
 
     /**
@@ -35,7 +38,10 @@ export class BlendshapeGenerator {
 
         // Compute scale factor based on actual face size
         this.computeScaleFactor(regions);
-        this.intensity = intensity;
+
+        // Magnitude multiplier for cartoon/stylized characters (exaggerated expressions)
+        this.magnitudeScale = (this.characterType === 'cartoon') ? 1.5 : 1.0;
+        this.intensity = intensity * this.magnitudeScale;
 
         // Compute key reference points
         this.computeReferencePoints(regions);
@@ -442,9 +448,11 @@ export class BlendshapeGenerator {
         if (jawLength < 0.001) return displacements;
 
         // Z threshold: only affect front-facing vertices
+        // For flat-faced characters (box mesh), faceDepth is very small - skip Z filter
         const faceDepth = faceMaxZ - faceMinZ;
+        const isFlatFace = faceDepth < sf * 0.1;
         const zAdjust = this.zThresholdOffset ? this.zThresholdOffset * faceDepth * 0.3 : 0;
-        const zThreshold = faceMinZ + faceDepth * 0.3 + zAdjust;
+        const zThreshold = isFlatFace ? -Infinity : (faceMinZ + faceDepth * 0.3 + zAdjust);
 
         // Maximum displacement
         const maxDrop = sf * 0.18 * angle * this.intensity;

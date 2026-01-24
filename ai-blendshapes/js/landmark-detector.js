@@ -673,6 +673,15 @@ export class LandmarkDetector {
      */
     getZoneRatios(characterType) {
         switch (characterType) {
+            case 'cartoon':
+                // Cartoon/stylized: bigger eyes higher up, small mouth lower
+                return {
+                    foreheadStart: 0.82,
+                    eyeStart: 0.55,
+                    eyeEnd: 0.80,
+                    noseStart: 0.30,
+                    mouthStart: 0.12
+                };
             case 'animal':
                 return {
                     foreheadStart: 0.8,

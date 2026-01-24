@@ -16,19 +16,26 @@ export class Exporter {
     async exportGLB(scene, mesh, animationData = null, accessoriesInfo = null) {
         const exportScene = scene.clone(true);
 
-        // Find the mesh with morph targets in the cloned scene
+        // Find all meshes with morph targets in the cloned scene
         let exportMesh = null;
+        const morphMeshes = [];
         exportScene.traverse((child) => {
             if (child.isMesh && child.geometry.morphAttributes &&
                 child.geometry.morphAttributes.position &&
                 child.geometry.morphAttributes.position.length > 0) {
-                exportMesh = child;
+                if (!exportMesh) exportMesh = child;
+                morphMeshes.push(child);
             }
         });
 
-        // Ensure mesh has a name for animation track binding
+        // Ensure meshes have names for animation track binding
         if (exportMesh && !exportMesh.name) {
             exportMesh.name = 'FaceMesh';
+        }
+        for (const m of morphMeshes) {
+            if (!m.name) {
+                m.name = `MorphMesh_${morphMeshes.indexOf(m)}`;
+            }
         }
 
         // Build animation clip if we have animation data

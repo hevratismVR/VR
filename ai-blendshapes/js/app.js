@@ -449,7 +449,9 @@ class App {
         try {
             const intensity = parseFloat(document.getElementById('blend-intensity').value);
 
-            // Pass any manually adjusted landmark positions
+            // Pass character type and manually adjusted landmark positions
+            const characterType = document.getElementById('character-type').value;
+            this.blendshapeGenerator.characterType = characterType;
             this.blendshapeGenerator.manualLandmarks = { ...this.landmarkOffsets };
 
             const result = await this.blendshapeGenerator.generate(
@@ -508,7 +510,16 @@ class App {
 
             const shapeCount = Object.keys(result.blendshapes).length;
             const visemeCount = Object.keys(result.visemes).length;
-            this.setStatus(`Generated ${shapeCount} blendshapes + ${visemeCount} visemes`);
+            let auxCount = 0;
+            if (this.auxiliaryMeshes) {
+                for (const mesh of Object.values(this.auxiliaryMeshes)) {
+                    if (mesh && mesh.morphTargetDictionary) {
+                        auxCount += Object.keys(mesh.morphTargetDictionary).length;
+                    }
+                }
+            }
+            const auxText = auxCount > 0 ? ` + ${auxCount} auxiliary` : '';
+            this.setStatus(`Generated ${shapeCount} blendshapes + ${visemeCount} visemes${auxText}`);
         } catch (error) {
             this.setStatus(`Generation error: ${error.message}`);
             console.error('Blendshape generation error:', error);
