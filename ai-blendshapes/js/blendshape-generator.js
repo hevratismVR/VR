@@ -392,13 +392,13 @@ export class BlendshapeGenerator {
             viseme_PP: () => this.createVisemeClosed(regions),
             viseme_FF: () => this.createVisemeFF(regions),
             viseme_TH: () => this.createVisemeTH(regions),
-            viseme_DD: () => this.createJawOpen(regions, 0.08),
-            viseme_kk: () => this.createJawOpen(regions, 0.10),
+            viseme_DD: () => this.createVisemeDD(regions),
+            viseme_kk: () => this.createVisemeKK(regions),
             viseme_CH: () => this.createVisemeCH(regions),
             viseme_SS: () => this.createVisemeSS(regions),
-            viseme_nn: () => this.createJawOpen(regions, 0.06),
+            viseme_nn: () => this.createVisemeNN(regions),
             viseme_RR: () => this.createVisemeRR(regions),
-            viseme_aa: () => this.createJawOpen(regions, 0.25),
+            viseme_aa: () => this.createVisemeAA(regions),
             viseme_E: () => this.createVisemeE(regions),
             viseme_I: () => this.createVisemeI(regions),
             viseme_O: () => this.createVisemeO(regions),
@@ -1524,12 +1524,14 @@ export class BlendshapeGenerator {
     createVisemeClosed(regions) {
         const displacements = new Map();
         const sf = this.scaleFactor;
+        const upperExp = this.getExpandedIndices(regions.upperLip || [], 6, 0.08);
+        const lowerExp = this.getExpandedIndices(regions.lowerLip || [], 6, 0.08);
 
-        for (const i of (regions.upperLip || [])) {
-            displacements.set(i, { x: 0, y: -sf * 0.008 * this.intensity, z: sf * 0.01 * this.intensity });
+        for (const { index: i, weight: w } of upperExp) {
+            displacements.set(i, { x: 0, y: -sf * 0.008 * w * this.intensity, z: sf * 0.01 * w * this.intensity });
         }
-        for (const i of (regions.lowerLip || [])) {
-            displacements.set(i, { x: 0, y: sf * 0.008 * this.intensity, z: sf * 0.01 * this.intensity });
+        for (const { index: i, weight: w } of lowerExp) {
+            displacements.set(i, { x: 0, y: sf * 0.008 * w * this.intensity, z: sf * 0.01 * w * this.intensity });
         }
 
         return displacements;
@@ -1538,12 +1540,13 @@ export class BlendshapeGenerator {
     createVisemeFF(regions) {
         const displacements = new Map();
         const sf = this.scaleFactor;
+        const lowerExp = this.getExpandedIndices(regions.lowerLip || [], 6, 0.08);
 
-        for (const i of (regions.lowerLip || [])) {
+        for (const { index: i, weight: w } of lowerExp) {
             displacements.set(i, {
                 x: 0,
-                y: sf * 0.015 * this.intensity,
-                z: -sf * 0.02 * this.intensity
+                y: sf * 0.015 * w * this.intensity,
+                z: -sf * 0.02 * w * this.intensity
             });
         }
 
@@ -1553,15 +1556,77 @@ export class BlendshapeGenerator {
     createVisemeTH(regions) {
         const displacements = new Map();
         const sf = this.scaleFactor;
+        const upperExp = this.getExpandedIndices(regions.upperLip || [], 6, 0.08);
+        const lowerExp = this.getExpandedIndices(regions.lowerLip || [], 6, 0.08);
 
-        for (const i of (regions.upperLip || [])) {
-            displacements.set(i, { x: 0, y: sf * 0.012 * this.intensity, z: 0 });
+        for (const { index: i, weight: w } of upperExp) {
+            displacements.set(i, { x: 0, y: sf * 0.012 * w * this.intensity, z: 0 });
         }
-        for (const i of (regions.lowerLip || [])) {
-            displacements.set(i, { x: 0, y: -sf * 0.015 * this.intensity, z: sf * 0.01 * this.intensity });
+        for (const { index: i, weight: w } of lowerExp) {
+            displacements.set(i, { x: 0, y: -sf * 0.015 * w * this.intensity, z: sf * 0.01 * w * this.intensity });
         }
 
         return displacements;
+    }
+
+    createVisemeDD(regions) {
+        // D/T: tongue behind upper teeth, slight jaw open + upper lip raises
+        const open = this.createJawOpen(regions, 0.08);
+        const sf = this.scaleFactor;
+        const upperExp = this.getExpandedIndices(regions.upperLip || [], 6, 0.08);
+
+        for (const { index: i, weight: w } of upperExp) {
+            const e = open.get(i) || { x: 0, y: 0, z: 0 };
+            open.set(i, {
+                x: e.x,
+                y: e.y + sf * 0.01 * w * this.intensity,
+                z: e.z + sf * 0.005 * w * this.intensity
+            });
+        }
+        return open;
+    }
+
+    createVisemeKK(regions) {
+        // K/G: back tongue up, medium jaw open + slight stretch
+        const open = this.createJawOpen(regions, 0.12);
+        const stretchL = this.createStretch(regions, 'left');
+        const stretchR = this.createStretch(regions, 'right');
+
+        for (const map of [stretchL, stretchR]) {
+            for (const [i, d] of map) {
+                const e = open.get(i) || { x: 0, y: 0, z: 0 };
+                open.set(i, { x: e.x + d.x * 0.2, y: e.y + d.y * 0.2, z: e.z + d.z * 0.2 });
+            }
+        }
+        return open;
+    }
+
+    createVisemeNN(regions) {
+        // N/M: nasal, lips barely separated + pressed together
+        const closed = this.createVisemeClosed(regions);
+        const open = this.createJawOpen(regions, 0.04);
+
+        // Blend: mostly closed with tiny jaw open
+        for (const [i, d] of open) {
+            const e = closed.get(i) || { x: 0, y: 0, z: 0 };
+            closed.set(i, { x: e.x + d.x * 0.4, y: e.y + d.y * 0.4, z: e.z + d.z * 0.4 });
+        }
+        return closed;
+    }
+
+    createVisemeAA(regions) {
+        // AH: wide open, lips stretched slightly
+        const open = this.createJawOpen(regions, 0.25);
+        const stretchL = this.createStretch(regions, 'left');
+        const stretchR = this.createStretch(regions, 'right');
+
+        for (const map of [stretchL, stretchR]) {
+            for (const [i, d] of map) {
+                const e = open.get(i) || { x: 0, y: 0, z: 0 };
+                open.set(i, { x: e.x + d.x * 0.3, y: e.y + d.y * 0.3, z: e.z + d.z * 0.3 });
+            }
+        }
+        return open;
     }
 
     createVisemeCH(regions) {
@@ -1583,17 +1648,20 @@ export class BlendshapeGenerator {
     }
 
     createVisemeSS(regions) {
-        // Narrow opening, teeth close together
+        // S/Z: narrow opening, teeth close, lips stretched wide symmetrically
         const displacements = this.createJawOpen(regions, 0.04);
-        const stretch = this.createStretch(regions, 'left');
+        const stretchL = this.createStretch(regions, 'left');
+        const stretchR = this.createStretch(regions, 'right');
 
-        for (const [i, d] of stretch) {
-            const existing = displacements.get(i) || { x: 0, y: 0, z: 0 };
-            displacements.set(i, {
-                x: existing.x + d.x * 0.3,
-                y: existing.y + d.y * 0.3,
-                z: existing.z + d.z * 0.3
-            });
+        for (const map of [stretchL, stretchR]) {
+            for (const [i, d] of map) {
+                const existing = displacements.get(i) || { x: 0, y: 0, z: 0 };
+                displacements.set(i, {
+                    x: existing.x + d.x * 0.4,
+                    y: existing.y + d.y * 0.4,
+                    z: existing.z + d.z * 0.4
+                });
+            }
         }
 
         return displacements;
