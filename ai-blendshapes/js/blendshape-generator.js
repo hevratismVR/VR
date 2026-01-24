@@ -112,23 +112,23 @@ export class BlendshapeGenerator {
 
         // Define blendshape generators
         const shapeDefinitions = {
-            // Jaw
-            jawOpen: () => this.createDisplacement(regions.jaw, regions.mouth, { y: -0.15, z: 0.02 }),
+            // Jaw - uses rotational displacement
+            jawOpen: () => this.createMouthOpen(regions, 0.2),
             jawForward: () => this.createDisplacement(regions.jaw, regions.mouth, { z: 0.08 }),
             jawLeft: () => this.createDisplacement(regions.jaw, regions.mouth, { x: 0.05 }),
             jawRight: () => this.createDisplacement(regions.jaw, regions.mouth, { x: -0.05 }),
 
             // Mouth
-            mouthOpen: () => this.createMouthOpen(regions, 0.12),
+            mouthOpen: () => this.createMouthOpen(regions, 0.15),
             mouthClose: () => this.createMouthClose(regions),
-            mouthSmileLeft: () => this.createSmile(regions, 'left', 0.08),
-            mouthSmileRight: () => this.createSmile(regions, 'right', 0.08),
-            mouthFrownLeft: () => this.createFrown(regions, 'left', 0.06),
-            mouthFrownRight: () => this.createFrown(regions, 'right', 0.06),
-            mouthPucker: () => this.createPucker(regions, 0.06),
-            mouthFunnel: () => this.createFunnel(regions, 0.05),
-            mouthStretchLeft: () => this.createStretch(regions, 'left', 0.07),
-            mouthStretchRight: () => this.createStretch(regions, 'right', 0.07),
+            mouthSmileLeft: () => this.createSmile(regions, 'left', 0.15),
+            mouthSmileRight: () => this.createSmile(regions, 'right', 0.15),
+            mouthFrownLeft: () => this.createFrown(regions, 'left', 0.12),
+            mouthFrownRight: () => this.createFrown(regions, 'right', 0.12),
+            mouthPucker: () => this.createPucker(regions, 0.1),
+            mouthFunnel: () => this.createFunnel(regions, 0.08),
+            mouthStretchLeft: () => this.createStretch(regions, 'left', 0.12),
+            mouthStretchRight: () => this.createStretch(regions, 'right', 0.12),
             mouthRollUpper: () => this.createLipRoll(regions, 'upper', 0.03),
             mouthRollLower: () => this.createLipRoll(regions, 'lower', 0.04),
             mouthShrugUpper: () => this.createDisplacement(regions.upperLip, null, { y: 0.03 }),
@@ -254,27 +254,72 @@ export class BlendshapeGenerator {
     }
 
     /**
-     * Create mouth open shape - jaw drops, lips separate.
+     * Create mouth open shape - jaw rotates open around hinge point.
+     * Uses rotational displacement for realistic jaw movement.
      */
     createMouthOpen(regions, amount) {
         const displacements = new Map();
         const positions = this.basePositions;
 
-        // Lower lip and jaw move down
-        if (regions.lowerLip) {
-            for (const i of regions.lowerLip) {
-                displacements.set(i, { x: 0, y: -amount * this.intensity, z: 0.01 * this.intensity });
-            }
+        // Find jaw pivot point (between mouth and jaw, back of the head)
+        const mouthCenterY = this.getMidY(positions, regions.mouth || []);
+        const mouthCenterX = this.getMidX(positions, regions.mouth || []);
+        const jawCenterY = this.getMidY(positions, regions.jaw || []);
+
+        // Pivot is slightly above mouth center, behind the face
+        const pivotY = mouthCenterY + (mouthCenterY - jawCenterY) * 0.3;
+        const pivotZ = this.getMidZ(positions, regions.mouth || []) - this.scaleFactor * 0.3;
+
+        // Rotation angle based on amount
+        const angle = amount * 0.8; // radians equivalent for displacement
+
+        // Lower lip and jaw - rotate downward around pivot
+        const lowerIndices = [...(regions.lowerLip || []), ...(regions.jaw || [])];
+        for (const i of lowerIndices) {
+            const y = positions.getY(i);
+            const z = positions.getZ(i);
+
+            // Distance from pivot determines displacement magnitude
+            const dy = y - pivotY;
+            const dz = z - pivotZ;
+            const dist = Math.sqrt(dy * dy + dz * dz);
+
+            // Rotate the vertex around the pivot (jaw hinge rotation)
+            const currentAngle = Math.atan2(dy, dz);
+            const newAngle = currentAngle - angle * this.intensity;
+
+            const newDy = dist * Math.sin(newAngle) - dy;
+            const newDz = dist * Math.cos(newAngle) - dz;
+
+            displacements.set(i, {
+                x: 0,
+                y: newDy,
+                z: newDz
+            });
         }
-        if (regions.jaw) {
-            for (const i of regions.jaw) {
-                displacements.set(i, { x: 0, y: -amount * 0.8 * this.intensity, z: 0 });
-            }
-        }
-        // Upper lip slightly up
+
+        // Upper lip - slight upward movement
         if (regions.upperLip) {
             for (const i of regions.upperLip) {
-                displacements.set(i, { x: 0, y: amount * 0.15 * this.intensity, z: 0 });
+                displacements.set(i, {
+                    x: 0,
+                    y: amount * 0.2 * this.intensity,
+                    z: amount * 0.05 * this.intensity
+                });
+            }
+        }
+
+        // Cheeks follow jaw slightly
+        const cheekIndices = [...(regions.cheekLeft || []), ...(regions.cheekRight || [])];
+        for (const i of cheekIndices) {
+            const y = positions.getY(i);
+            const influence = Math.max(0, (mouthCenterY - y) / (this.scaleFactor * 0.3));
+            if (influence > 0) {
+                displacements.set(i, {
+                    x: 0,
+                    y: -amount * 0.3 * influence * this.intensity,
+                    z: 0
+                });
             }
         }
 
@@ -502,19 +547,39 @@ export class BlendshapeGenerator {
         const eyeIndices = side === 'left' ? (regions.eyeLeft || []) : (regions.eyeRight || []);
         const positions = this.basePositions;
         const centerY = this.getMidY(positions, eyeIndices);
+        const centerZ = this.getMidZ(positions, eyeIndices);
+
+        // Find eye height for proper scaling
+        let minY = Infinity, maxY = -Infinity;
+        for (const i of eyeIndices) {
+            const y = positions.getY(i);
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+        }
+        const eyeHeight = maxY - minY;
 
         for (const i of eyeIndices) {
             const y = positions.getY(i);
-            const distFromCenter = y - centerY;
+            const z = positions.getZ(i);
+            const relY = (y - centerY) / (eyeHeight * 0.5 + 0.001); // -1 to 1
 
-            // Upper eyelid moves down, lower eyelid moves up
-            const movement = distFromCenter > 0 ? -0.04 : 0.02;
-
-            displacements.set(i, {
-                x: 0,
-                y: movement * this.intensity,
-                z: 0
-            });
+            if (relY > 0) {
+                // Upper eyelid - moves down to center, with slight Z push
+                const strength = relY; // more movement for vertices further from center
+                displacements.set(i, {
+                    x: 0,
+                    y: -relY * eyeHeight * 0.45 * this.intensity,
+                    z: 0.01 * strength * this.intensity
+                });
+            } else {
+                // Lower eyelid - slight upward movement
+                const strength = -relY;
+                displacements.set(i, {
+                    x: 0,
+                    y: -relY * eyeHeight * 0.15 * this.intensity,
+                    z: 0.005 * strength * this.intensity
+                });
+            }
         }
 
         return displacements;
@@ -963,10 +1028,13 @@ export class BlendshapeGenerator {
 
     /**
      * Apply all generated morph targets to the mesh geometry.
+     * Creates a new geometry to ensure the renderer recognizes morph targets.
      */
     applyMorphTargets(geometry) {
-        geometry.morphAttributes.position = [];
-        geometry.morphTargetsRelative = true;
+        // Create new geometry with morph attributes built-in
+        const newGeometry = geometry.clone();
+        newGeometry.morphAttributes.position = [];
+        newGeometry.morphTargetsRelative = true;
 
         const dictionary = {};
         let index = 0;
@@ -975,7 +1043,7 @@ export class BlendshapeGenerator {
         for (const [name, buffer] of Object.entries(this.blendshapes)) {
             const attr = new THREE.Float32BufferAttribute(buffer, 3);
             attr.name = name;
-            geometry.morphAttributes.position.push(attr);
+            newGeometry.morphAttributes.position.push(attr);
             dictionary[name] = index++;
         }
 
@@ -983,20 +1051,16 @@ export class BlendshapeGenerator {
         for (const [name, buffer] of Object.entries(this.visemes)) {
             const attr = new THREE.Float32BufferAttribute(buffer, 3);
             attr.name = name;
-            geometry.morphAttributes.position.push(attr);
+            newGeometry.morphAttributes.position.push(attr);
             dictionary[name] = index++;
         }
+
+        // Replace the mesh geometry with the new one
+        this.mesh.geometry = newGeometry;
 
         // Set morph target dictionary and influences on the mesh
         this.mesh.morphTargetDictionary = dictionary;
         this.mesh.morphTargetInfluences = new Array(index).fill(0);
-
-        // Force Three.js to recognize the new morph attributes
-        // by incrementing the geometry version and disposing cached program
-        geometry.dispose();
-        geometry.morphAttributes.position.forEach(attr => {
-            attr.needsUpdate = true;
-        });
     }
 
     // Utility methods
@@ -1011,6 +1075,13 @@ export class BlendshapeGenerator {
         if (!indices || indices.length === 0) return 0;
         let sum = 0;
         for (const i of indices) sum += positions.getY(i);
+        return sum / indices.length;
+    }
+
+    getMidZ(positions, indices) {
+        if (!indices || indices.length === 0) return 0;
+        let sum = 0;
+        for (const i of indices) sum += positions.getZ(i);
         return sum / indices.length;
     }
 
