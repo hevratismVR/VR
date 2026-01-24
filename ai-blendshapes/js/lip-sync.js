@@ -240,7 +240,7 @@ export class LipSync {
             this.animationData.totalFrames - 1
         );
 
-        const dictionary = this.(mesh.morphTargetDictionary || mesh.geometry.morphTargetDictionary);
+        const dictionary = (this.mesh.morphTargetDictionary || this.mesh.geometry.morphTargetDictionary);
 
         for (const [name, curve] of Object.entries(tracks)) {
             const idx = dictionary[name];
