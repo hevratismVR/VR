@@ -166,23 +166,36 @@ export class Viewer {
         this.landmarkSpheres = [];
 
         // Compute sphere size relative to FACE (not full model)
-        // Use face mesh bounding box, not the whole model (which includes arms/body)
         const faceBox = new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position);
         const faceSize = faceBox.getSize(new THREE.Vector3());
         const faceExtent = Math.max(faceSize.x, faceSize.y, faceSize.z);
-        const sphereRadius = faceExtent * 0.012;
+        const sphereRadius = faceExtent * 0.025;
 
         for (const [name, data] of Object.entries(landmarks)) {
             if (!data.center) continue;
 
             const color = colors[name] || 0xffffff;
 
+            // Main sphere - emissive, always visible (renders on top)
             const sphere = new THREE.Mesh(
-                new THREE.SphereGeometry(sphereRadius, 12, 12),
+                new THREE.SphereGeometry(sphereRadius, 16, 16),
                 new THREE.MeshBasicMaterial({
                     color,
                     transparent: true,
-                    opacity: 0.85
+                    opacity: 0.9,
+                    depthTest: false
+                })
+            );
+
+            // Wireframe outline for contrast
+            const outline = new THREE.Mesh(
+                new THREE.SphereGeometry(sphereRadius * 1.3, 16, 16),
+                new THREE.MeshBasicMaterial({
+                    color: 0x000000,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.5,
+                    depthTest: false
                 })
             );
 
@@ -196,9 +209,15 @@ export class Viewer {
             sphere.userData.landmarkName = name;
             sphere.userData.mesh = mesh;
             sphere.userData.isDraggable = true;
+            sphere.renderOrder = 999;
+
+            outline.position.copy(worldPos);
+            outline.renderOrder = 998;
 
             this.scene.add(sphere);
+            this.scene.add(outline);
             this.helpers.push(sphere);
+            this.helpers.push(outline);
             this.landmarkSpheres.push(sphere);
 
             // Add text label sprite (size relative to model)
@@ -215,6 +234,67 @@ export class Viewer {
 
         // Set up drag controls for the spheres
         this.setupDragControls();
+    }
+
+    /**
+     * Show landmarks on auxiliary meshes (separate eyes, nose).
+     */
+    showAuxiliaryLandmarks(auxiliaryMeshes, faceMesh) {
+        const auxColors = {
+            eyeLeft: 0x44ff44,
+            eyeRight: 0x44ff44,
+            nose: 0x4488ff
+        };
+        const auxLabels = {
+            eyeLeft: 'L Eye Mesh',
+            eyeRight: 'R Eye Mesh',
+            nose: 'Nose Mesh'
+        };
+
+        for (const [name, mesh] of Object.entries(auxiliaryMeshes)) {
+            if (!mesh) continue;
+
+            const positions = mesh.geometry.attributes.position;
+            const box = new THREE.Box3().setFromBufferAttribute(positions);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const extent = Math.max(size.x, size.y, size.z);
+
+            const sphereRadius = extent * 0.08;
+            const color = auxColors[name] || 0xffffff;
+
+            // Diamond shape for auxiliary landmarks (to distinguish from face landmarks)
+            const sphere = new THREE.Mesh(
+                new THREE.OctahedronGeometry(sphereRadius),
+                new THREE.MeshBasicMaterial({
+                    color,
+                    transparent: true,
+                    opacity: 0.9,
+                    depthTest: false
+                })
+            );
+
+            const worldPos = center.clone();
+            if (mesh.parent) {
+                mesh.localToWorld(worldPos);
+            }
+
+            sphere.position.copy(worldPos);
+            sphere.renderOrder = 999;
+
+            this.scene.add(sphere);
+            this.helpers.push(sphere);
+
+            // Label
+            const label = this.createLabel(auxLabels[name] || name, color);
+            label.position.copy(worldPos);
+            label.position.x += sphereRadius * 3;
+            label.position.y += sphereRadius * 2;
+            label.scale.set(sphereRadius * 8, sphereRadius * 2, 1);
+            this.scene.add(label);
+            this.helpers.push(label);
+            this.labels.push(label);
+        }
     }
 
     /**
@@ -448,12 +528,45 @@ export class Viewer {
     }
 
     /**
+     * Register auxiliary meshes for morph target syncing.
+     * Every frame, shared blendshape names are synced from face to auxiliary meshes.
+     */
+    setAuxiliaryMeshes(faceMesh, auxiliaryMeshes) {
+        this._faceMesh = faceMesh;
+        this._auxiliaryMeshes = auxiliaryMeshes || {};
+    }
+
+    /**
      * Render loop.
      */
     render() {
         this.animFrameId = requestAnimationFrame(() => this.render());
         this.controls.update();
+
+        // Sync auxiliary mesh morph influences from face mesh
+        this.syncAuxiliaryMorphs();
+
         this.renderer.render(this.scene, this.camera);
+    }
+
+    /**
+     * Sync morph target influences from face mesh to auxiliary meshes.
+     */
+    syncAuxiliaryMorphs() {
+        if (!this._faceMesh || !this._auxiliaryMeshes) return;
+        const faceDict = this._faceMesh.morphTargetDictionary;
+        const faceInfluences = this._faceMesh.morphTargetInfluences;
+        if (!faceDict || !faceInfluences) return;
+
+        for (const mesh of Object.values(this._auxiliaryMeshes)) {
+            if (!mesh || !mesh.morphTargetDictionary || !mesh.morphTargetInfluences) continue;
+            const auxDict = mesh.morphTargetDictionary;
+            for (const [name, auxIdx] of Object.entries(auxDict)) {
+                if (name in faceDict) {
+                    mesh.morphTargetInfluences[auxIdx] = faceInfluences[faceDict[name]];
+                }
+            }
+        }
     }
 
     /**

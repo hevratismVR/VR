@@ -1842,4 +1842,251 @@ export class BlendshapeGenerator {
         }
         return max;
     }
+
+    // ========================================================================
+    // MULTI-MESH BLENDSHAPES (Eyes, Nose)
+    // ========================================================================
+
+    /**
+     * Generate blendshapes for auxiliary meshes (separate eye/nose meshes).
+     * Creates ARKit-compatible morph targets on each auxiliary mesh.
+     */
+    generateAuxiliaryBlendshapes(auxiliaryMeshes, regions, intensity) {
+        if (!auxiliaryMeshes) return;
+
+        if (auxiliaryMeshes.eyeLeft) {
+            this.generateEyeBlendshapes(auxiliaryMeshes.eyeLeft, 'left', intensity);
+        }
+        if (auxiliaryMeshes.eyeRight) {
+            this.generateEyeBlendshapes(auxiliaryMeshes.eyeRight, 'right', intensity);
+        }
+        if (auxiliaryMeshes.nose) {
+            this.generateNoseBlendshapes(auxiliaryMeshes.nose, intensity);
+        }
+    }
+
+    /**
+     * Generate eye blendshapes on a separate eye mesh.
+     * Uses scale/translate to create blink, wide, squint, look directions.
+     */
+    generateEyeBlendshapes(eyeMesh, side, intensity) {
+        const geometry = eyeMesh.geometry;
+        const positions = geometry.attributes.position;
+        const vertexCount = positions.count;
+
+        // Compute eye center and extents
+        const box = new THREE.Box3().setFromBufferAttribute(positions);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const eyeHeight = size.y;
+        const eyeWidth = size.x;
+
+        const shapes = {};
+
+        // Blink: compress vertically toward center (squeeze Y)
+        const blinkName = side === 'left' ? 'eyeBlinkLeft' : 'eyeBlinkRight';
+        shapes[blinkName] = this.createEyeMeshBlink(positions, center, eyeHeight, intensity);
+
+        // Wide: expand vertically from center
+        const wideName = side === 'left' ? 'eyeWideLeft' : 'eyeWideRight';
+        shapes[wideName] = this.createEyeMeshWide(positions, center, eyeHeight, intensity);
+
+        // Squint: compress slightly + push forward
+        const squintName = side === 'left' ? 'eyeSquintLeft' : 'eyeSquintRight';
+        shapes[squintName] = this.createEyeMeshSquint(positions, center, eyeHeight, intensity);
+
+        // Look directions: translate iris/pupil area
+        const lookNames = {
+            up: side === 'left' ? 'eyeLookUpLeft' : 'eyeLookUpRight',
+            down: side === 'left' ? 'eyeLookDownLeft' : 'eyeLookDownRight',
+            in: side === 'left' ? 'eyeLookInLeft' : 'eyeLookInRight',
+            out: side === 'left' ? 'eyeLookOutLeft' : 'eyeLookOutRight'
+        };
+
+        for (const [dir, name] of Object.entries(lookNames)) {
+            shapes[name] = this.createEyeMeshLook(positions, center, eyeHeight, side, dir, intensity);
+        }
+
+        // Apply morph targets to the eye mesh
+        this.applyAuxiliaryMorphTargets(eyeMesh, shapes);
+    }
+
+    createEyeMeshBlink(positions, center, eyeHeight, intensity) {
+        const vertexCount = positions.count;
+        const buffer = new Float32Array(vertexCount * 3);
+
+        for (let i = 0; i < vertexCount; i++) {
+            const y = positions.getY(i);
+            const relY = (y - center.y) / (eyeHeight * 0.5 + 0.001);
+
+            // Squeeze toward Y center - upper eyelid moves down more, lower less
+            let yDisp;
+            if (relY > 0) {
+                // Upper part: move down strongly
+                yDisp = -relY * eyeHeight * 0.45 * intensity;
+            } else {
+                // Lower part: move up slightly
+                yDisp = -relY * eyeHeight * 0.15 * intensity;
+            }
+
+            buffer[i * 3] = 0;
+            buffer[i * 3 + 1] = yDisp;
+            buffer[i * 3 + 2] = 0;
+        }
+
+        return buffer;
+    }
+
+    createEyeMeshWide(positions, center, eyeHeight, intensity) {
+        const vertexCount = positions.count;
+        const buffer = new Float32Array(vertexCount * 3);
+
+        for (let i = 0; i < vertexCount; i++) {
+            const y = positions.getY(i);
+            const relY = (y - center.y) / (eyeHeight * 0.5 + 0.001);
+
+            // Expand from center
+            const yDisp = relY > 0
+                ? relY * eyeHeight * 0.15 * intensity
+                : relY * eyeHeight * 0.08 * intensity;
+
+            buffer[i * 3] = 0;
+            buffer[i * 3 + 1] = yDisp;
+            buffer[i * 3 + 2] = 0;
+        }
+
+        return buffer;
+    }
+
+    createEyeMeshSquint(positions, center, eyeHeight, intensity) {
+        const vertexCount = positions.count;
+        const buffer = new Float32Array(vertexCount * 3);
+
+        for (let i = 0; i < vertexCount; i++) {
+            const y = positions.getY(i);
+            const z = positions.getZ(i);
+            const relY = (y - center.y) / (eyeHeight * 0.5 + 0.001);
+
+            // Slight vertical compression + forward push
+            buffer[i * 3] = 0;
+            buffer[i * 3 + 1] = -relY * eyeHeight * 0.1 * intensity;
+            buffer[i * 3 + 2] = eyeHeight * 0.05 * intensity;
+        }
+
+        return buffer;
+    }
+
+    createEyeMeshLook(positions, center, eyeHeight, side, direction, intensity) {
+        const vertexCount = positions.count;
+        const buffer = new Float32Array(vertexCount * 3);
+
+        // Compute displacement based on direction
+        let dx = 0, dy = 0;
+        const lookAmount = eyeHeight * 0.08 * intensity;
+
+        switch (direction) {
+            case 'up': dy = lookAmount; break;
+            case 'down': dy = -lookAmount; break;
+            case 'in': dx = (side === 'left' ? -1 : 1) * lookAmount; break;
+            case 'out': dx = (side === 'left' ? 1 : -1) * lookAmount; break;
+        }
+
+        // Apply stronger displacement to front-facing vertices (pupil area)
+        for (let i = 0; i < vertexCount; i++) {
+            const z = positions.getZ(i);
+            const relZ = (z - center.z) / (eyeHeight * 0.5 + 0.001);
+            const frontWeight = Math.max(0, relZ); // Only front vertices move
+
+            buffer[i * 3] = dx * frontWeight;
+            buffer[i * 3 + 1] = dy * frontWeight;
+            buffer[i * 3 + 2] = 0;
+        }
+
+        return buffer;
+    }
+
+    /**
+     * Generate nose blendshapes on a separate nose mesh.
+     */
+    generateNoseBlendshapes(noseMesh, intensity) {
+        const geometry = noseMesh.geometry;
+        const positions = geometry.attributes.position;
+        const vertexCount = positions.count;
+
+        const box = new THREE.Box3().setFromBufferAttribute(positions);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const noseHeight = size.y;
+
+        const shapes = {};
+
+        // Nose sneer: translate up and to the side
+        shapes.noseSneerLeft = this.createNoseMeshSneer(positions, center, noseHeight, 'left', intensity);
+        shapes.noseSneerRight = this.createNoseMeshSneer(positions, center, noseHeight, 'right', intensity);
+
+        // Jaw open: nose follows slightly
+        shapes.jawOpen = this.createNoseMeshJawFollow(positions, center, noseHeight, intensity);
+
+        this.applyAuxiliaryMorphTargets(noseMesh, shapes);
+    }
+
+    createNoseMeshSneer(positions, center, noseHeight, side, intensity) {
+        const vertexCount = positions.count;
+        const buffer = new Float32Array(vertexCount * 3);
+        const dir = side === 'left' ? 1 : -1;
+
+        for (let i = 0; i < vertexCount; i++) {
+            buffer[i * 3] = dir * noseHeight * 0.08 * intensity;
+            buffer[i * 3 + 1] = noseHeight * 0.12 * intensity;
+            buffer[i * 3 + 2] = noseHeight * 0.05 * intensity;
+        }
+
+        return buffer;
+    }
+
+    createNoseMeshJawFollow(positions, center, noseHeight, intensity) {
+        const vertexCount = positions.count;
+        const buffer = new Float32Array(vertexCount * 3);
+
+        // Nose drops slightly when jaw opens
+        for (let i = 0; i < vertexCount; i++) {
+            const y = positions.getY(i);
+            const relY = (y - center.y) / (noseHeight * 0.5 + 0.001);
+            // Lower part of nose follows jaw more
+            const weight = Math.max(0, -relY * 0.5 + 0.3);
+
+            buffer[i * 3] = 0;
+            buffer[i * 3 + 1] = -noseHeight * 0.06 * weight * intensity;
+            buffer[i * 3 + 2] = 0;
+        }
+
+        return buffer;
+    }
+
+    /**
+     * Apply morph targets to an auxiliary mesh (eyes, nose).
+     */
+    applyAuxiliaryMorphTargets(mesh, shapes) {
+        const geometry = mesh.geometry;
+        const newGeometry = geometry.clone();
+        newGeometry.morphAttributes.position = [];
+        newGeometry.morphTargetsRelative = true;
+
+        const dictionary = {};
+        let index = 0;
+
+        for (const [name, buffer] of Object.entries(shapes)) {
+            const posAttr = new THREE.Float32BufferAttribute(buffer, 3);
+            posAttr.name = name;
+            newGeometry.morphAttributes.position.push(posAttr);
+            dictionary[name] = index++;
+        }
+
+        mesh.geometry = newGeometry;
+        mesh.morphTargetDictionary = dictionary;
+        mesh.morphTargetInfluences = new Array(index).fill(0);
+
+        // Enable morphTargets on material
+        this.enableMorphOnMaterial(mesh);
+    }
 }

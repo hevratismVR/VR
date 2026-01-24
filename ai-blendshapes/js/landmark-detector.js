@@ -15,6 +15,7 @@ export class LandmarkDetector {
     /**
      * Detect facial landmarks on the given meshes.
      * Uses geometric analysis: curvature, symmetry, and protrusion detection.
+     * Also identifies auxiliary meshes (eyes, nose) for multi-mesh models.
      */
     detect(meshes, characterType = 'human') {
         this.characterType = characterType;
@@ -38,12 +39,95 @@ export class LandmarkDetector {
         // Extract specific landmarks
         this.landmarks = this.extractLandmarks(this.faceRegions, positions);
 
+        // Find auxiliary meshes (eyes, nose) for multi-mesh models
+        const auxiliaryMeshes = this.findAuxiliaryMeshes(meshes, faceMesh, analysis);
+
         return {
             mesh: faceMesh,
             landmarks: this.landmarks,
             regions: this.faceRegions,
-            analysis
+            analysis,
+            auxiliaryMeshes
         };
+    }
+
+    /**
+     * Find auxiliary meshes (eyes, nose) that are separate from the face mesh.
+     * These typically need their own blendshapes (blink for eyes, sneer for nose).
+     */
+    findAuxiliaryMeshes(meshes, faceMesh, faceAnalysis) {
+        const result = { eyeLeft: null, eyeRight: null, nose: null };
+        if (meshes.length < 2) return result;
+
+        const faceCenter = faceAnalysis.center;
+        const faceSize = faceAnalysis.size;
+        const faceBbox = faceAnalysis.bbox;
+
+        // Face Y center and extent for zone classification
+        const faceMinY = faceBbox.min.y;
+        const faceMaxY = faceBbox.max.y;
+        const faceHeight = faceMaxY - faceMinY;
+
+        // Eye zone: top 40-70% of face
+        const eyeZoneMinY = faceMinY + faceHeight * 0.4;
+        const eyeZoneMaxY = faceMinY + faceHeight * 0.75;
+        // Nose zone: 30-55% of face
+        const noseZoneMinY = faceMinY + faceHeight * 0.3;
+        const noseZoneMaxY = faceMinY + faceHeight * 0.55;
+
+        const candidates = [];
+
+        for (const mesh of meshes) {
+            if (mesh === faceMesh) continue;
+            const pos = mesh.geometry.attributes.position;
+            if (!pos || pos.count < 10) continue;
+
+            // Compute bounding box
+            const box = new THREE.Box3().setFromBufferAttribute(pos);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const extent = Math.max(size.x, size.y, size.z);
+
+            // Skip meshes that are too large (> 40% of face) or too small (< 3%)
+            if (extent > faceHeight * 0.4 || extent < faceHeight * 0.03) continue;
+
+            // Skip meshes not overlapping face X-range
+            if (center.x < faceBbox.min.x - faceSize.x * 0.1 ||
+                center.x > faceBbox.max.x + faceSize.x * 0.1) continue;
+
+            // Check Z position: should be in front of face (protruding)
+            const faceForwardZ = faceCenter.z + faceSize.z * 0.3;
+            if (center.z < faceCenter.z - faceSize.z * 0.2) continue;
+
+            // Classify by Y position
+            let type = null;
+            if (center.y >= eyeZoneMinY && center.y <= eyeZoneMaxY) {
+                // Candidate for eye - check if it's on left or right
+                type = center.x > faceCenter.x ? 'eyeLeft' : 'eyeRight';
+            } else if (center.y >= noseZoneMinY && center.y <= noseZoneMaxY) {
+                // Near center X = nose candidate
+                const xOffset = Math.abs(center.x - faceCenter.x) / faceSize.x;
+                if (xOffset < 0.15) {
+                    type = 'nose';
+                }
+            }
+
+            if (type) {
+                candidates.push({ mesh, type, center, size, extent });
+            }
+        }
+
+        // Assign best candidate for each slot
+        for (const type of ['eyeLeft', 'eyeRight', 'nose']) {
+            const typeCandidates = candidates.filter(c => c.type === type);
+            if (typeCandidates.length > 0) {
+                // Prefer larger meshes (actual eyes/nose vs small accessories)
+                typeCandidates.sort((a, b) => b.extent - a.extent);
+                result[type] = typeCandidates[0].mesh;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -278,6 +362,7 @@ export class LandmarkDetector {
 
     /**
      * Detect which direction the face is pointing based on normal distribution.
+     * Falls back to protrusion analysis for symmetric meshes (box shapes).
      */
     detectForwardDirection(vertices, normals, center) {
         if (normals.length === 0) return new THREE.Vector3(0, 0, 1);
@@ -296,12 +381,62 @@ export class LandmarkDetector {
         }
 
         if (count > 0) {
-            avgNormal.divideScalar(count).normalize();
-        } else {
-            avgNormal.set(0, 0, 1);
+            avgNormal.divideScalar(count);
         }
 
-        return avgNormal;
+        // If the averaged normal is too small (symmetric mesh like a box),
+        // fall back to protrusion-based detection
+        if (avgNormal.length() < 0.1) {
+            return this.detectForwardByProtrusion(vertices, center);
+        }
+
+        return avgNormal.normalize();
+    }
+
+    /**
+     * Detect forward direction by finding which axis has the most
+     * protruding cluster of vertices (the "face" side of a box-like mesh).
+     * For each cardinal direction, measures how many vertices are clustered
+     * at the extreme (indicating a flat face surface).
+     */
+    detectForwardByProtrusion(vertices, center) {
+        const candidates = [
+            new THREE.Vector3(0, 0, 1),
+            new THREE.Vector3(0, 0, -1),
+            new THREE.Vector3(1, 0, 0),
+            new THREE.Vector3(-1, 0, 0)
+        ];
+
+        let bestDir = candidates[0];
+        let bestScore = -Infinity;
+
+        for (const dir of candidates) {
+            // Project all vertices onto this direction
+            const projections = [];
+            for (const v of vertices) {
+                projections.push(v.clone().sub(center).dot(dir));
+            }
+            projections.sort((a, b) => b - a);
+
+            // Score: density of vertices near the maximum projection
+            // A flat face has many vertices at the same high projection value
+            const maxProj = projections[0];
+            const threshold = maxProj * 0.8;
+            let densityCount = 0;
+            for (const p of projections) {
+                if (p >= threshold) densityCount++;
+                else break;
+            }
+
+            // Higher density at the extreme = more likely to be a flat face
+            const score = densityCount / vertices.length;
+            if (score > bestScore) {
+                bestScore = score;
+                bestDir = dir;
+            }
+        }
+
+        return bestDir.clone();
     }
 
     /**

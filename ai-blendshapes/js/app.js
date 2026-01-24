@@ -244,6 +244,7 @@ class App {
         this.faceMesh = null;
         this.landmarks = null;
         this.regions = null;
+        this.auxiliaryMeshes = {};
         this.blendshapesGenerated = false;
         this.animationData = null;
         this.audioBuffer = null;
@@ -389,9 +390,15 @@ class App {
             this.faceMesh = result.mesh;
             this.landmarks = result.landmarks;
             this.regions = result.regions;
+            this.auxiliaryMeshes = result.auxiliaryMeshes || {};
 
-            // Show landmarks in viewer
+            // Show landmarks in viewer (face mesh + auxiliary meshes)
             this.viewer.showLandmarks(this.landmarks, this.faceMesh);
+
+            // Show auxiliary mesh landmarks (eyes, nose)
+            if (this.auxiliaryMeshes.eyeLeft || this.auxiliaryMeshes.eyeRight || this.auxiliaryMeshes.nose) {
+                this.viewer.showAuxiliaryLandmarks(this.auxiliaryMeshes, this.faceMesh);
+            }
 
             // Show detection info
             const regionCounts = {};
@@ -401,6 +408,11 @@ class App {
                 }
             }
 
+            const auxInfo = [];
+            if (this.auxiliaryMeshes.eyeLeft) auxInfo.push(`L Eye mesh: ${this.auxiliaryMeshes.eyeLeft.geometry.attributes.position.count}v`);
+            if (this.auxiliaryMeshes.eyeRight) auxInfo.push(`R Eye mesh: ${this.auxiliaryMeshes.eyeRight.geometry.attributes.position.count}v`);
+            if (this.auxiliaryMeshes.nose) auxInfo.push(`Nose mesh: ${this.auxiliaryMeshes.nose.geometry.attributes.position.count}v`);
+
             const infoBox = document.getElementById('blendshapes-info');
             infoBox.innerHTML = `
                 <strong>Face detected!</strong><br>
@@ -408,6 +420,7 @@ class App {
                 ${Object.entries(regionCounts).map(([k, v]) =>
                     `${k}: ${v} vertices`
                 ).join('<br>')}
+                ${auxInfo.length > 0 ? '<br><strong>Auxiliary meshes:</strong><br>' + auxInfo.join('<br>') : ''}
             `;
             infoBox.classList.remove('hidden');
             infoBox.classList.add('success');
@@ -445,12 +458,28 @@ class App {
                 this.regions,
                 intensity,
                 (progress, stage) => {
-                    this.showProgress(true, progress);
+                    this.showProgress(true, Math.min(progress, 0.85));
                     this.setStatus(stage);
                 }
             );
 
+            // Generate blendshapes for auxiliary meshes (eyes, nose)
+            if (this.auxiliaryMeshes) {
+                this.setStatus('Generating auxiliary mesh blendshapes...');
+                this.blendshapeGenerator.generateAuxiliaryBlendshapes(
+                    this.auxiliaryMeshes,
+                    this.regions,
+                    intensity
+                );
+                this.showProgress(true, 0.95);
+            }
+
             this.blendshapesGenerated = true;
+
+            // Register auxiliary meshes for morph syncing in render loop
+            if (this.auxiliaryMeshes) {
+                this.viewer.setAuxiliaryMeshes(this.faceMesh, this.auxiliaryMeshes);
+            }
 
             // Set up accessories manager
             this.accessoriesManager.setFace(this.faceMesh, this.regions, this.blendshapeGenerator);
