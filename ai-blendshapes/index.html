@@ -60,6 +60,10 @@
                         </button>
                     </div>
                     <div id="blendshapes-info" class="info-box hidden"></div>
+                    <label class="region-overlay-toggle hidden" id="region-overlay-label">
+                        <input type="checkbox" id="region-overlay-toggle">
+                        הצג אזורים על המודל
+                    </label>
                     <!-- Manual adjustments after generation -->
                     <div id="manual-adjust" class="manual-adjust hidden">
                         <h3>כוונון ידני</h3>
@@ -205,6 +209,13 @@
             <div class="panel blendshapes-panel">
                 <h2>Blendshapes</h2>
                 <button class="btn btn-small" id="test-all-btn" disabled>בדוק הכל &#9654;</button>
+                <div class="expression-presets hidden" id="expression-presets">
+                    <button class="preset-btn" data-preset="happy" disabled>&#128522; שמח</button>
+                    <button class="preset-btn" data-preset="sad" disabled>&#128546; עצוב</button>
+                    <button class="preset-btn" data-preset="surprised" disabled>&#128562; מופתע</button>
+                    <button class="preset-btn" data-preset="angry" disabled>&#128544; כועס</button>
+                    <button class="preset-btn" data-preset="neutral" disabled>&#128528; ניטרלי</button>
+                </div>
                 <div id="blendshapes-list" class="blendshapes-list">
                     <p class="placeholder">Blendshapes יופיעו כאן לאחר יצירה</p>
                 </div>

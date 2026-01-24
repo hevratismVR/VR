@@ -570,6 +570,81 @@ export class Viewer {
     }
 
     /**
+     * Show region overlay: color-code mesh vertices by region assignment.
+     */
+    showRegionOverlay(mesh, regions) {
+        if (!mesh || !mesh.geometry) return;
+
+        const geometry = mesh.geometry;
+        const posCount = geometry.attributes.position.count;
+
+        // Create vertex colors
+        const colors = new Float32Array(posCount * 3);
+        // Default: dark gray for unassigned vertices
+        for (let i = 0; i < posCount; i++) {
+            colors[i * 3] = 0.15;
+            colors[i * 3 + 1] = 0.15;
+            colors[i * 3 + 2] = 0.15;
+        }
+
+        // Region color mapping
+        const regionColors = {
+            forehead:  [0.6, 0.3, 0.9],  // purple
+            eyeLeft:   [0.2, 0.6, 1.0],  // blue
+            eyeRight:  [0.2, 0.6, 1.0],  // blue
+            nose:      [0.2, 0.9, 0.4],  // green
+            cheekLeft: [1.0, 0.6, 0.2],  // orange
+            cheekRight:[1.0, 0.6, 0.2],  // orange
+            upperLip:  [1.0, 0.2, 0.4],  // red
+            lowerLip:  [0.9, 0.1, 0.3],  // dark red
+            mouth:     [1.0, 0.4, 0.5],  // pink
+            jaw:       [0.9, 0.9, 0.2]   // yellow
+        };
+
+        for (const [regionName, indices] of Object.entries(regions)) {
+            const color = regionColors[regionName];
+            if (!color) continue;
+            for (const i of indices) {
+                if (i < posCount) {
+                    colors[i * 3] = color[0];
+                    colors[i * 3 + 1] = color[1];
+                    colors[i * 3 + 2] = color[2];
+                }
+            }
+        }
+
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        // Store original material and switch to vertex-colored
+        if (!this._originalMaterial) {
+            this._originalMaterial = mesh.material;
+        }
+
+        mesh.material = new THREE.MeshStandardMaterial({
+            vertexColors: true,
+            roughness: 0.7,
+            metalness: 0.1,
+            morphTargets: true,
+            morphNormals: true
+        });
+        mesh.material.needsUpdate = true;
+    }
+
+    /**
+     * Hide region overlay: restore original material.
+     */
+    hideRegionOverlay(mesh) {
+        if (!mesh) return;
+        if (this._originalMaterial) {
+            mesh.material = this._originalMaterial;
+            this._originalMaterial = null;
+        }
+        if (mesh.geometry.attributes.color) {
+            mesh.geometry.deleteAttribute('color');
+        }
+    }
+
+    /**
      * Get the scene for export.
      */
     getScene() {

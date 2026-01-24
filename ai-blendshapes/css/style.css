@@ -598,3 +598,54 @@ h3 {
 .qs-strong { color: var(--success); font-weight: 600; }
 .qs-weak { color: var(--warning); font-weight: 600; }
 .qs-empty { color: #666; font-weight: 600; }
+
+/* Expression presets */
+.expression-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 6px 0;
+}
+
+.preset-btn {
+    flex: 1;
+    min-width: 55px;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.68rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.preset-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.preset-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--bg-panel);
+}
+
+.preset-btn.active {
+    border-color: var(--accent);
+    background: rgba(233, 69, 96, 0.15);
+}
+
+/* Region overlay */
+.region-overlay-toggle {
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+}
+
+.region-overlay-toggle input {
+    accent-color: var(--accent);
+}

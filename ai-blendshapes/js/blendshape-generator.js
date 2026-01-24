@@ -271,9 +271,11 @@ export class BlendshapeGenerator {
             const distSq = dx * dx + dy * dy + dz * dz;
             if (distSq < radiusSq) {
                 const dist = Math.sqrt(distSq);
-                const weight = 1.0 - (dist / radius);
-                if (weight > 0.1) {
-                    result.push({ index: i, weight: weight * 0.6 }); // Max 60% for expanded
+                const t = 1.0 - (dist / radius);
+                // Cubic ease-out for smooth falloff (avoids hard boundary)
+                const smooth = 1.0 - (1.0 - t) * (1.0 - t) * (1.0 - t);
+                if (smooth > 0.08) {
+                    result.push({ index: i, weight: smooth * 0.6 });
                 }
             }
         }

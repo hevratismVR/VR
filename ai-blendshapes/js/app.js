@@ -184,6 +184,26 @@ class App {
             }
         });
 
+        // Expression presets
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = btn.dataset.preset;
+                this.applyExpressionPreset(preset);
+                // Toggle active state
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                if (preset !== 'neutral') btn.classList.add('active');
+            });
+        });
+
+        // Region overlay toggle
+        document.getElementById('region-overlay-toggle').addEventListener('change', (e) => {
+            if (e.target.checked && this.faceMesh && this.regions) {
+                this.viewer.showRegionOverlay(this.faceMesh, this.regions);
+            } else {
+                this.viewer.hideRegionOverlay(this.faceMesh);
+            }
+        });
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             // Ignore if user is typing in an input/select
@@ -513,6 +533,10 @@ class App {
                 infoBox.classList.add('success');
             }
 
+            // Show region overlay toggle
+            const overlayLabel = document.getElementById('region-overlay-label');
+            overlayLabel.classList.remove('hidden');
+
             // Enable blendshape generation
             document.getElementById('generate-blendshapes-btn').disabled = false;
 
@@ -595,6 +619,11 @@ class App {
             document.getElementById('export-glb-btn').disabled = false;
             document.getElementById('export-json-btn').disabled = false;
             document.getElementById('test-all-btn').disabled = false;
+
+            // Enable expression presets
+            const presetsEl = document.getElementById('expression-presets');
+            presetsEl.classList.remove('hidden');
+            presetsEl.querySelectorAll('.preset-btn').forEach(b => b.disabled = false);
 
             const shapeCount = Object.keys(result.blendshapes).length;
             const visemeCount = Object.keys(result.visemes).length;
@@ -1142,6 +1171,81 @@ class App {
      */
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * Apply an expression preset by setting multiple blendshape weights.
+     */
+    applyExpressionPreset(preset) {
+        if (!this.faceMesh || !this.faceMesh.morphTargetDictionary) return;
+
+        const dict = this.faceMesh.morphTargetDictionary;
+        const influences = this.faceMesh.morphTargetInfluences;
+
+        // Reset all first
+        for (let i = 0; i < influences.length; i++) {
+            influences[i] = 0;
+        }
+
+        // Expression definitions: blendshape name -> weight
+        const expressions = {
+            happy: {
+                mouthSmileLeft: 0.85, mouthSmileRight: 0.85,
+                cheekSquintLeft: 0.4, cheekSquintRight: 0.4,
+                eyeSquintLeft: 0.3, eyeSquintRight: 0.3,
+                browInnerUp: 0.2
+            },
+            sad: {
+                mouthFrownLeft: 0.7, mouthFrownRight: 0.7,
+                browDownLeft: 0.4, browDownRight: 0.4,
+                browInnerUp: 0.6,
+                eyeSquintLeft: 0.2, eyeSquintRight: 0.2,
+                mouthPucker: 0.15
+            },
+            surprised: {
+                jawOpen: 0.5, mouthOpen: 0.4,
+                eyeWideLeft: 0.8, eyeWideRight: 0.8,
+                browInnerUp: 0.7,
+                browOuterUpLeft: 0.6, browOuterUpRight: 0.6
+            },
+            angry: {
+                browDownLeft: 0.8, browDownRight: 0.8,
+                eyeSquintLeft: 0.5, eyeSquintRight: 0.5,
+                noseSneerLeft: 0.6, noseSneerRight: 0.6,
+                mouthFrownLeft: 0.3, mouthFrownRight: 0.3,
+                jawForward: 0.3,
+                mouthPressLeft: 0.4, mouthPressRight: 0.4
+            },
+            neutral: {} // All zeros (reset)
+        };
+
+        const weights = expressions[preset] || {};
+
+        for (const [name, weight] of Object.entries(weights)) {
+            if (name in dict) {
+                influences[dict[name]] = weight;
+            }
+        }
+
+        // Update sliders to match
+        for (const [name, idx] of Object.entries(dict)) {
+            const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
+            if (sliderItem) {
+                const slider = sliderItem.querySelector('input[type="range"]');
+                const valueSpan = sliderItem.querySelector('.value');
+                const w = influences[idx];
+                if (slider) slider.value = w.toFixed(2);
+                if (valueSpan) valueSpan.textContent = w > 0 ? w.toFixed(2) : '0';
+            }
+        }
+
+        const viewportLabel = document.getElementById('viewport-label');
+        if (preset !== 'neutral') {
+            viewportLabel.textContent = preset;
+            viewportLabel.classList.remove('hidden');
+        } else {
+            viewportLabel.classList.add('hidden');
+        }
     }
 
     /**
