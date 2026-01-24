@@ -1477,28 +1477,133 @@ export class BlendshapeGenerator {
     applyMorphTargets(geometry) {
         const newGeometry = geometry.clone();
         newGeometry.morphAttributes.position = [];
+        newGeometry.morphAttributes.normal = [];
         newGeometry.morphTargetsRelative = true;
 
         const dictionary = {};
         let index = 0;
 
-        for (const [name, buffer] of Object.entries(this.blendshapes)) {
-            const attr = new THREE.Float32BufferAttribute(buffer, 3);
-            attr.name = name;
-            newGeometry.morphAttributes.position.push(attr);
-            dictionary[name] = index++;
-        }
+        const allShapes = { ...this.blendshapes, ...this.visemes };
 
-        for (const [name, buffer] of Object.entries(this.visemes)) {
-            const attr = new THREE.Float32BufferAttribute(buffer, 3);
-            attr.name = name;
-            newGeometry.morphAttributes.position.push(attr);
+        for (const [name, buffer] of Object.entries(allShapes)) {
+            const posAttr = new THREE.Float32BufferAttribute(buffer, 3);
+            posAttr.name = name;
+            newGeometry.morphAttributes.position.push(posAttr);
+
+            // Compute morph normals for correct lighting
+            const normalBuffer = this.computeMorphNormals(newGeometry, buffer);
+            const normAttr = new THREE.Float32BufferAttribute(normalBuffer, 3);
+            normAttr.name = name;
+            newGeometry.morphAttributes.normal.push(normAttr);
+
             dictionary[name] = index++;
         }
 
         this.mesh.geometry = newGeometry;
         this.mesh.morphTargetDictionary = dictionary;
         this.mesh.morphTargetInfluences = new Array(index).fill(0);
+    }
+
+    /**
+     * Compute morph target normals (delta from base normals).
+     * Only recomputes normals for faces containing displaced vertices.
+     */
+    computeMorphNormals(geometry, positionDeltas) {
+        const basePos = this.basePositions;
+        const baseNormals = geometry.attributes.normal;
+        const vertexCount = basePos.count;
+        const normalDeltas = new Float32Array(vertexCount * 3);
+
+        if (!baseNormals) return normalDeltas;
+
+        const indices = geometry.index ? geometry.index.array : null;
+
+        // Find displaced vertices
+        const displacedSet = new Set();
+        for (let i = 0; i < vertexCount; i++) {
+            const dx = positionDeltas[i * 3];
+            const dy = positionDeltas[i * 3 + 1];
+            const dz = positionDeltas[i * 3 + 2];
+            if (dx * dx + dy * dy + dz * dz > 1e-8) {
+                displacedSet.add(i);
+            }
+        }
+
+        if (displacedSet.size === 0) return normalDeltas;
+
+        // Accumulate face normals for affected vertices
+        const normAccum = new Float32Array(vertexCount * 3);
+        const normCount = new Uint16Array(vertexCount);
+
+        const faceCount = indices ? indices.length / 3 : vertexCount / 3;
+
+        const vA = new THREE.Vector3();
+        const vB = new THREE.Vector3();
+        const vC = new THREE.Vector3();
+        const edge1 = new THREE.Vector3();
+        const edge2 = new THREE.Vector3();
+        const faceNormal = new THREE.Vector3();
+
+        for (let f = 0; f < faceCount; f++) {
+            const a = indices ? indices[f * 3] : f * 3;
+            const b = indices ? indices[f * 3 + 1] : f * 3 + 1;
+            const c = indices ? indices[f * 3 + 2] : f * 3 + 2;
+
+            // Skip face if no displaced vertices in it
+            if (!displacedSet.has(a) && !displacedSet.has(b) && !displacedSet.has(c)) continue;
+
+            // Displaced positions
+            vA.set(
+                basePos.getX(a) + positionDeltas[a * 3],
+                basePos.getY(a) + positionDeltas[a * 3 + 1],
+                basePos.getZ(a) + positionDeltas[a * 3 + 2]
+            );
+            vB.set(
+                basePos.getX(b) + positionDeltas[b * 3],
+                basePos.getY(b) + positionDeltas[b * 3 + 1],
+                basePos.getZ(b) + positionDeltas[b * 3 + 2]
+            );
+            vC.set(
+                basePos.getX(c) + positionDeltas[c * 3],
+                basePos.getY(c) + positionDeltas[c * 3 + 1],
+                basePos.getZ(c) + positionDeltas[c * 3 + 2]
+            );
+
+            edge1.subVectors(vB, vA);
+            edge2.subVectors(vC, vA);
+            faceNormal.crossVectors(edge1, edge2);
+
+            // Accumulate for affected vertices
+            for (const vi of [a, b, c]) {
+                if (displacedSet.has(vi)) {
+                    normAccum[vi * 3] += faceNormal.x;
+                    normAccum[vi * 3 + 1] += faceNormal.y;
+                    normAccum[vi * 3 + 2] += faceNormal.z;
+                    normCount[vi]++;
+                }
+            }
+        }
+
+        // Normalize and compute delta from base normals
+        for (const vi of displacedSet) {
+            if (normCount[vi] === 0) continue;
+            let nx = normAccum[vi * 3];
+            let ny = normAccum[vi * 3 + 1];
+            let nz = normAccum[vi * 3 + 2];
+            const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+            if (len > 1e-6) {
+                nx /= len;
+                ny /= len;
+                nz /= len;
+            }
+
+            // Delta = displaced normal - base normal
+            normalDeltas[vi * 3] = nx - baseNormals.getX(vi);
+            normalDeltas[vi * 3 + 1] = ny - baseNormals.getY(vi);
+            normalDeltas[vi * 3 + 2] = nz - baseNormals.getZ(vi);
+        }
+
+        return normalDeltas;
     }
 
     // ========================================================================
