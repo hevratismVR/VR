@@ -231,6 +231,7 @@ export class AudioAnalyzer {
 
     /**
      * Classify a time window into a viseme based on audio features.
+     * Uses formant distances with confidence scoring for better vowel discrimination.
      */
     classifyViseme(energy, zcr, spectralCentroid, formants) {
         const { f1, f2 } = formants;
@@ -240,21 +241,27 @@ export class AudioAnalyzer {
             return 'viseme_sil';
         }
 
-        // High ZCR + high frequency = fricatives (S, F, SH)
+        // Very low energy = near-silence or unvoiced transition
+        if (energy < 0.025) {
+            if (zcr > 0.2) {
+                return 'viseme_TH'; // weak fricative/breath
+            }
+            return 'viseme_sil';
+        }
+
+        // High ZCR + high frequency = unvoiced fricatives
         if (zcr > 0.3 && spectralCentroid > 3000) {
             return 'viseme_SS'; // S, Z
         }
-
-        if (zcr > 0.25 && spectralCentroid > 2000) {
+        if (zcr > 0.25 && spectralCentroid > 2500) {
+            return 'viseme_CH'; // Ch, Sh
+        }
+        if (zcr > 0.25 && spectralCentroid > 1800) {
             return 'viseme_FF'; // F, V
         }
 
-        if (zcr > 0.2 && spectralCentroid > 2500) {
-            return 'viseme_CH'; // Ch, Sh
-        }
-
         // Low energy burst = plosives (P, B, T, D, K, G)
-        if (energy < 0.05 && zcr > 0.15) {
+        if (energy < 0.06 && zcr > 0.15) {
             if (spectralCentroid < 1500) {
                 return 'viseme_PP'; // P, B, M
             } else if (spectralCentroid < 2500) {
@@ -264,76 +271,99 @@ export class AudioAnalyzer {
             }
         }
 
-        // Vowel detection based on formants
-        if (energy > 0.03) {
-            // A: F1 high (700-1000), F2 mid (1200-1800)
-            if (f1 > 600 && f1 < 1000 && f2 > 1000 && f2 < 1800) {
-                return 'viseme_aa';
-            }
+        // Nasal detection: low ZCR, moderate energy, low spectral centroid
+        if (zcr < 0.1 && energy < 0.1 && spectralCentroid < 1500) {
+            return 'viseme_nn';
+        }
 
-            // E: F1 mid (400-600), F2 high (1800-2500)
-            if (f1 > 350 && f1 < 700 && f2 > 1700) {
-                return 'viseme_E';
-            }
+        // Vowel detection using formant distance scoring
+        // Each vowel has a target (F1, F2) and we pick the closest match
+        const vowelTargets = [
+            { viseme: 'viseme_aa', f1: 800, f2: 1400 },   // A: open
+            { viseme: 'viseme_E',  f1: 500, f2: 2000 },   // E: mid-open spread
+            { viseme: 'viseme_I',  f1: 300, f2: 2300 },   // I: close spread
+            { viseme: 'viseme_O',  f1: 550, f2: 900 },    // O: mid-open rounded
+            { viseme: 'viseme_U',  f1: 350, f2: 800 },    // U: close rounded
+        ];
 
-            // I: F1 low (200-400), F2 high (2000-2800)
-            if (f1 < 450 && f2 > 1900) {
-                return 'viseme_I';
-            }
+        let bestViseme = 'viseme_aa';
+        let bestDist = Infinity;
 
-            // O: F1 mid (400-700), F2 low (700-1200)
-            if (f1 > 350 && f1 < 750 && f2 < 1300) {
-                return 'viseme_O';
-            }
+        for (const target of vowelTargets) {
+            // Normalized distance (F1 range ~200-900, F2 range ~600-2800)
+            const d1 = (f1 - target.f1) / 400;
+            const d2 = (f2 - target.f2) / 800;
+            const dist = d1 * d1 + d2 * d2;
 
-            // U: F1 low (200-400), F2 low (600-1200)
-            if (f1 < 450 && f2 < 1300) {
-                return 'viseme_U';
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestViseme = target.viseme;
             }
+        }
 
-            // Nasal (N, M, NG)
-            if (energy > 0.02 && energy < 0.08 && zcr < 0.1) {
-                return 'viseme_nn';
-            }
-
-            // R-like
-            if (f1 > 300 && f1 < 600 && f2 > 1000 && f2 < 1800 && zcr < 0.15) {
+        // R-like: moderate formants with low ZCR
+        if (zcr < 0.12 && f1 > 300 && f1 < 600 && f2 > 900 && f2 < 1700) {
+            // Only classify as RR if it's significantly closer than any vowel
+            const rrDist = Math.abs(f1 - 450) / 400 + Math.abs(f2 - 1300) / 800;
+            if (rrDist < 0.5) {
                 return 'viseme_RR';
             }
-
-            // Default vowel - open mouth
-            return 'viseme_aa';
         }
 
-        // TH-like
-        if (zcr > 0.1 && energy < 0.05) {
-            return 'viseme_TH';
-        }
-
-        return 'viseme_sil';
+        return bestViseme;
     }
 
     /**
-     * Smooth phoneme sequence: merge short segments, ensure minimum duration.
+     * Smooth phoneme sequence: merge short segments intelligently.
+     * - Silence segments shorter than 30ms are absorbed by neighbors
+     * - Consonants shorter than 30ms are kept (they're naturally short)
+     * - Identical adjacent visemes are always merged
      */
     smoothPhonemes(phonemes) {
         if (phonemes.length === 0) return phonemes;
 
-        const minDuration = 0.04; // Minimum 40ms per phoneme
+        const minSilenceDuration = 0.03;
+        const minVowelDuration = 0.05;
         const smoothed = [];
 
+        // First pass: merge identical adjacent visemes
         for (const p of phonemes) {
-            const duration = p.end - p.start;
-
-            if (duration < minDuration && smoothed.length > 0) {
-                // Merge with previous if too short
+            if (smoothed.length > 0 && smoothed[smoothed.length - 1].viseme === p.viseme) {
                 smoothed[smoothed.length - 1].end = p.end;
+                // Update energy to max of merged segments
+                smoothed[smoothed.length - 1].energy = Math.max(
+                    smoothed[smoothed.length - 1].energy, p.energy
+                );
             } else {
                 smoothed.push({ ...p });
             }
         }
 
-        return smoothed;
+        // Second pass: remove very short silence gaps between speech
+        const result = [];
+        for (let i = 0; i < smoothed.length; i++) {
+            const p = smoothed[i];
+            const duration = p.end - p.start;
+
+            if (p.viseme === 'viseme_sil' && duration < minSilenceDuration) {
+                // Absorb short silence into the previous segment
+                if (result.length > 0) {
+                    result[result.length - 1].end = p.end;
+                }
+                continue;
+            }
+
+            // Very short vowels: extend to minimum duration if possible
+            if (duration < minVowelDuration && p.viseme.startsWith('viseme_')
+                && !['viseme_sil', 'viseme_PP', 'viseme_DD', 'viseme_kk'].includes(p.viseme)) {
+                p.end = Math.min(p.start + minVowelDuration,
+                    i < smoothed.length - 1 ? smoothed[i + 1].start : p.end);
+            }
+
+            result.push(p);
+        }
+
+        return result;
     }
 
     /**
