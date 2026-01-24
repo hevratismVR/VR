@@ -276,7 +276,7 @@ h3 {
 
 /* Blendshapes List */
 .blendshapes-list {
-    max-height: 300px;
+    max-height: calc(50vh - 80px);
     overflow-y: auto;
 }
 
@@ -450,6 +450,26 @@ h3 {
     font-size: 0.65rem;
     color: var(--success);
     min-height: 14px;
+}
+
+/* Viewport drop indicator */
+#viewport-container.drag-over {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+#viewport-container.drag-over::after {
+    content: 'Drop file here';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--accent);
+    font-size: 1.2rem;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 10;
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
 }
 
 /* Scrollbar */

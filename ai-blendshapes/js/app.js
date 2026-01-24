@@ -76,6 +76,29 @@ class App {
             }
         });
 
+        // Drag and drop on viewport (accepts model or audio files)
+        const viewport = document.getElementById('viewport-container');
+        viewport.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            viewport.classList.add('drag-over');
+        });
+        viewport.addEventListener('dragleave', () => {
+            viewport.classList.remove('drag-over');
+        });
+        viewport.addEventListener('drop', (e) => {
+            e.preventDefault();
+            viewport.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (['glb', 'gltf', 'fbx', 'obj'].includes(ext)) {
+                    this.loadModel(file);
+                } else if (['wav', 'mp3', 'ogg'].includes(ext)) {
+                    this.loadAudio(file);
+                }
+            }
+        });
+
         // Character type and intensity
         document.getElementById('blend-intensity').addEventListener('input', (e) => {
             document.getElementById('blend-intensity-val').textContent = e.target.value;
@@ -529,6 +552,11 @@ class App {
         document.getElementById('regenerate-btn').addEventListener('click', () => {
             this.regenerateWithOffsets();
         });
+
+        // Reset landmarks to original detected positions
+        document.getElementById('reset-landmarks-btn').addEventListener('click', () => {
+            this.resetLandmarks();
+        });
     }
 
     /**
@@ -548,6 +576,32 @@ class App {
         this.generateBlendshapes();
 
         this.setStatus('Blendshapes regenerated with manual adjustments');
+    }
+
+    /**
+     * Reset landmarks to their original detected positions.
+     */
+    resetLandmarks() {
+        if (!this.landmarks || !this.faceMesh) return;
+
+        // Clear all manual offsets
+        this.landmarkOffsets = {};
+
+        // Reset sliders
+        document.getElementById('seam-y-offset').value = 0;
+        document.getElementById('seam-y-val').textContent = '0';
+        document.getElementById('z-threshold-offset').value = 0;
+        document.getElementById('z-threshold-val').textContent = '0';
+
+        // Clear generator offsets
+        this.blendshapeGenerator.seamYOffset = 0;
+        this.blendshapeGenerator.zThresholdOffset = 0;
+        this.blendshapeGenerator.manualLandmarks = {};
+
+        // Re-show landmarks at original positions
+        this.viewer.showLandmarks(this.landmarks, this.faceMesh);
+
+        this.setStatus('Landmarks reset to detected positions');
     }
 
     /**
