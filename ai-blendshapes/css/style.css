@@ -683,3 +683,18 @@ h3 {
     background: linear-gradient(135deg, #0891b2, #22d3d8);
     color: white;
 }
+
+/* Blendshape hover preview */
+.blendshape-item.preview-active {
+    background: rgba(139, 92, 246, 0.15);
+    border-radius: 3px;
+}
+
+.blendshape-item.preview-active label {
+    color: #a78bfa;
+    font-weight: 600;
+}
+
+.blendshape-item label:hover {
+    text-decoration: underline;
+}

@@ -1177,9 +1177,30 @@ class App {
 
         // Click label to show weight heatmap
         label.style.cursor = 'pointer';
-        label.title = 'Click to show weight heatmap';
+        label.title = 'Click: show heatmap | Hover: preview at 100%';
         label.addEventListener('click', () => {
             this.toggleWeightHeatmap(name);
+        });
+
+        // Hover preview: temporarily show blendshape at full intensity
+        let previewActive = false;
+        let originalValue = 0;
+        label.addEventListener('mouseenter', () => {
+            if (!this.blendshapeGenerator || !this.blendshapeGenerator._baseArray) return;
+            originalValue = parseFloat(slider.value);
+            previewActive = true;
+            this.blendshapeGenerator.setWeight(name, 1.0);
+            slider.value = '1';
+            value.textContent = '1.00';
+            item.classList.add('preview-active');
+        });
+        label.addEventListener('mouseleave', () => {
+            if (!previewActive) return;
+            previewActive = false;
+            this.blendshapeGenerator.setWeight(name, originalValue);
+            slider.value = originalValue.toString();
+            value.textContent = originalValue.toFixed(2);
+            item.classList.remove('preview-active');
         });
 
         item.appendChild(dot);
