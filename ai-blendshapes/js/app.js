@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ModelLoader } from './model-loader.js';
 import { LandmarkDetector } from './landmark-detector.js';
+import { AILandmarkDetector } from './ai-landmark-detector.js';
 import { BlendshapeGenerator } from './blendshape-generator.js';
 import { AccessoriesManager } from './accessories-manager.js';
 import { AudioAnalyzer } from './audio-analyzer.js';
@@ -16,6 +17,7 @@ class App {
         this.viewer = null;
         this.modelLoader = new ModelLoader();
         this.landmarkDetector = new LandmarkDetector();
+        this.aiLandmarkDetector = new AILandmarkDetector();
         this.blendshapeGenerator = new BlendshapeGenerator();
         this.accessoriesManager = new AccessoriesManager();
         this.audioAnalyzer = new AudioAnalyzer();
@@ -433,10 +435,11 @@ class App {
     /**
      * Detect facial landmarks on the loaded model.
      */
-    detectFace() {
+    async detectFace() {
         if (!this.modelData) return;
 
-        this.setStatus('Detecting facial landmarks...');
+        const useAI = document.getElementById('detection-mode')?.value === 'ai';
+        this.setStatus(useAI ? 'Loading AI model and detecting face...' : 'Detecting facial landmarks...');
         this.showProgress(true);
 
         try {
@@ -451,10 +454,29 @@ class App {
                 meshesToDetect = [this.modelData.meshes[idx]];
             }
 
-            const result = this.landmarkDetector.detect(
-                meshesToDetect,
-                characterType
-            );
+            let result;
+
+            if (useAI) {
+                // Use AI-based detection with MediaPipe Face Mesh
+                result = await this.aiLandmarkDetector.detect(
+                    meshesToDetect,
+                    this.viewer.renderer,
+                    this.viewer.scene,
+                    this.viewer.camera
+                );
+
+                // If AI detection fails, fall back to geometry-based
+                if (!result) {
+                    this.setStatus('AI detection failed - falling back to geometry-based...');
+                    result = this.landmarkDetector.detect(meshesToDetect, characterType);
+                }
+            } else {
+                // Use geometry-based detection
+                result = this.landmarkDetector.detect(
+                    meshesToDetect,
+                    characterType
+                );
+            }
 
             this.faceMesh = result.mesh;
             this.landmarks = result.landmarks;
