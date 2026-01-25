@@ -455,6 +455,7 @@ class App {
             }
 
             let result;
+            let aiDetectionSucceeded = false;
 
             if (useAI) {
                 // Use AI-based detection with MediaPipe Face Mesh
@@ -469,6 +470,8 @@ class App {
                 if (!result) {
                     this.setStatus('AI detection failed - falling back to geometry-based...');
                     result = this.landmarkDetector.detect(meshesToDetect, characterType);
+                } else {
+                    aiDetectionSucceeded = true;
                 }
             } else {
                 // Use geometry-based detection
@@ -482,7 +485,7 @@ class App {
             this.landmarks = result.landmarks;
             this.regions = result.regions;
             this.auxiliaryMeshes = result.auxiliaryMeshes || {};
-            this.usedAIDetection = useAI && result !== null;
+            this.usedAIDetection = aiDetectionSucceeded;
 
             // Show landmarks in viewer (face mesh + auxiliary meshes)
             this.viewer.showLandmarks(this.landmarks, this.faceMesh, this.usedAIDetection);
