@@ -482,9 +482,10 @@ class App {
             this.landmarks = result.landmarks;
             this.regions = result.regions;
             this.auxiliaryMeshes = result.auxiliaryMeshes || {};
+            this.usedAIDetection = useAI && result !== null;
 
             // Show landmarks in viewer (face mesh + auxiliary meshes)
-            this.viewer.showLandmarks(this.landmarks, this.faceMesh);
+            this.viewer.showLandmarks(this.landmarks, this.faceMesh, this.usedAIDetection);
 
             // Show auxiliary mesh landmarks (eyes, nose)
             if (this.auxiliaryMeshes.eyeLeft || this.auxiliaryMeshes.eyeRight || this.auxiliaryMeshes.nose) {
@@ -547,8 +548,11 @@ class App {
             }
 
             const infoBox = document.getElementById('blendshapes-info');
+            const detectionBadge = this.usedAIDetection
+                ? '<span class="badge badge-ai">AI</span>'
+                : '<span class="badge badge-geo">GEO</span>';
             infoBox.innerHTML = `
-                <strong>Face detected!</strong> (${Object.values(regionCounts).filter(v => v > 0).length}/10 regions)
+                <strong>Face detected!</strong> ${detectionBadge} (${Object.values(regionCounts).filter(v => v > 0).length}/10 regions)
                 ${regionHTML}
                 ${auxInfo.length > 0 ? '<strong>Auxiliary:</strong> ' + auxInfo.join(' | ') : ''}
                 ${warningHTML}
@@ -566,7 +570,8 @@ class App {
             // Enable blendshape generation
             document.getElementById('generate-blendshapes-btn').disabled = false;
 
-            this.setStatus('Face detected - drag landmarks to adjust, then generate blendshapes');
+            const detectionMethod = this.usedAIDetection ? 'AI (MediaPipe)' : 'Geometry';
+            this.setStatus(`Face detected via ${detectionMethod} - drag landmarks to adjust, then generate blendshapes`);
         } catch (error) {
             this.setStatus(`Detection error: ${error.message}`);
             console.error('Face detection error:', error);
@@ -925,7 +930,7 @@ class App {
         this.blendshapeGenerator.manualLandmarks = {};
 
         // Re-show landmarks at original positions
-        this.viewer.showLandmarks(this.landmarks, this.faceMesh);
+        this.viewer.showLandmarks(this.landmarks, this.faceMesh, this.usedAIDetection);
 
         this.setStatus('Landmarks reset to detected positions');
     }

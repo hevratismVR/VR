@@ -132,8 +132,11 @@ export class Viewer {
 
     /**
      * Show landmark detection results as draggable colored spheres with labels.
+     * @param {Object} landmarks - Detected landmarks
+     * @param {THREE.Mesh} mesh - Face mesh
+     * @param {boolean} isAI - Whether landmarks were detected via AI (affects visual style)
      */
-    showLandmarks(landmarks, mesh) {
+    showLandmarks(landmarks, mesh, isAI = false) {
         // Remove old helpers and drag controls
         this.clearHelpers();
 
@@ -150,17 +153,20 @@ export class Viewer {
             lowerLip: 0xff4400
         };
 
+        // AI detection uses diamond shapes, geometry uses spheres
+        const labelPrefix = isAI ? '🤖 ' : '';
+
         const labelNames = {
-            forehead: 'Forehead',
-            eyeLeft: 'L Eye',
-            eyeRight: 'R Eye',
-            nose: 'Nose',
-            mouth: 'Mouth',
-            jaw: 'Jaw',
-            cheekLeft: 'L Cheek',
-            cheekRight: 'R Cheek',
-            upperLip: 'Upper Lip',
-            lowerLip: 'Lower Lip'
+            forehead: `${labelPrefix}Forehead`,
+            eyeLeft: `${labelPrefix}L Eye`,
+            eyeRight: `${labelPrefix}R Eye`,
+            nose: `${labelPrefix}Nose`,
+            mouth: `${labelPrefix}Mouth`,
+            jaw: `${labelPrefix}Jaw`,
+            cheekLeft: `${labelPrefix}L Cheek`,
+            cheekRight: `${labelPrefix}R Cheek`,
+            upperLip: `${labelPrefix}Upper Lip`,
+            lowerLip: `${labelPrefix}Lower Lip`
         };
 
         this.landmarkSpheres = [];
