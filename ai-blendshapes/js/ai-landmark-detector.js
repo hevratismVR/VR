@@ -58,8 +58,24 @@ export class AILandmarkDetector {
      * @returns {Object} Detection result with landmarks and regions
      */
     async detect(meshes, renderer, scene, camera) {
-        if (!this.isLoaded) {
-            await this.load();
+        // Validate inputs
+        if (!meshes || meshes.length === 0) {
+            console.warn('[AI Detector] No meshes provided');
+            return null;
+        }
+        if (!renderer || !scene) {
+            console.warn('[AI Detector] Missing renderer or scene');
+            return null;
+        }
+
+        try {
+            if (!this.isLoaded) {
+                console.log('[AI Detector] Loading MediaPipe Face Mesh...');
+                await this.load();
+            }
+        } catch (err) {
+            console.error('[AI Detector] Failed to load MediaPipe:', err);
+            return null;
         }
 
         // Find the largest mesh (likely the face)
@@ -76,14 +92,29 @@ export class AILandmarkDetector {
         }
 
         if (!faceMesh) {
-            throw new Error('No valid mesh found');
+            console.warn('[AI Detector] No valid mesh found');
+            return null;
         }
 
         // Render front view to canvas
-        const { canvas, renderCamera } = this._renderFrontView(faceMesh, renderer, scene);
+        let canvas, renderCamera;
+        try {
+            const result = this._renderFrontView(faceMesh, renderer, scene);
+            canvas = result.canvas;
+            renderCamera = result.renderCamera;
+        } catch (err) {
+            console.error('[AI Detector] Failed to render front view:', err);
+            return null;
+        }
 
         // Run MediaPipe detection
-        const detections = this.faceMesh.detect(canvas);
+        let detections;
+        try {
+            detections = this.faceMesh.detect(canvas);
+        } catch (err) {
+            console.error('[AI Detector] MediaPipe detection failed:', err);
+            return null;
+        }
 
         if (!detections.faceLandmarks || detections.faceLandmarks.length === 0) {
             console.warn('[AI Detector] No face detected, falling back to geometry-based detection');
