@@ -194,6 +194,9 @@ export class AILandmarkDetector {
         // Get mesh world matrix for transforming local positions
         mesh.updateMatrixWorld(true);
 
+        // Build spatial hash for fast nearest-vertex lookup
+        const spatialHash = this._buildSpatialHash(positions, mesh.matrixWorld);
+
         for (const lm of landmarks2D) {
             // MediaPipe returns normalized coords [0,1], convert to NDC [-1,1]
             const ndcX = lm.x * 2 - 1;
@@ -211,12 +214,11 @@ export class AILandmarkDetector {
                     x: intersects[0].point.x,
                     y: intersects[0].point.y,
                     z: intersects[0].point.z,
-                    vertexIndex: this._findClosestVertex(intersects[0].point, positions, mesh.matrixWorld)
+                    vertexIndex: this._findClosestVertexFast(intersects[0].point, spatialHash)
                 });
             } else {
-                // No intersection - use projected point on mesh surface
-                // Find the closest vertex to the ray
-                const closestIdx = this._findClosestVertexToRay(raycaster.ray, positions, mesh.matrixWorld);
+                // No intersection - find closest vertex to ray using spatial hash
+                const closestIdx = this._findClosestVertexToRayFast(raycaster.ray, spatialHash);
                 const pos = new THREE.Vector3();
                 pos.fromBufferAttribute(positions, closestIdx);
                 pos.applyMatrix4(mesh.matrixWorld);
@@ -233,41 +235,102 @@ export class AILandmarkDetector {
     }
 
     /**
-     * Find the closest vertex to a 3D point.
+     * Build spatial hash for fast nearest-vertex lookup.
      */
-    _findClosestVertex(point, positions, worldMatrix) {
-        let closestIdx = 0;
-        let closestDist = Infinity;
+    _buildSpatialHash(positions, worldMatrix) {
+        const vertices = [];
         const temp = new THREE.Vector3();
 
+        // Transform all vertices to world space
         for (let i = 0; i < positions.count; i++) {
             temp.fromBufferAttribute(positions, i);
             temp.applyMatrix4(worldMatrix);
-            const dist = point.distanceTo(temp);
-            if (dist < closestDist) {
-                closestDist = dist;
-                closestIdx = i;
-            }
+            vertices.push({ x: temp.x, y: temp.y, z: temp.z, index: i });
         }
 
-        return closestIdx;
+        // Compute bounding box
+        const bbox = new THREE.Box3();
+        for (const v of vertices) {
+            bbox.expandByPoint(new THREE.Vector3(v.x, v.y, v.z));
+        }
+
+        const size = bbox.getSize(new THREE.Vector3());
+        const cellSize = Math.max(size.x, size.y, size.z) / 20; // 20x20x20 grid
+
+        const hash = new Map();
+        const hashKey = (x, y, z) => {
+            const ix = Math.floor((x - bbox.min.x) / cellSize);
+            const iy = Math.floor((y - bbox.min.y) / cellSize);
+            const iz = Math.floor((z - bbox.min.z) / cellSize);
+            return `${ix},${iy},${iz}`;
+        };
+
+        for (const v of vertices) {
+            const key = hashKey(v.x, v.y, v.z);
+            if (!hash.has(key)) hash.set(key, []);
+            hash.get(key).push(v);
+        }
+
+        return { hash, hashKey, cellSize, bbox, vertices };
     }
 
     /**
-     * Find closest vertex to a ray (for landmarks that don't intersect).
+     * Find the closest vertex to a 3D point using spatial hash.
      */
-    _findClosestVertexToRay(ray, positions, worldMatrix) {
+    _findClosestVertexFast(point, spatialHash) {
+        const { hash, hashKey, cellSize, bbox } = spatialHash;
+
+        // Search in expanding radius
+        for (let radius = 0; radius <= 3; radius++) {
+            const ix = Math.floor((point.x - bbox.min.x) / cellSize);
+            const iy = Math.floor((point.y - bbox.min.y) / cellSize);
+            const iz = Math.floor((point.z - bbox.min.z) / cellSize);
+
+            let closestIdx = 0;
+            let closestDist = Infinity;
+
+            for (let dx = -radius; dx <= radius; dx++) {
+                for (let dy = -radius; dy <= radius; dy++) {
+                    for (let dz = -radius; dz <= radius; dz++) {
+                        const key = `${ix + dx},${iy + dy},${iz + dz}`;
+                        const cell = hash.get(key);
+                        if (!cell) continue;
+
+                        for (const v of cell) {
+                            const dist = (point.x - v.x) ** 2 + (point.y - v.y) ** 2 + (point.z - v.z) ** 2;
+                            if (dist < closestDist) {
+                                closestDist = dist;
+                                closestIdx = v.index;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (closestDist < Infinity) return closestIdx;
+        }
+
+        // Fallback to first vertex
+        return 0;
+    }
+
+    /**
+     * Find closest vertex to a ray using spatial hash.
+     */
+    _findClosestVertexToRayFast(ray, spatialHash) {
+        const { vertices } = spatialHash;
+
+        // Sample vertices along the ray direction
         let closestIdx = 0;
         let closestDist = Infinity;
-        const temp = new THREE.Vector3();
 
-        for (let i = 0; i < positions.count; i++) {
-            temp.fromBufferAttribute(positions, i);
-            temp.applyMatrix4(worldMatrix);
-            const dist = ray.distanceToPoint(temp);
+        // For rays, we still need to check all vertices but can use early termination
+        for (const v of vertices) {
+            const point = new THREE.Vector3(v.x, v.y, v.z);
+            const dist = ray.distanceToPoint(point);
             if (dist < closestDist) {
                 closestDist = dist;
-                closestIdx = i;
+                closestIdx = v.index;
             }
         }
 
