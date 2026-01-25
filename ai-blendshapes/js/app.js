@@ -264,6 +264,12 @@ class App {
                         this.applyExpressionPreset('neutral');
                     }
                     break;
+                case 'KeyX':
+                    // Random expression
+                    if (this.blendshapeGenerator && this.blendshapeGenerator._baseArray) {
+                        this.randomExpression();
+                    }
+                    break;
                 case 'KeyD':
                     // Detect face (if model loaded)
                     if (this.modelData && !document.getElementById('detect-face-btn').disabled) {
@@ -298,17 +304,18 @@ class App {
      */
     showKeyboardShortcuts() {
         const shortcuts = [
-            'Space - Play/Pause animation',
-            'R - Reset animation',
-            'T - Test all blendshapes',
-            '0 - Reset all weights',
-            'N - Neutral expression',
-            'D - Detect face',
-            'G - Generate blendshapes',
-            'W - Toggle wireframe',
-            'Ctrl+Z - Undo landmark drag',
-            'Esc - Stop test',
-            'F1 or ? - Show this help'
+            'Space - Play/Pause',
+            'R - Reset',
+            'T - Test all',
+            '0 - Zero weights',
+            'N - Neutral',
+            'X - Random',
+            'D - Detect',
+            'G - Generate',
+            'W - Wireframe',
+            'Ctrl+Z - Undo',
+            'Esc - Stop',
+            '? - Help'
         ];
         this.setStatus('Shortcuts: ' + shortcuts.join(' | '));
     }
@@ -1369,21 +1376,8 @@ class App {
 
         const weights = expressions[preset] || {};
 
-        // Apply all weights at once using CPU morphing
-        this.blendshapeGenerator.setWeights(weights);
-
-        // Update sliders to match
-        const allNames = Object.keys(this.blendshapeGenerator._allShapes);
-        for (const name of allNames) {
-            const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
-            if (sliderItem) {
-                const slider = sliderItem.querySelector('input[type="range"]');
-                const valueSpan = sliderItem.querySelector('.value');
-                const w = weights[name] || 0;
-                if (slider) slider.value = w.toFixed(2);
-                if (valueSpan) valueSpan.textContent = w > 0 ? w.toFixed(2) : '0';
-            }
-        }
+        // Apply with smooth transition (200ms)
+        this.smoothTransition(weights, 200);
 
         const viewportLabel = document.getElementById('viewport-label');
         if (preset !== 'neutral') {
@@ -1392,6 +1386,85 @@ class App {
         } else {
             viewportLabel.classList.add('hidden');
         }
+    }
+
+    /**
+     * Generate a random expression with smooth transition.
+     */
+    randomExpression() {
+        if (!this.blendshapeGenerator || !this.blendshapeGenerator._allShapes) return;
+
+        const allNames = Object.keys(this.blendshapeGenerator._allShapes);
+        const weights = {};
+
+        // Pick 5-12 random blendshapes to activate
+        const numActive = 5 + Math.floor(Math.random() * 8);
+        const shuffled = allNames.sort(() => Math.random() - 0.5).slice(0, numActive);
+
+        for (const name of shuffled) {
+            // Random weight between 0.3 and 1.0
+            weights[name] = 0.3 + Math.random() * 0.7;
+        }
+
+        // Apply with smooth transition
+        this.smoothTransition(weights, 300);
+
+        const viewportLabel = document.getElementById('viewport-label');
+        viewportLabel.textContent = 'Random';
+        viewportLabel.classList.remove('hidden');
+    }
+
+    /**
+     * Smoothly transition to target weights over duration (ms).
+     */
+    smoothTransition(targetWeights, duration = 200) {
+        if (!this.blendshapeGenerator || !this.blendshapeGenerator._allShapes) return;
+
+        const allNames = Object.keys(this.blendshapeGenerator._allShapes);
+        const startWeights = {};
+        const currentWeights = this.blendshapeGenerator._currentWeights || {};
+
+        // Capture start state
+        for (const name of allNames) {
+            startWeights[name] = currentWeights[name] || 0;
+        }
+
+        const startTime = performance.now();
+
+        const animate = () => {
+            const elapsed = performance.now() - startTime;
+            const t = Math.min(1, elapsed / duration);
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - t, 3);
+
+            // Interpolate all weights
+            const interpolated = {};
+            for (const name of allNames) {
+                const start = startWeights[name] || 0;
+                const target = targetWeights[name] || 0;
+                interpolated[name] = start + (target - start) * eased;
+            }
+
+            this.blendshapeGenerator.setWeights(interpolated);
+
+            // Update sliders
+            for (const name of allNames) {
+                const sliderItem = document.querySelector(`.blendshape-item[data-shape-name="${name}"]`);
+                if (sliderItem) {
+                    const slider = sliderItem.querySelector('input[type="range"]');
+                    const valueSpan = sliderItem.querySelector('.value');
+                    const w = interpolated[name] || 0;
+                    if (slider) slider.value = w.toFixed(2);
+                    if (valueSpan) valueSpan.textContent = w > 0.001 ? w.toFixed(2) : '0';
+                }
+            }
+
+            if (t < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
     }
 
     /**
