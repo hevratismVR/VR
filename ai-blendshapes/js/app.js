@@ -243,8 +243,74 @@ class App {
                         this.undoLandmarkDrag();
                     }
                     break;
+                case 'KeyT':
+                    // Test all blendshapes
+                    if (this.blendshapeGenerator && this.blendshapeGenerator._baseArray) {
+                        this.testAllBlendshapes();
+                    }
+                    break;
+                case 'Digit0':
+                case 'Numpad0':
+                    // Reset all weights to zero
+                    if (this.blendshapeGenerator && this.blendshapeGenerator._baseArray) {
+                        this.blendshapeGenerator.resetAllWeights();
+                        this.updateBlendshapeSliderValues();
+                        this.setStatus('All weights reset to 0');
+                    }
+                    break;
+                case 'KeyN':
+                    // Neutral expression preset
+                    if (this.blendshapeGenerator && this.blendshapeGenerator._baseArray) {
+                        this.applyExpressionPreset('neutral');
+                    }
+                    break;
+                case 'KeyD':
+                    // Detect face (if model loaded)
+                    if (this.modelData && !document.getElementById('detect-face-btn').disabled) {
+                        this.detectFace();
+                    }
+                    break;
+                case 'KeyG':
+                    // Generate blendshapes (if face detected)
+                    if (!document.getElementById('generate-blendshapes-btn').disabled) {
+                        this.generateBlendshapes();
+                    }
+                    break;
+                case 'Escape':
+                    // Stop test animation if running
+                    if (this._testAllAbort !== undefined) {
+                        this._testAllAbort = true;
+                    }
+                    break;
+                case 'F1':
+                case 'Slash':
+                    if (e.shiftKey || e.code === 'F1') {
+                        e.preventDefault();
+                        this.showKeyboardShortcuts();
+                    }
+                    break;
             }
         });
+    }
+
+    /**
+     * Show keyboard shortcuts help.
+     */
+    showKeyboardShortcuts() {
+        const shortcuts = [
+            'Space - Play/Pause animation',
+            'R - Reset animation',
+            'T - Test all blendshapes',
+            '0 - Reset all weights',
+            'N - Neutral expression',
+            'D - Detect face',
+            'G - Generate blendshapes',
+            'W - Toggle wireframe',
+            'Ctrl+Z - Undo landmark drag',
+            'Esc - Stop test',
+            'F1 or ? - Show this help'
+        ];
+        this.setStatus('Shortcuts: ' + shortcuts.join(' | '));
     }
 
     /**
