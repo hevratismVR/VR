@@ -6,3 +6,5 @@ __pycache__/
 venv/
 *.log
 checkpoint.json
+node_modules/
+package-lock.json
