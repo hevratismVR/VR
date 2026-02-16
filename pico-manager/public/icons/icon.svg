@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="80" fill="url(#bg)"/>
+  <!-- VR Headset shape -->
+  <rect x="96" y="170" width="320" height="180" rx="40" fill="#1a1a2e" stroke="#e94560" stroke-width="6"/>
+  <!-- Left lens -->
+  <circle cx="200" cy="260" r="55" fill="#0f3460" stroke="#e94560" stroke-width="4"/>
+  <circle cx="200" cy="260" r="30" fill="#16213e" stroke="#533483" stroke-width="3"/>
+  <!-- Right lens -->
+  <circle cx="312" cy="260" r="55" fill="#0f3460" stroke="#e94560" stroke-width="4"/>
+  <circle cx="312" cy="260" r="30" fill="#16213e" stroke="#533483" stroke-width="3"/>
+  <!-- Strap -->
+  <path d="M96 230 Q60 230 50 260 Q60 290 96 290" fill="none" stroke="#e94560" stroke-width="5" stroke-linecap="round"/>
+  <path d="M416 230 Q452 230 462 260 Q452 290 416 290" fill="none" stroke="#e94560" stroke-width="5" stroke-linecap="round"/>
+  <!-- WiFi signal above -->
+  <path d="M256 120 Q256 120 256 120" fill="none" stroke="#4ecca3" stroke-width="4"/>
+  <path d="M230 140 Q256 115 282 140" fill="none" stroke="#4ecca3" stroke-width="4" stroke-linecap="round"/>
+  <path d="M215 155 Q256 100 297 155" fill="none" stroke="#4ecca3" stroke-width="4" stroke-linecap="round"/>
+  <path d="M200 170 Q256 85 312 170" fill="none" stroke="#4ecca3" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="256" cy="145" r="5" fill="#4ecca3"/>
+  <!-- "5" badge -->
+  <circle cx="410" cy="380" r="40" fill="#e94560"/>
+  <text x="410" y="395" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="48" fill="white">5</text>
+</svg>
