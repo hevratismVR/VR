@@ -16,13 +16,35 @@ class AdbManager {
   }
 
   _findAdb() {
+    // On Windows, 'where' can return multiple results - try each one
     try {
       const cmd = process.platform === 'win32' ? 'where adb' : 'which adb';
-      const path = execSync(cmd, { encoding: 'utf8' }).trim().split('\n')[0];
-      return path || 'adb';
-    } catch {
-      return 'adb';
+      const output = execSync(cmd, { encoding: 'utf8' }).trim();
+      const candidates = output.split('\n').map(p => p.trim()).filter(Boolean);
+
+      for (const candidate of candidates) {
+        try {
+          execSync(`"${candidate}" version`, { encoding: 'utf8', timeout: 5000 });
+          return candidate; // This one works
+        } catch {
+          console.log(`[ADB] Skipping non-working path: ${candidate}`);
+        }
+      }
+    } catch {}
+
+    // Fallback: try common locations
+    const fallbacks = process.platform === 'win32'
+      ? ['C:\\platform-tools\\adb.exe', 'C:\\Android\\platform-tools\\adb.exe']
+      : ['/usr/bin/adb', '/usr/local/bin/adb'];
+
+    for (const fb of fallbacks) {
+      try {
+        execSync(`"${fb}" version`, { encoding: 'utf8', timeout: 5000 });
+        return fb;
+      } catch {}
     }
+
+    return 'adb';
   }
 
   /**
