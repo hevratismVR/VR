@@ -128,26 +128,38 @@ function updateScreenFrame(ip, base64Data) {
 
 // --- Device Status Update ---
 function updateDevicesFromStatus(deviceList) {
+  const prevCount = devices.length;
   devices = deviceList;
   updateDeviceCount();
 
-  deviceList.forEach(device => {
-    const card = document.getElementById(`card-${device.ip.replace(/\./g, '-')}`);
-    if (card) {
-      // Update status dot
-      const dot = card.querySelector('.status-dot');
-      if (dot) {
-        dot.className = `status-dot ${device.connected ? 'connected' : ''}`;
-      }
+  // If device count changed, re-render all cards
+  if (deviceList.length !== prevCount) {
+    renderDevices();
+    return;
+  }
 
-      // Update battery
-      const batteryEl = card.querySelector('.battery-indicator');
-      if (batteryEl && device.battery !== null) {
-        const level = device.battery;
-        const cls = level > 60 ? 'high' : level > 20 ? 'medium' : 'low';
-        batteryEl.className = `battery-indicator ${cls}`;
-        batteryEl.querySelector('span').textContent = `${level}%`;
-      }
+  deviceList.forEach(device => {
+    const ipId = device.ip.replace(/\./g, '-');
+    const card = document.getElementById(`card-${ipId}`);
+    if (!card) {
+      // New device - render all
+      renderDevices();
+      return;
+    }
+
+    // Update status dot
+    const dot = card.querySelector('.status-dot');
+    if (dot) {
+      dot.className = `status-dot ${device.connected ? 'connected' : ''}`;
+    }
+
+    // Update battery
+    const batteryEl = card.querySelector('.battery-indicator');
+    if (batteryEl && device.battery !== null) {
+      const level = device.battery;
+      const cls = level > 60 ? 'high' : level > 20 ? 'medium' : 'low';
+      batteryEl.className = `battery-indicator ${cls}`;
+      batteryEl.querySelector('span').textContent = `${level}%`;
     }
   });
 }
