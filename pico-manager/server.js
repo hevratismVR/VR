@@ -68,7 +68,7 @@ const deviceStore = new DeviceStore();
 const adbManager = new AdbManager(deviceStore);
 const screenCapture = new ScreenCapture(adbManager, deviceStore);
 const contentControl = new ContentControl(adbManager);
-const streamManager = new StreamManager(adbManager);
+const streamManager = new StreamManager(adbManager, screenCapture);
 
 // --- REST API ---
 

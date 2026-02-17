@@ -72,9 +72,9 @@ function connectWebSocket() {
   };
 
   ws.onmessage = (event) => {
-    // Binary message = H.264 data from screenrecord
+    // Binary message = stream data (H.264 or JPEG)
     if (event.data instanceof ArrayBuffer) {
-      handleH264Data(event.data);
+      handleBinaryData(event.data);
       return;
     }
 
@@ -84,6 +84,10 @@ function connectWebSocket() {
       switch (data.type) {
         case 'device_status':
           updateDevicesFromStatus(data.devices);
+          break;
+        case 'stream_method':
+          console.log(`[Stream] ${data.ip} using: ${data.method}`);
+          toast(`שיקוף ${data.ip}: ${data.method}`, 'info');
           break;
         case 'stream_error':
           console.warn(`[Stream] Error for ${data.ip}:`, data.error);
@@ -114,22 +118,58 @@ function wsSend(data) {
   }
 }
 
-// --- H.264 Data Handler ---
-function handleH264Data(buffer) {
+// --- Binary Stream Data Handler ---
+function handleBinaryData(buffer) {
   const view = new Uint8Array(buffer);
-  if (view.length < 2) return;
+  if (view.length < 3) return;
 
-  // Parse packet: [1 byte IP length][IP string][H.264 data]
-  const ipLen = view[0];
-  if (view.length < 1 + ipLen) return;
+  // Parse packet: [1 byte type][1 byte IP length][IP string][data]
+  const type = view[0];
+  const ipLen = view[1];
+  if (view.length < 2 + ipLen) return;
 
-  const ip = new TextDecoder().decode(view.subarray(1, 1 + ipLen));
-  const h264Data = view.subarray(1 + ipLen);
+  const ip = new TextDecoder().decode(view.subarray(2, 2 + ipLen));
+  const data = view.subarray(2 + ipLen);
 
-  const player = h264Players.get(ip);
-  if (player) {
-    player.feed(h264Data);
+  if (type === 0x01) {
+    // H.264 data - feed to H264Player
+    const player = h264Players.get(ip);
+    if (player) {
+      player.feed(data);
+    }
+  } else if (type === 0x02) {
+    // JPEG frame - render directly to canvas
+    renderJpegFrame(ip, data);
   }
+}
+
+// Render a JPEG frame directly to canvas
+function renderJpegFrame(ip, data) {
+  const ipId = ip.replace(/\./g, '-');
+  const canvas = document.getElementById(`screen-canvas-${ipId}`);
+  if (!canvas) return;
+
+  const blob = new Blob([data], { type: 'image/jpeg' });
+  createImageBitmap(blob).then(bitmap => {
+    if (canvas.width !== bitmap.width || canvas.height !== bitmap.height) {
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+    }
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+
+    // Update FPS counter for MJPEG
+    if (!canvas._mjpegFpsFrames) canvas._mjpegFpsFrames = 0;
+    canvas._mjpegFpsFrames++;
+    if (!canvas._mjpegFpsTimer) {
+      canvas._mjpegFpsTimer = setInterval(() => {
+        const badge = canvas.parentElement?.querySelector('.fps-badge');
+        if (badge) badge.textContent = `${canvas._mjpegFpsFrames} FPS`;
+        canvas._mjpegFpsFrames = 0;
+      }, 1000);
+    }
+  }).catch(() => {});
 }
 
 // --- Device Status Update ---
@@ -377,41 +417,25 @@ function startStream(ip) {
   const canvas = document.getElementById(`screen-canvas-${ipId}`);
   if (!canvas) return;
 
-  // Check WebCodecs support for H.264 real-time streaming
+  // Set up H264Player if browser supports WebCodecs (for H.264 streams)
   if (typeof H264Player !== 'undefined' && H264Player.supported) {
-    // Real-time H.264 streaming via WebSocket
     const player = new H264Player(canvas);
     player.onFps = (fps) => {
       const badge = canvas.parentElement.querySelector('.fps-badge');
       if (badge) badge.textContent = `${fps} FPS`;
     };
     h264Players.set(ip, player);
-
-    canvas.style.display = 'block';
-    const placeholder = canvas.parentElement.querySelector('.screen-placeholder');
-    if (placeholder) placeholder.style.display = 'none';
-
-    // Tell server to start H.264 stream
-    wsSend({ type: 'start_stream', ip });
-    streamingDevices.add(ip);
-    toast(`שיקוף מופעל: ${ip}`, 'success');
-  } else {
-    // Fallback: MJPEG (slow but works everywhere)
-    console.warn('[Stream] WebCodecs not supported, using MJPEG fallback');
-    const img = document.createElement('img');
-    img.id = `screen-img-${ipId}`;
-    img.src = `/api/devices/${ip}/mjpeg?t=${Date.now()}`;
-    img.style.width = '100%';
-    img.style.height = '100%';
-    img.style.objectFit = 'contain';
-    canvas.parentElement.insertBefore(img, canvas);
-    canvas.style.display = 'none';
-    const placeholder = canvas.parentElement.querySelector('.screen-placeholder');
-    if (placeholder) placeholder.style.display = 'none';
-
-    streamingDevices.add(ip);
-    toast(`שיקוף (MJPEG) מופעל: ${ip}`, 'success');
   }
+  // Even without H264Player, server can send JPEG frames which render via renderJpegFrame()
+
+  canvas.style.display = 'block';
+  const placeholder = canvas.parentElement.querySelector('.screen-placeholder');
+  if (placeholder) placeholder.style.display = 'none';
+
+  // Tell server to start stream (server decides H.264 vs MJPEG)
+  wsSend({ type: 'start_stream', ip });
+  streamingDevices.add(ip);
+  toast(`שיקוף מופעל: ${ip}`, 'success');
 }
 
 function stopStream(ip) {
@@ -427,17 +451,15 @@ function stopStream(ip) {
   // Tell server to stop
   wsSend({ type: 'stop_stream', ip });
 
-  // Hide canvas
+  // Hide canvas and clean up MJPEG FPS timer
   const canvas = document.getElementById(`screen-canvas-${ipId}`);
   if (canvas) {
     canvas.style.display = 'none';
-  }
-
-  // Remove MJPEG img if it exists
-  const img = document.getElementById(`screen-img-${ipId}`);
-  if (img) {
-    img.src = '';
-    img.remove();
+    if (canvas._mjpegFpsTimer) {
+      clearInterval(canvas._mjpegFpsTimer);
+      canvas._mjpegFpsTimer = null;
+      canvas._mjpegFpsFrames = 0;
+    }
   }
 
   // Show placeholder
