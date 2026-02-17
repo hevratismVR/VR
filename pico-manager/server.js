@@ -243,7 +243,10 @@ wss.on('connection', (ws) => {
 function startDeviceStream(ws, ip, fps, intervals) {
   if (intervals.has(ip)) return;
 
+  console.log(`[Stream] Starting stream for ${ip} at ${fps} FPS`);
   const intervalMs = Math.max(200, Math.floor(1000 / fps));
+  let frameCount = 0;
+  let errorCount = 0;
 
   const interval = setInterval(async () => {
     if (ws.readyState !== WebSocket.OPEN) {
@@ -260,8 +263,12 @@ function startDeviceStream(ws, ip, fps, intervals) {
           data: buffer.toString('base64'),
           timestamp: Date.now()
         }));
+        frameCount++;
+        if (frameCount === 1) console.log(`[Stream] First frame sent for ${ip} (${buffer.length} bytes)`);
       }
     } catch (err) {
+      errorCount++;
+      if (errorCount <= 3) console.error(`[Stream] Screenshot error for ${ip}: ${err.message}`);
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
           type: 'stream_error',
@@ -284,6 +291,10 @@ function stopDeviceStream(ip, intervals) {
 
 function startAllStreams(ws, fps, intervals) {
   const devices = deviceStore.getConnectedDevices();
+  console.log(`[Stream] Starting all streams for ${devices.length} connected device(s)`);
+  if (devices.length === 0) {
+    console.log('[Stream] No connected devices to stream');
+  }
   devices.forEach(device => {
     startDeviceStream(ws, device.ip, fps, intervals);
   });

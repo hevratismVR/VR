@@ -76,6 +76,7 @@ function connectWebSocket() {
           break;
         case 'stream_error':
           console.warn(`[Stream] Error for ${data.ip}:`, data.error);
+          toast(`שגיאת שיקוף ${data.ip}: ${data.error}`, 'error');
           break;
       }
     } catch (err) {
