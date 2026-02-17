@@ -75,9 +75,9 @@ class ScreenCapture {
 
       // Crop the inner portion of the left eye to remove VR lens circle
       // The VR lens circle is roughly circular, so we crop an inner rectangle
-      // that avoids the black borders (~10% margin on each side)
-      const marginX = Math.floor(halfWidth * 0.1);
-      const marginY = Math.floor(meta.height * 0.1);
+      // that avoids the black borders (~18% margin to fully remove circle)
+      const marginX = Math.floor(halfWidth * 0.18);
+      const marginY = Math.floor(meta.height * 0.18);
       const cropWidth = halfWidth - (marginX * 2);
       const cropHeight = meta.height - (marginY * 2);
 

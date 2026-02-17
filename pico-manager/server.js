@@ -6,6 +6,7 @@ const { AdbManager } = require('./src/adb-manager');
 const { ScreenCapture } = require('./src/screen-capture');
 const { ContentControl } = require('./src/content-control');
 const { DeviceStore } = require('./src/device-store');
+const { StreamManager } = require('./src/stream-manager');
 
 const PORT = process.env.PORT || 3000;
 
@@ -20,6 +21,7 @@ const deviceStore = new DeviceStore();
 const adbManager = new AdbManager(deviceStore);
 const screenCapture = new ScreenCapture(adbManager, deviceStore);
 const contentControl = new ContentControl(adbManager);
+const streamManager = new StreamManager(adbManager);
 
 // --- REST API ---
 
@@ -38,7 +40,8 @@ app.get('/api/status', async (req, res) => {
     adb: adbAvailable,
     adbVersion,
     connectedDevices: deviceStore.getConnectedDevices().length,
-    totalDevices: deviceStore.getAllDevices().length
+    totalDevices: deviceStore.getAllDevices().length,
+    realtimeStreaming: streamManager.available
   });
 });
 
@@ -205,10 +208,11 @@ app.get('/api/devices/:ip/screenshot', async (req, res) => {
   }
 });
 
-// MJPEG live stream endpoint - much faster than WebSocket+base64
+// MJPEG live stream endpoint
+// Uses screenrecord+ffmpeg for real-time streaming (~15-30 FPS)
+// Falls back to screencap+sharp if ffmpeg is not available (~0.3 FPS)
 app.get('/api/devices/:ip/mjpeg', async (req, res) => {
   const ip = req.params.ip;
-  console.log(`[MJPEG] Starting stream for ${ip}`);
 
   res.writeHead(200, {
     'Content-Type': 'multipart/x-mixed-replace; boundary=frame',
@@ -216,6 +220,40 @@ app.get('/api/devices/:ip/mjpeg', async (req, res) => {
     'Pragma': 'no-cache',
     'Connection': 'keep-alive',
   });
+
+  // Try real-time streaming (screenrecord + ffmpeg)
+  if (streamManager.available) {
+    console.log(`[MJPEG] Starting real-time stream for ${ip} (screenrecord+ffmpeg)`);
+
+    const stream = streamManager.startStream(ip);
+    let frameCount = 0;
+
+    const onFrame = (frame) => {
+      try {
+        res.write(`--frame\r\nContent-Type: image/jpeg\r\nContent-Length: ${frame.length}\r\n\r\n`);
+        res.write(frame);
+        res.write('\r\n');
+        frameCount++;
+      } catch {
+        // Client disconnected
+      }
+    };
+
+    stream.on('frame', onFrame);
+
+    req.on('close', () => {
+      stream.removeListener('frame', onFrame);
+      console.log(`[MJPEG] Stream closed for ${ip} after ${frameCount} frames`);
+      // Stop stream if no more listeners
+      if (stream.listenerCount('frame') === 0) {
+        streamManager.stopStream(ip);
+      }
+    });
+    return;
+  }
+
+  // Fallback: screencap + sharp (slow, ~0.3 FPS)
+  console.log(`[MJPEG] Starting screencap fallback for ${ip} (slow mode)`);
 
   let running = true;
   let frameCount = 0;
