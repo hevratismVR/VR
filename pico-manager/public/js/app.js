@@ -7,6 +7,8 @@ let ws = null;
 let devices = [];
 let streaming = false;
 let streamingDevices = new Set();
+let wsReconnectDelay = 1000;
+const WS_MAX_RECONNECT_DELAY = 15000;
 
 // --- DOM Elements ---
 const $ = (sel) => document.querySelector(sel);
@@ -46,35 +48,51 @@ function toast(message, type = 'info') {
 
 // --- WebSocket ---
 function connectWebSocket() {
+  if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
+    return; // Already connecting or connected
+  }
+
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   ws = new WebSocket(`${protocol}//${location.host}/ws`);
 
   ws.onopen = () => {
     console.log('[WS] Connected');
+    wsReconnectDelay = 1000; // Reset backoff on success
+    // Update connection status in UI
+    const statusEl = document.querySelector('.ws-status');
+    if (statusEl) statusEl.className = 'ws-status connected';
   };
 
   ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
+    try {
+      const data = JSON.parse(event.data);
 
-    switch (data.type) {
-      case 'frame':
-        updateScreenFrame(data.ip, data.data);
-        break;
-      case 'device_status':
-        updateDevicesFromStatus(data.devices);
-        break;
-      case 'stream_error':
-        console.warn(`[Stream] Error for ${data.ip}:`, data.error);
-        break;
+      switch (data.type) {
+        case 'frame':
+          updateScreenFrame(data.ip, data.data);
+          break;
+        case 'device_status':
+          updateDevicesFromStatus(data.devices);
+          break;
+        case 'stream_error':
+          console.warn(`[Stream] Error for ${data.ip}:`, data.error);
+          break;
+      }
+    } catch (err) {
+      console.error('[WS] Error parsing message:', err);
     }
   };
 
   ws.onclose = () => {
-    console.log('[WS] Disconnected, reconnecting...');
-    setTimeout(connectWebSocket, 2000);
+    console.log(`[WS] Disconnected, reconnecting in ${wsReconnectDelay / 1000}s...`);
+    const statusEl = document.querySelector('.ws-status');
+    if (statusEl) statusEl.className = 'ws-status disconnected';
+    setTimeout(connectWebSocket, wsReconnectDelay);
+    wsReconnectDelay = Math.min(wsReconnectDelay * 1.5, WS_MAX_RECONNECT_DELAY);
   };
 
-  ws.onerror = () => {
+  ws.onerror = (err) => {
+    console.error('[WS] Error:', err);
     ws.close();
   };
 }
@@ -581,5 +599,16 @@ document.querySelectorAll('.modal').forEach(modal => {
 // --- Init ---
 (async function init() {
   connectWebSocket();
+
+  // Check server status
+  try {
+    const status = await api('/status');
+    if (!status.adb) {
+      toast('ADB לא זמין - ודא ש-ADB מותקן ונגיש', 'error');
+    }
+  } catch {
+    toast('לא ניתן להתחבר לשרת', 'error');
+  }
+
   await refreshDevices();
 })();

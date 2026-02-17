@@ -72,6 +72,24 @@ body {
   border: 1px solid var(--border);
 }
 
+.ws-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background 0.3s;
+}
+
+.ws-status.connected {
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+}
+
+.ws-status.disconnected {
+  background: var(--danger);
+  box-shadow: 0 0 6px var(--danger);
+}
+
 /* === Buttons === */
 .btn {
   display: inline-flex;

@@ -1,5 +1,7 @@
 const { exec, execSync, spawn } = require('child_process');
 const { promisify } = require('util');
+const os = require('os');
+const net = require('net');
 
 const execAsync = promisify(exec);
 
@@ -53,17 +55,29 @@ class AdbManager {
     const knownDevices = await this._getAdbDevices();
 
     // Try to detect subnet from device IP or use common subnets
-    const subnets = await this._detectSubnets();
+    const subnets = this._detectSubnets();
+    console.log(`[ADB] Scanning subnets: ${subnets.join(', ')}`);
 
-    const scanPromises = [];
+    // Phase 1: Fast TCP port probe to find devices with port 5555 open
+    const openIPs = [];
+    const tcpPromises = [];
     for (const subnet of subnets) {
       for (let i = 1; i <= 254; i++) {
         const ip = `${subnet}.${i}`;
-        scanPromises.push(this._probeDevice(ip));
+        tcpPromises.push(this._tcpProbe(ip, 5555, 800).then(open => {
+          if (open) {
+            console.log(`[ADB] Port 5555 open on ${ip}`);
+            openIPs.push(ip);
+          }
+        }));
       }
     }
+    await Promise.allSettled(tcpPromises);
+    console.log(`[ADB] TCP probe found ${openIPs.length} device(s) with port 5555 open`);
 
-    const results = await Promise.allSettled(scanPromises);
+    // Phase 2: Try ADB connect only on IPs with open port
+    const adbPromises = openIPs.map(ip => this._probeDevice(ip));
+    const results = await Promise.allSettled(adbPromises);
     const found = results
       .filter(r => r.status === 'fulfilled' && r.value)
       .map(r => r.value);
@@ -82,6 +96,33 @@ class AdbManager {
 
     console.log(`[ADB] Found ${found.length} device(s)`);
     return found;
+  }
+
+  /**
+   * Fast TCP port probe - checks if a port is open without full ADB handshake
+   */
+  _tcpProbe(ip, port, timeoutMs = 800) {
+    return new Promise((resolve) => {
+      const socket = new net.Socket();
+      socket.setTimeout(timeoutMs);
+
+      socket.on('connect', () => {
+        socket.destroy();
+        resolve(true);
+      });
+
+      socket.on('timeout', () => {
+        socket.destroy();
+        resolve(false);
+      });
+
+      socket.on('error', () => {
+        socket.destroy();
+        resolve(false);
+      });
+
+      socket.connect(port, ip);
+    });
   }
 
   /**
@@ -116,18 +157,31 @@ class AdbManager {
   }
 
   /**
-   * Detect network subnets to scan
+   * Detect network subnets to scan (cross-platform using Node.js os module)
    */
-  async _detectSubnets() {
+  _detectSubnets() {
     try {
-      const output = await execAsync(
-        "ip -4 addr show | grep 'inet ' | awk '{print $2}' | cut -d/ -f1",
-        { timeout: 5000 }
-      );
-      const ips = output.stdout.trim().split('\n').filter(ip => ip && ip !== '127.0.0.1');
-      const subnets = ips.map(ip => ip.split('.').slice(0, 3).join('.'));
-      return [...new Set(subnets)];
-    } catch {
+      const interfaces = os.networkInterfaces();
+      const subnets = new Set();
+
+      for (const [name, addrs] of Object.entries(interfaces)) {
+        for (const addr of addrs) {
+          if (addr.family === 'IPv4' && !addr.internal) {
+            const subnet = addr.address.split('.').slice(0, 3).join('.');
+            subnets.add(subnet);
+            console.log(`[ADB] Found network interface ${name}: ${addr.address} (subnet ${subnet}.x)`);
+          }
+        }
+      }
+
+      if (subnets.size === 0) {
+        console.log('[ADB] No network interfaces found, using default subnets');
+        return ['192.168.1', '192.168.0', '10.0.0'];
+      }
+
+      return [...subnets];
+    } catch (err) {
+      console.error('[ADB] Error detecting subnets:', err.message);
       return ['192.168.1', '192.168.0', '10.0.0'];
     }
   }
@@ -168,17 +222,24 @@ class AdbManager {
    */
   async connectDevice(ip) {
     console.log(`[ADB] Connecting to ${ip}...`);
-    const output = await this.adbExec(`connect ${ip}:5555`, 15000);
+    try {
+      const output = await this.adbExec(`connect ${ip}:5555`, 15000);
+      console.log(`[ADB] Connect response for ${ip}: ${output}`);
 
-    if (output.includes('connected') || output.includes('already')) {
-      this.deviceStore.addDevice(ip, { connected: true, status: 'connected' });
+      if (output.includes('connected') || output.includes('already')) {
+        this.deviceStore.addDevice(ip, { connected: true, status: 'connected' });
+        console.log(`[ADB] Successfully connected to ${ip}`);
 
-      // Fetch device info after connect
-      this._updateDeviceInfo(ip).catch(() => {});
+        // Fetch device info after connect
+        this._updateDeviceInfo(ip).catch(() => {});
 
-      return true;
+        return true;
+      }
+      throw new Error(`Failed to connect: ${output}`);
+    } catch (err) {
+      console.error(`[ADB] Connection failed for ${ip}: ${err.message}`);
+      throw err;
     }
-    throw new Error(`Failed to connect: ${output}`);
   }
 
   /**

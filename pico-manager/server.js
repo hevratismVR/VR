@@ -23,6 +23,25 @@ const contentControl = new ContentControl(adbManager);
 
 // --- REST API ---
 
+// Server health check
+app.get('/api/status', async (req, res) => {
+  let adbAvailable = false;
+  let adbVersion = null;
+  try {
+    const output = await adbManager.adbExec('version', 5000);
+    adbAvailable = true;
+    adbVersion = output.split('\n')[0];
+  } catch {}
+
+  res.json({
+    server: 'running',
+    adb: adbAvailable,
+    adbVersion,
+    connectedDevices: deviceStore.getConnectedDevices().length,
+    totalDevices: deviceStore.getAllDevices().length
+  });
+});
+
 // Get all devices
 app.get('/api/devices', (req, res) => {
   res.json(deviceStore.getAllDevices());
@@ -298,10 +317,17 @@ server.listen(PORT, '0.0.0.0', () => {
 ╚══════════════════════════════════════════════════╝
   `);
 
-  // Auto-scan on startup
-  adbManager.scanNetwork().then(devices => {
+  // Verify ADB is available
+  adbManager.adbExec('version').then(output => {
+    console.log(`[Startup] ADB available: ${output.split('\n')[0]}`);
+
+    // Auto-scan on startup
+    return adbManager.scanNetwork();
+  }).then(devices => {
     console.log(`[Startup] Found ${devices.length} device(s) on network`);
-  }).catch(() => {
-    console.log('[Startup] Network scan completed (run manual scan from dashboard)');
+  }).catch(err => {
+    console.error(`[Startup] ADB check/scan failed: ${err.message}`);
+    console.log('[Startup] Make sure ADB is installed and in PATH');
+    console.log('[Startup] You can still use the dashboard - connect devices manually');
   });
 });
