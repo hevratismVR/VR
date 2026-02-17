@@ -343,7 +343,8 @@ body {
   overflow: hidden;
 }
 
-.device-screen img {
+.device-screen img,
+.device-screen canvas {
   width: 100%;
   height: 100%;
   object-fit: contain;

@@ -25,7 +25,6 @@ const streamManager = new StreamManager(adbManager);
 
 // --- REST API ---
 
-// Server health check
 app.get('/api/status', async (req, res) => {
   let adbAvailable = false;
   let adbVersion = null;
@@ -40,17 +39,14 @@ app.get('/api/status', async (req, res) => {
     adb: adbAvailable,
     adbVersion,
     connectedDevices: deviceStore.getConnectedDevices().length,
-    totalDevices: deviceStore.getAllDevices().length,
-    realtimeStreaming: streamManager.available
+    totalDevices: deviceStore.getAllDevices().length
   });
 });
 
-// Get all devices
 app.get('/api/devices', (req, res) => {
   res.json(deviceStore.getAllDevices());
 });
 
-// Scan network for PICO devices
 app.post('/api/devices/scan', async (req, res) => {
   try {
     const devices = await adbManager.scanNetwork();
@@ -60,7 +56,6 @@ app.post('/api/devices/scan', async (req, res) => {
   }
 });
 
-// Connect to a device
 app.post('/api/devices/:ip/connect', async (req, res) => {
   try {
     await adbManager.connectDevice(req.params.ip);
@@ -70,7 +65,6 @@ app.post('/api/devices/:ip/connect', async (req, res) => {
   }
 });
 
-// Disconnect a device
 app.post('/api/devices/:ip/disconnect', async (req, res) => {
   try {
     await adbManager.disconnectDevice(req.params.ip);
@@ -80,7 +74,6 @@ app.post('/api/devices/:ip/disconnect', async (req, res) => {
   }
 });
 
-// Get device info
 app.get('/api/devices/:ip/info', async (req, res) => {
   try {
     const info = await adbManager.getDeviceInfo(req.params.ip);
@@ -90,7 +83,6 @@ app.get('/api/devices/:ip/info', async (req, res) => {
   }
 });
 
-// Launch app on device
 app.post('/api/devices/:ip/launch', async (req, res) => {
   try {
     const { packageName } = req.body;
@@ -101,7 +93,6 @@ app.post('/api/devices/:ip/launch', async (req, res) => {
   }
 });
 
-// Stop app on device
 app.post('/api/devices/:ip/stop', async (req, res) => {
   try {
     const { packageName } = req.body;
@@ -112,7 +103,6 @@ app.post('/api/devices/:ip/stop', async (req, res) => {
   }
 });
 
-// List installed apps
 app.get('/api/devices/:ip/apps', async (req, res) => {
   try {
     const apps = await contentControl.listApps(req.params.ip);
@@ -122,7 +112,6 @@ app.get('/api/devices/:ip/apps', async (req, res) => {
   }
 });
 
-// Set volume
 app.post('/api/devices/:ip/volume', async (req, res) => {
   try {
     const { level } = req.body;
@@ -133,7 +122,6 @@ app.post('/api/devices/:ip/volume', async (req, res) => {
   }
 });
 
-// Set brightness
 app.post('/api/devices/:ip/brightness', async (req, res) => {
   try {
     const { level } = req.body;
@@ -144,7 +132,6 @@ app.post('/api/devices/:ip/brightness', async (req, res) => {
   }
 });
 
-// Reboot device
 app.post('/api/devices/:ip/reboot', async (req, res) => {
   try {
     await contentControl.reboot(req.params.ip);
@@ -154,7 +141,6 @@ app.post('/api/devices/:ip/reboot', async (req, res) => {
   }
 });
 
-// Push file to device
 app.post('/api/devices/:ip/push', async (req, res) => {
   try {
     const { localPath, remotePath } = req.body;
@@ -165,7 +151,7 @@ app.post('/api/devices/:ip/push', async (req, res) => {
   }
 });
 
-// --- Bulk operations (all devices) ---
+// --- Bulk operations ---
 
 app.post('/api/all/launch', async (req, res) => {
   try {
@@ -197,7 +183,8 @@ app.post('/api/all/volume', async (req, res) => {
   }
 });
 
-// Screenshot endpoint (single frame)
+// --- Single screenshot (uses screencap + sharp) ---
+
 app.get('/api/devices/:ip/screenshot', async (req, res) => {
   try {
     const buffer = await screenCapture.captureScreenshot(req.params.ip);
@@ -208,52 +195,17 @@ app.get('/api/devices/:ip/screenshot', async (req, res) => {
   }
 });
 
-// MJPEG live stream endpoint
-// Uses screenrecord+ffmpeg for real-time streaming (~15-30 FPS)
-// Falls back to screencap+sharp if ffmpeg is not available (~0.3 FPS)
+// --- MJPEG fallback stream (slow, uses screencap) ---
+
 app.get('/api/devices/:ip/mjpeg', async (req, res) => {
   const ip = req.params.ip;
+  console.log(`[MJPEG] Starting screencap stream for ${ip} (slow fallback)`);
 
   res.writeHead(200, {
     'Content-Type': 'multipart/x-mixed-replace; boundary=frame',
     'Cache-Control': 'no-cache, no-store',
-    'Pragma': 'no-cache',
     'Connection': 'keep-alive',
   });
-
-  // Try real-time streaming (screenrecord + ffmpeg)
-  if (streamManager.available) {
-    console.log(`[MJPEG] Starting real-time stream for ${ip} (screenrecord+ffmpeg)`);
-
-    const stream = streamManager.startStream(ip);
-    let frameCount = 0;
-
-    const onFrame = (frame) => {
-      try {
-        res.write(`--frame\r\nContent-Type: image/jpeg\r\nContent-Length: ${frame.length}\r\n\r\n`);
-        res.write(frame);
-        res.write('\r\n');
-        frameCount++;
-      } catch {
-        // Client disconnected
-      }
-    };
-
-    stream.on('frame', onFrame);
-
-    req.on('close', () => {
-      stream.removeListener('frame', onFrame);
-      console.log(`[MJPEG] Stream closed for ${ip} after ${frameCount} frames`);
-      // Stop stream if no more listeners
-      if (stream.listenerCount('frame') === 0) {
-        streamManager.stopStream(ip);
-      }
-    });
-    return;
-  }
-
-  // Fallback: screencap + sharp (slow, ~0.3 FPS)
-  console.log(`[MJPEG] Starting screencap fallback for ${ip} (slow mode)`);
 
   let running = true;
   let frameCount = 0;
@@ -266,7 +218,8 @@ app.get('/api/devices/:ip/mjpeg', async (req, res) => {
     try {
       const buffer = await screenCapture.captureScreenshot(ip);
       if (buffer && running) {
-        res.write(`--frame\r\nContent-Type: image/jpeg\r\nContent-Length: ${buffer.length}\r\n\r\n`);
+        const ct = buffer[0] === 0xFF && buffer[1] === 0xD8 ? 'image/jpeg' : 'image/png';
+        res.write(`--frame\r\nContent-Type: ${ct}\r\nContent-Length: ${buffer.length}\r\n\r\n`);
         res.write(buffer);
         res.write('\r\n');
         frameCount++;
@@ -280,115 +233,65 @@ app.get('/api/devices/:ip/mjpeg', async (req, res) => {
   }
 });
 
-// Check scrcpy availability
-app.get('/api/scrcpy', (req, res) => {
-  res.json({ available: !!adbManager.scrcpyPath, path: adbManager.scrcpyPath });
-});
-
-// --- WebSocket for live streaming ---
+// --- WebSocket: H.264 real-time streaming + device status ---
 
 wss.on('connection', (ws) => {
   console.log('[WS] Client connected');
-  let streamIntervals = new Map();
+  const unsubscribers = new Map(); // ip -> unsubscribe function
 
   ws.on('message', (message) => {
     try {
       const data = JSON.parse(message);
 
       switch (data.type) {
-        case 'start_stream':
-          startDeviceStream(ws, data.ip, data.fps || 3, streamIntervals);
+        case 'start_stream': {
+          const ip = data.ip;
+          if (unsubscribers.has(ip)) break; // Already streaming
+          console.log(`[WS] Start H.264 stream for ${ip}`);
+          const unsub = streamManager.subscribe(ip, ws);
+          unsubscribers.set(ip, unsub);
           break;
-        case 'stop_stream':
-          stopDeviceStream(data.ip, streamIntervals);
+        }
+        case 'stop_stream': {
+          const ip = data.ip;
+          const unsub = unsubscribers.get(ip);
+          if (unsub) {
+            unsub();
+            unsubscribers.delete(ip);
+          }
           break;
-        case 'start_all_streams':
-          startAllStreams(ws, data.fps || 2, streamIntervals);
+        }
+        case 'start_all_streams': {
+          const devices = deviceStore.getConnectedDevices();
+          devices.forEach(device => {
+            if (!unsubscribers.has(device.ip)) {
+              const unsub = streamManager.subscribe(device.ip, ws);
+              unsubscribers.set(device.ip, unsub);
+            }
+          });
           break;
-        case 'stop_all_streams':
-          stopAllStreams(streamIntervals);
+        }
+        case 'stop_all_streams': {
+          for (const [ip, unsub] of unsubscribers) {
+            unsub();
+          }
+          unsubscribers.clear();
           break;
+        }
       }
     } catch (err) {
-      console.error('[WS] Error processing message:', err);
+      console.error('[WS] Error processing message:', err.message);
     }
   });
 
   ws.on('close', () => {
     console.log('[WS] Client disconnected');
-    stopAllStreams(streamIntervals);
+    for (const [ip, unsub] of unsubscribers) {
+      unsub();
+    }
+    unsubscribers.clear();
   });
 });
-
-function startDeviceStream(ws, ip, fps, intervals) {
-  if (intervals.has(ip)) return;
-
-  console.log(`[Stream] Starting stream for ${ip}`);
-  let running = true;
-  let frameCount = 0;
-  let errorCount = 0;
-
-  // Use a continuous loop instead of fixed interval
-  // This way each frame is captured as soon as the previous one finishes
-  async function captureLoop() {
-    while (running && ws.readyState === WebSocket.OPEN) {
-      try {
-        const buffer = await screenCapture.captureScreenshot(ip);
-        if (buffer && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({
-            type: 'frame',
-            ip: ip,
-            data: buffer.toString('base64'),
-            timestamp: Date.now()
-          }));
-          frameCount++;
-          errorCount = 0;
-          if (frameCount === 1) console.log(`[Stream] First frame sent for ${ip} (${buffer.length} bytes)`);
-          if (frameCount % 30 === 0) console.log(`[Stream] ${ip}: ${frameCount} frames sent`);
-        }
-      } catch (err) {
-        errorCount++;
-        if (errorCount <= 3) console.error(`[Stream] Screenshot error for ${ip}: ${err.message}`);
-        if (errorCount > 10) {
-          console.error(`[Stream] Too many errors for ${ip}, stopping stream`);
-          break;
-        }
-        // Wait a bit before retrying on error
-        await new Promise(r => setTimeout(r, 1000));
-      }
-      // Small delay between frames to prevent CPU overload
-      await new Promise(r => setTimeout(r, 100));
-    }
-    intervals.delete(ip);
-  }
-
-  // Store a stop function instead of interval ID
-  intervals.set(ip, { stop: () => { running = false; } });
-  captureLoop();
-}
-
-function stopDeviceStream(ip, intervals) {
-  if (intervals.has(ip)) {
-    intervals.get(ip).stop();
-    intervals.delete(ip);
-  }
-}
-
-function startAllStreams(ws, fps, intervals) {
-  const devices = deviceStore.getConnectedDevices();
-  console.log(`[Stream] Starting all streams for ${devices.length} connected device(s)`);
-  if (devices.length === 0) {
-    console.log('[Stream] No connected devices to stream');
-  }
-  devices.forEach(device => {
-    startDeviceStream(ws, device.ip, fps, intervals);
-  });
-}
-
-function stopAllStreams(intervals) {
-  intervals.forEach((stream) => stream.stop());
-  intervals.clear();
-}
 
 // --- Status broadcast ---
 
@@ -413,17 +316,13 @@ server.listen(PORT, '0.0.0.0', () => {
 ╚══════════════════════════════════════════════════╝
   `);
 
-  // Verify ADB is available
   adbManager.adbExec('version').then(output => {
     console.log(`[Startup] ADB available: ${output.split('\n')[0]}`);
-
-    // Auto-scan on startup
     return adbManager.scanNetwork();
   }).then(devices => {
     console.log(`[Startup] Found ${devices.length} device(s) on network`);
   }).catch(err => {
     console.error(`[Startup] ADB check/scan failed: ${err.message}`);
     console.log('[Startup] Make sure ADB is installed and in PATH');
-    console.log('[Startup] You can still use the dashboard - connect devices manually');
   });
 });

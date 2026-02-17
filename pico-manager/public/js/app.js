@@ -10,6 +10,9 @@ let streamingDevices = new Set();
 let wsReconnectDelay = 1000;
 const WS_MAX_RECONNECT_DELAY = 15000;
 
+// H.264 players for each device (keyed by IP)
+const h264Players = new Map();
+
 // --- DOM Elements ---
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -49,28 +52,36 @@ function toast(message, type = 'info') {
 // --- WebSocket ---
 function connectWebSocket() {
   if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
-    return; // Already connecting or connected
+    return;
   }
 
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   ws = new WebSocket(`${protocol}//${location.host}/ws`);
+  ws.binaryType = 'arraybuffer'; // For H.264 binary data
 
   ws.onopen = () => {
     console.log('[WS] Connected');
-    wsReconnectDelay = 1000; // Reset backoff on success
-    // Update connection status in UI
+    wsReconnectDelay = 1000;
     const statusEl = document.querySelector('.ws-status');
     if (statusEl) statusEl.className = 'ws-status connected';
+
+    // Re-start any active streams after reconnect
+    for (const ip of streamingDevices) {
+      wsSend({ type: 'start_stream', ip });
+    }
   };
 
   ws.onmessage = (event) => {
+    // Binary message = H.264 data from screenrecord
+    if (event.data instanceof ArrayBuffer) {
+      handleH264Data(event.data);
+      return;
+    }
+
+    // Text message = JSON
     try {
       const data = JSON.parse(event.data);
-
       switch (data.type) {
-        case 'frame':
-          updateScreenFrame(data.ip, data.data);
-          break;
         case 'device_status':
           updateDevicesFromStatus(data.devices);
           break;
@@ -92,8 +103,7 @@ function connectWebSocket() {
     wsReconnectDelay = Math.min(wsReconnectDelay * 1.5, WS_MAX_RECONNECT_DELAY);
   };
 
-  ws.onerror = (err) => {
-    console.error('[WS] Error:', err);
+  ws.onerror = () => {
     ws.close();
   };
 }
@@ -104,26 +114,21 @@ function wsSend(data) {
   }
 }
 
-// --- Screen Frame Update ---
-function updateScreenFrame(ip, base64Data) {
-  const img = document.getElementById(`screen-img-${ip.replace(/\./g, '-')}`);
-  if (img) {
-    img.src = `data:image/png;base64,${base64Data}`;
-    img.style.display = 'block';
+// --- H.264 Data Handler ---
+function handleH264Data(buffer) {
+  const view = new Uint8Array(buffer);
+  if (view.length < 2) return;
 
-    // Hide placeholder
-    const placeholder = img.parentElement.querySelector('.screen-placeholder');
-    if (placeholder) placeholder.style.display = 'none';
+  // Parse packet: [1 byte IP length][IP string][H.264 data]
+  const ipLen = view[0];
+  if (view.length < 1 + ipLen) return;
 
-    // Update FPS counter
-    const badge = img.parentElement.querySelector('.fps-badge');
-    if (badge) {
-      const now = Date.now();
-      if (!img._lastFrame) img._lastFrame = now;
-      const fps = Math.round(1000 / (now - img._lastFrame));
-      badge.textContent = `${fps} FPS`;
-      img._lastFrame = now;
-    }
+  const ip = new TextDecoder().decode(view.subarray(1, 1 + ipLen));
+  const h264Data = view.subarray(1 + ipLen);
+
+  const player = h264Players.get(ip);
+  if (player) {
+    player.feed(h264Data);
   }
 }
 
@@ -133,7 +138,6 @@ function updateDevicesFromStatus(deviceList) {
   devices = deviceList;
   updateDeviceCount();
 
-  // If device count changed, re-render all cards
   if (deviceList.length !== prevCount) {
     renderDevices();
     return;
@@ -143,18 +147,15 @@ function updateDevicesFromStatus(deviceList) {
     const ipId = device.ip.replace(/\./g, '-');
     const card = document.getElementById(`card-${ipId}`);
     if (!card) {
-      // New device - render all
       renderDevices();
       return;
     }
 
-    // Update status dot
     const dot = card.querySelector('.status-dot');
     if (dot) {
       dot.className = `status-dot ${device.connected ? 'connected' : ''}`;
     }
 
-    // Update battery
     const batteryEl = card.querySelector('.battery-indicator');
     if (batteryEl && device.battery !== null) {
       const level = device.battery;
@@ -199,7 +200,7 @@ function createDeviceCard(device) {
     </div>
 
     <div class="device-screen" id="screen-${ipId}">
-      <img id="screen-img-${ipId}" style="display:none" alt="Screen">
+      <canvas id="screen-canvas-${ipId}" style="display:none"></canvas>
       <div class="screen-placeholder">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5">
           <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
@@ -213,52 +214,39 @@ function createDeviceCard(device) {
 
     <div class="device-controls">
       ${device.connected ? `
-        <!-- Stream toggle -->
         <button class="btn-icon" title="שיקוף מסך" onclick="toggleStream('${device.ip}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
         </button>
-
-        <!-- Fullscreen -->
         <button class="btn-icon" title="מסך מלא" onclick="toggleFullscreen('${device.ip}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
             <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
           </svg>
         </button>
-
-        <!-- Apps -->
         <button class="btn-icon" title="אפליקציות" onclick="showApps('${device.ip}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
             <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
           </svg>
         </button>
-
-        <!-- Home -->
         <button class="btn-icon" title="מסך בית" onclick="goHome('${device.ip}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>
           </svg>
         </button>
-
-        <!-- Volume Down -->
         <button class="btn-icon" title="הנמך ווליום" onclick="adjustVolume('${device.ip}', -1)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
           </svg>
         </button>
-
-        <!-- Volume Up -->
         <button class="btn-icon" title="הגבר ווליום" onclick="adjustVolume('${device.ip}', 1)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
             <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
           </svg>
         </button>
-
-        <!-- Disconnect -->
         <button class="btn-icon" title="נתק" onclick="disconnectDevice('${device.ip}')" style="margin-right:auto">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -274,7 +262,6 @@ function createDeviceCard(device) {
 }
 
 function renderDevices() {
-  // Remove empty state
   const empty = elGrid.querySelector('.empty-state');
 
   if (devices.length === 0) {
@@ -287,7 +274,6 @@ function renderDevices() {
 
   if (empty) empty.remove();
 
-  // Update existing cards or create new ones
   devices.forEach(device => {
     const ipId = device.ip.replace(/\./g, '-');
     const existing = document.getElementById(`card-${ipId}`);
@@ -296,7 +282,6 @@ function renderDevices() {
     }
   });
 
-  // Remove cards for devices no longer present
   const currentIps = new Set(devices.map(d => d.ip.replace(/\./g, '-')));
   elGrid.querySelectorAll('.device-card').forEach(card => {
     const cardIp = card.id.replace('card-', '');
@@ -389,27 +374,81 @@ function toggleStream(ip) {
 
 function startStream(ip) {
   const ipId = ip.replace(/\./g, '-');
-  const img = document.getElementById(`screen-img-${ipId}`);
-  if (img) {
-    // Use MJPEG stream - browser natively handles multipart image updates
-    img.src = `/api/devices/${ip}/mjpeg?t=${Date.now()}`;
-    img.style.display = 'block';
-    const placeholder = img.parentElement.querySelector('.screen-placeholder');
+  const canvas = document.getElementById(`screen-canvas-${ipId}`);
+  if (!canvas) return;
+
+  // Check WebCodecs support for H.264 real-time streaming
+  if (typeof H264Player !== 'undefined' && H264Player.supported) {
+    // Real-time H.264 streaming via WebSocket
+    const player = new H264Player(canvas);
+    player.onFps = (fps) => {
+      const badge = canvas.parentElement.querySelector('.fps-badge');
+      if (badge) badge.textContent = `${fps} FPS`;
+    };
+    h264Players.set(ip, player);
+
+    canvas.style.display = 'block';
+    const placeholder = canvas.parentElement.querySelector('.screen-placeholder');
     if (placeholder) placeholder.style.display = 'none';
+
+    // Tell server to start H.264 stream
+    wsSend({ type: 'start_stream', ip });
+    streamingDevices.add(ip);
+    toast(`שיקוף מופעל: ${ip}`, 'success');
+  } else {
+    // Fallback: MJPEG (slow but works everywhere)
+    console.warn('[Stream] WebCodecs not supported, using MJPEG fallback');
+    const img = document.createElement('img');
+    img.id = `screen-img-${ipId}`;
+    img.src = `/api/devices/${ip}/mjpeg?t=${Date.now()}`;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
+    canvas.parentElement.insertBefore(img, canvas);
+    canvas.style.display = 'none';
+    const placeholder = canvas.parentElement.querySelector('.screen-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+
+    streamingDevices.add(ip);
+    toast(`שיקוף (MJPEG) מופעל: ${ip}`, 'success');
   }
-  streamingDevices.add(ip);
-  toast(`שיקוף מופעל: ${ip}`, 'success');
 }
 
 function stopStream(ip) {
   const ipId = ip.replace(/\./g, '-');
+
+  // Stop H.264 player
+  const player = h264Players.get(ip);
+  if (player) {
+    player.destroy();
+    h264Players.delete(ip);
+  }
+
+  // Tell server to stop
+  wsSend({ type: 'stop_stream', ip });
+
+  // Hide canvas
+  const canvas = document.getElementById(`screen-canvas-${ipId}`);
+  if (canvas) {
+    canvas.style.display = 'none';
+  }
+
+  // Remove MJPEG img if it exists
   const img = document.getElementById(`screen-img-${ipId}`);
   if (img) {
     img.src = '';
-    img.style.display = 'none';
-    const placeholder = img.parentElement.querySelector('.screen-placeholder');
-    if (placeholder) placeholder.style.display = '';
+    img.remove();
   }
+
+  // Show placeholder
+  const screen = document.getElementById(`screen-${ipId}`);
+  if (screen) {
+    const placeholder = screen.querySelector('.screen-placeholder');
+    if (placeholder) placeholder.style.display = '';
+    const badge = screen.querySelector('.fps-badge');
+    if (badge) badge.textContent = '-- FPS';
+  }
+
   streamingDevices.delete(ip);
 }
 
@@ -616,7 +655,6 @@ $('#manualIp').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') manualConnect();
 });
 
-// Close modals on background click
 document.querySelectorAll('.modal').forEach(modal => {
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('active');
@@ -632,6 +670,11 @@ document.querySelectorAll('.modal').forEach(modal => {
     const status = await api('/status');
     if (!status.adb) {
       toast('ADB לא זמין - ודא ש-ADB מותקן ונגיש', 'error');
+    }
+    if (typeof H264Player !== 'undefined' && H264Player.supported) {
+      console.log('[Init] WebCodecs H.264 streaming available');
+    } else {
+      console.warn('[Init] WebCodecs not supported - using MJPEG fallback (slow)');
     }
   } catch {
     toast('לא ניתן להתחבר לשרת', 'error');
