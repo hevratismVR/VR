@@ -209,13 +209,16 @@ class AdbManager {
   }
 
   /**
-   * Probe a single IP for ADB device
+   * Probe a single IP for ADB device - connects and stays connected
    */
   async _probeDevice(ip) {
     return new Promise((resolve) => {
-      const timeout = setTimeout(() => resolve(null), 1500);
+      const timeout = setTimeout(() => {
+        proc.kill();
+        resolve(null);
+      }, 3000);
 
-      const proc = spawn(this.adbPath, ['connect', `${ip}:5555`], { timeout: 2000 });
+      const proc = spawn(this.adbPath, ['connect', `${ip}:5555`], { timeout: 4000 });
       let output = '';
 
       proc.stdout.on('data', (data) => { output += data.toString(); });
@@ -224,9 +227,10 @@ class AdbManager {
       proc.on('close', () => {
         clearTimeout(timeout);
         if (output.includes('connected') && !output.includes('unable')) {
+          console.log(`[ADB] Connected to ${ip} during scan`);
           resolve({ ip, connected: true, status: 'connected' });
-          // Immediately disconnect to not flood - we'll reconnect explicitly
-          exec(`${this.adbPath} disconnect ${ip}:5555`);
+          // Fetch device info in background
+          this._updateDeviceInfo(ip).catch(() => {});
         } else {
           resolve(null);
         }
