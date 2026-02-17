@@ -19,28 +19,156 @@ function getOrCreateCert() {
   const certFile = path.join(certDir, 'cert.pem');
   const keyFile = path.join(certDir, 'key.pem');
 
+  // Try to read existing certificates
   if (fs.existsSync(certFile) && fs.existsSync(keyFile)) {
-    return {
-      cert: fs.readFileSync(certFile),
-      key: fs.readFileSync(keyFile),
-    };
+    const cert = fs.readFileSync(certFile, 'utf8');
+    const key = fs.readFileSync(keyFile, 'utf8');
+    if (cert && key && cert.includes('BEGIN')) {
+      return { cert, key };
+    }
+    // Corrupt cert files - delete and regenerate
+    console.log('[HTTPS] Existing certificate files are invalid, regenerating...');
   }
 
-  console.log('[HTTPS] Generating self-signed certificate...');
-  const selfsigned = require('selfsigned');
-  const attrs = [{ name: 'commonName', value: 'PICO VR Manager' }];
-  const pems = selfsigned.generate(attrs, {
-    days: 365,
-    keySize: 2048,
-    algorithm: 'sha256',
-  });
-
   if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
-  fs.writeFileSync(certFile, pems.cert);
-  fs.writeFileSync(keyFile, pems.private);
-  console.log('[HTTPS] Certificate generated');
 
-  return { cert: pems.cert, key: pems.private };
+  // Method 1: Try selfsigned package
+  try {
+    console.log('[HTTPS] Generating certificate with selfsigned...');
+    const selfsigned = require('selfsigned');
+    const attrs = [{ name: 'commonName', value: 'PICO VR Manager' }];
+    const pems = selfsigned.generate(attrs, { days: 365 });
+
+    const cert = pems.cert;
+    const key = pems.private || pems.key;
+
+    if (!cert || !key) {
+      console.warn('[HTTPS] selfsigned returned keys:', Object.keys(pems));
+      throw new Error('Incomplete certificate data');
+    }
+
+    fs.writeFileSync(certFile, cert);
+    fs.writeFileSync(keyFile, key);
+    console.log('[HTTPS] Certificate generated with selfsigned');
+    return { cert, key };
+  } catch (err) {
+    console.warn(`[HTTPS] selfsigned failed: ${err.message}`);
+  }
+
+  // Method 2: Try OpenSSL command (often available via Git for Windows)
+  try {
+    console.log('[HTTPS] Trying OpenSSL fallback...');
+    const { execSync } = require('child_process');
+    execSync(
+      `openssl req -x509 -newkey rsa:2048 -keyout "${keyFile}" -out "${certFile}" -days 365 -nodes -subj "/CN=PICO VR Manager"`,
+      { timeout: 15000, stdio: 'pipe' }
+    );
+    const cert = fs.readFileSync(certFile, 'utf8');
+    const key = fs.readFileSync(keyFile, 'utf8');
+    if (cert && key) {
+      console.log('[HTTPS] Certificate generated with OpenSSL');
+      return { cert, key };
+    }
+  } catch (err) {
+    console.warn(`[HTTPS] OpenSSL fallback failed: ${err.message}`);
+  }
+
+  // Method 3: Generate using Node.js crypto (no dependencies)
+  try {
+    console.log('[HTTPS] Trying Node.js crypto fallback...');
+    const crypto = require('crypto');
+    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: { type: 'spki', format: 'pem' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+    });
+
+    // Create a minimal self-signed certificate using OpenSSL-style command
+    // via Node's crypto sign capabilities
+    const { X509Certificate } = crypto;
+
+    // Use createSign to make a self-signed cert
+    // Build a simple PEM certificate
+    const certPem = generateSelfSignedCert(privateKey, publicKey);
+    if (certPem) {
+      fs.writeFileSync(certFile, certPem);
+      fs.writeFileSync(keyFile, privateKey);
+      console.log('[HTTPS] Certificate generated with Node.js crypto');
+      return { cert: certPem, key: privateKey };
+    }
+  } catch (err) {
+    console.warn(`[HTTPS] Node.js crypto fallback failed: ${err.message}`);
+  }
+
+  throw new Error('All certificate generation methods failed');
+}
+
+// Generate a minimal self-signed X.509 certificate using Node.js crypto
+function generateSelfSignedCert(privateKeyPem, publicKeyPem) {
+  const crypto = require('crypto');
+
+  // Helper: encode length in ASN.1 DER
+  function derLen(len) {
+    if (len < 128) return Buffer.from([len]);
+    if (len < 256) return Buffer.from([0x81, len]);
+    return Buffer.from([0x82, (len >> 8) & 0xFF, len & 0xFF]);
+  }
+  // Helper: wrap data in ASN.1 tag
+  function derWrap(tag, data) {
+    const len = derLen(data.length);
+    return Buffer.concat([Buffer.from([tag]), len, data]);
+  }
+
+  // Parse the public key from PEM to get the raw SPKI
+  const pubKeyDer = Buffer.from(
+    publicKeyPem.replace(/-----[^-]+-----/g, '').replace(/\s/g, ''), 'base64'
+  );
+
+  // Serial number
+  const serial = derWrap(0x02, Buffer.from([0x01]));
+
+  // Signature algorithm: sha256WithRSAEncryption
+  const sha256Oid = Buffer.from('300d06092a864886f70d01010b0500', 'hex');
+
+  // Issuer and Subject: CN=PICO VR Manager
+  const cnOid = Buffer.from('0603550403', 'hex'); // OID 2.5.4.3
+  const cnVal = derWrap(0x0C, Buffer.from('PICO VR Manager')); // UTF8String
+  const cnSeq = derWrap(0x30, Buffer.concat([cnOid, cnVal]));
+  const cnSet = derWrap(0x31, cnSeq);
+  const name = derWrap(0x30, cnSet);
+
+  // Validity: now to now+365 days
+  const now = new Date();
+  const later = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+  const fmtDate = (d) => {
+    const s = d.toISOString().replace(/[-:T]/g, '').slice(0, 14) + 'Z';
+    return derWrap(0x17, Buffer.from(s)); // UTCTime
+  };
+  const validity = derWrap(0x30, Buffer.concat([fmtDate(now), fmtDate(later)]));
+
+  // Version: v3
+  const version = derWrap(0xA0, derWrap(0x02, Buffer.from([0x02])));
+
+  // TBS Certificate
+  const tbs = derWrap(0x30, Buffer.concat([
+    version, serial, sha256Oid, name, validity, name, pubKeyDer
+  ]));
+
+  // Sign the TBS certificate
+  const sign = crypto.createSign('SHA256');
+  sign.update(tbs);
+  const signature = sign.sign(privateKeyPem);
+
+  // Bit string wrapper for signature
+  const sigBits = derWrap(0x03, Buffer.concat([Buffer.from([0x00]), signature]));
+
+  // Full certificate
+  const cert = derWrap(0x30, Buffer.concat([tbs, sha256Oid, sigBits]));
+
+  // Convert to PEM
+  const b64 = cert.toString('base64');
+  const lines = b64.match(/.{1,64}/g).join('\n');
+  return `-----BEGIN CERTIFICATE-----\n${lines}\n-----END CERTIFICATE-----\n`;
 }
 
 const app = express();
@@ -297,8 +425,9 @@ function setupWebSocket(wssInstance) {
           case 'start_stream': {
             const ip = data.ip;
             if (unsubscribers.has(ip)) break;
-            console.log(`[WS] Start H.264 stream for ${ip}`);
-            const unsub = streamManager.subscribe(ip, ws);
+            const h264 = data.h264 !== false;
+            console.log(`[WS] Start stream for ${ip} (h264: ${h264})`);
+            const unsub = streamManager.subscribe(ip, ws, { h264 });
             unsubscribers.set(ip, unsub);
             break;
           }
@@ -312,10 +441,11 @@ function setupWebSocket(wssInstance) {
             break;
           }
           case 'start_all_streams': {
+            const h264All = data.h264 !== false;
             const devices = deviceStore.getConnectedDevices();
             devices.forEach(device => {
               if (!unsubscribers.has(device.ip)) {
-                const unsub = streamManager.subscribe(device.ip, ws);
+                const unsub = streamManager.subscribe(device.ip, ws, { h264: h264All });
                 unsubscribers.set(device.ip, unsub);
               }
             });

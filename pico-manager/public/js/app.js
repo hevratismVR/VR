@@ -66,8 +66,9 @@ function connectWebSocket() {
     if (statusEl) statusEl.className = 'ws-status connected';
 
     // Re-start any active streams after reconnect
+    const h264Cap = typeof H264Player !== 'undefined' && H264Player.supported;
     for (const ip of streamingDevices) {
-      wsSend({ type: 'start_stream', ip });
+      wsSend({ type: 'start_stream', ip, h264: h264Cap });
     }
   };
 
@@ -432,8 +433,9 @@ function startStream(ip) {
   const placeholder = canvas.parentElement.querySelector('.screen-placeholder');
   if (placeholder) placeholder.style.display = 'none';
 
-  // Tell server to start stream (server decides H.264 vs MJPEG)
-  wsSend({ type: 'start_stream', ip });
+  // Tell server to start stream - include h264 capability so server knows what to send
+  const h264Supported = typeof H264Player !== 'undefined' && H264Player.supported;
+  wsSend({ type: 'start_stream', ip, h264: h264Supported });
   streamingDevices.add(ip);
   toast(`שיקוף מופעל: ${ip}`, 'success');
 }

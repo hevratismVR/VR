@@ -26,14 +26,14 @@ class StreamManager {
    * Starts the stream if not already running. Multiple clients share one stream.
    * Returns an unsubscribe function.
    */
-  subscribe(ip, ws) {
+  subscribe(ip, ws, options = {}) {
     let ctx = this.streams.get(ip);
     if (!ctx) {
-      ctx = this._createStream(ip);
+      ctx = this._createStream(ip, options);
       this.streams.set(ip, ctx);
     }
     ctx.clients.add(ws);
-    console.log(`[Stream] Client subscribed to ${ip} (${ctx.clients.size} total)`);
+    console.log(`[Stream] Client subscribed to ${ip} (${ctx.clients.size} total, h264: ${ctx.h264Capable})`);
 
     return () => {
       ctx.clients.delete(ws);
@@ -44,7 +44,7 @@ class StreamManager {
     };
   }
 
-  _createStream(ip) {
+  _createStream(ip, options = {}) {
     const ctx = {
       ip,
       clients: new Set(),
@@ -52,6 +52,7 @@ class StreamManager {
       running: true,
       restartTimer: null,
       method: null,      // 'scrcpy', 'screenrecord', 'mjpeg'
+      h264Capable: options.h264 !== false,
       bytesSent: 0,
       startTime: Date.now(),
       mjpegRunning: false,
@@ -64,20 +65,25 @@ class StreamManager {
   async _startStream(ctx) {
     if (!ctx.running) return;
 
-    // Strategy 1: Try scrcpy (best quality, uses device MediaCodec)
-    if (await this._tryScrcpy(ctx)) {
-      this._notifyMethod(ctx, 'scrcpy (H.264 30fps)');
-      return;
-    }
+    if (ctx.h264Capable) {
+      // Strategy 1: Try scrcpy (best quality, uses device MediaCodec)
+      if (await this._tryScrcpy(ctx)) {
+        this._notifyMethod(ctx, 'scrcpy (H.264 30fps)');
+        return;
+      }
 
-    // Strategy 2: Try screenrecord variants
-    if (await this._tryScreenrecord(ctx)) {
-      this._notifyMethod(ctx, 'screenrecord (H.264)');
-      return;
+      // Strategy 2: Try screenrecord variants
+      if (await this._tryScreenrecord(ctx)) {
+        this._notifyMethod(ctx, 'screenrecord (H.264)');
+        return;
+      }
+
+      console.log(`[Stream] All H.264 methods failed for ${ctx.ip}, using MJPEG fallback`);
+    } else {
+      console.log(`[Stream] Browser doesn't support H.264 for ${ctx.ip}, using MJPEG directly`);
     }
 
     // Strategy 3: WebSocket MJPEG fallback
-    console.log(`[Stream] All H.264 methods failed for ${ctx.ip}, using MJPEG fallback`);
     this._startMjpegWs(ctx);
     this._notifyMethod(ctx, 'MJPEG (slow fallback)');
   }
