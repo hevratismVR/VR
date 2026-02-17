@@ -19,15 +19,27 @@ function getOrCreateCert() {
   const certFile = path.join(certDir, 'cert.pem');
   const keyFile = path.join(certDir, 'key.pem');
 
-  // Try to read existing certificates
+  // Try to read existing certificates and validate them
   if (fs.existsSync(certFile) && fs.existsSync(keyFile)) {
     const cert = fs.readFileSync(certFile, 'utf8');
     const key = fs.readFileSync(keyFile, 'utf8');
-    if (cert && key && cert.includes('BEGIN')) {
-      return { cert, key };
+    if (cert && key && cert.includes('BEGIN CERTIFICATE') && key.includes('BEGIN')) {
+      // Validate cert is parseable by Node.js
+      try {
+        const crypto = require('crypto');
+        if (crypto.X509Certificate) {
+          new crypto.X509Certificate(cert);
+        }
+        return { cert, key };
+      } catch {
+        console.log('[HTTPS] Existing certificate is malformed, regenerating...');
+      }
+    } else {
+      console.log('[HTTPS] Existing certificate files are invalid, regenerating...');
     }
-    // Corrupt cert files - delete and regenerate
-    console.log('[HTTPS] Existing certificate files are invalid, regenerating...');
+    // Delete bad cert files
+    try { fs.unlinkSync(certFile); } catch {}
+    try { fs.unlinkSync(keyFile); } catch {}
   }
 
   if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
@@ -55,22 +67,33 @@ function getOrCreateCert() {
     console.warn(`[HTTPS] selfsigned failed: ${err.message}`);
   }
 
-  // Method 2: Try OpenSSL command (often available via Git for Windows)
-  try {
-    console.log('[HTTPS] Trying OpenSSL fallback...');
+  // Method 2: Try OpenSSL command (check system PATH + Git for Windows locations)
+  {
     const { execSync } = require('child_process');
-    execSync(
-      `openssl req -x509 -newkey rsa:2048 -keyout "${keyFile}" -out "${certFile}" -days 365 -nodes -subj "/CN=PICO VR Manager"`,
-      { timeout: 15000, stdio: 'pipe' }
-    );
-    const cert = fs.readFileSync(certFile, 'utf8');
-    const key = fs.readFileSync(keyFile, 'utf8');
-    if (cert && key) {
-      console.log('[HTTPS] Certificate generated with OpenSSL');
-      return { cert, key };
+    const opensslCandidates = [
+      'openssl',
+      'C:\\Program Files\\Git\\usr\\bin\\openssl.exe',
+      'C:\\Program Files\\Git\\mingw64\\bin\\openssl.exe',
+      'C:\\Program Files (x86)\\Git\\usr\\bin\\openssl.exe',
+    ];
+    for (const opensslCmd of opensslCandidates) {
+      try {
+        console.log(`[HTTPS] Trying OpenSSL: ${opensslCmd}`);
+        execSync(
+          `"${opensslCmd}" req -x509 -newkey rsa:2048 -keyout "${keyFile}" -out "${certFile}" -days 365 -nodes -subj "/CN=PICO VR Manager"`,
+          { timeout: 15000, stdio: 'pipe' }
+        );
+        const cert = fs.readFileSync(certFile, 'utf8');
+        const key = fs.readFileSync(keyFile, 'utf8');
+        if (cert && key) {
+          console.log(`[HTTPS] Certificate generated with OpenSSL (${opensslCmd})`);
+          return { cert, key };
+        }
+      } catch (err) {
+        // Try next candidate
+      }
     }
-  } catch (err) {
-    console.warn(`[HTTPS] OpenSSL fallback failed: ${err.message}`);
+    console.warn('[HTTPS] All OpenSSL candidates failed');
   }
 
   // Method 3: Generate using Node.js crypto (no dependencies)
@@ -141,8 +164,14 @@ function generateSelfSignedCert(privateKeyPem, publicKeyPem) {
   const now = new Date();
   const later = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
   const fmtDate = (d) => {
-    const s = d.toISOString().replace(/[-:T]/g, '').slice(0, 14) + 'Z';
-    return derWrap(0x17, Buffer.from(s)); // UTCTime
+    // UTCTime format: YYMMDDHHMMSSZ (2-digit year)
+    const yy = String(d.getUTCFullYear() % 100).padStart(2, '0');
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const mi = String(d.getUTCMinutes()).padStart(2, '0');
+    const ss = String(d.getUTCSeconds()).padStart(2, '0');
+    return derWrap(0x17, Buffer.from(`${yy}${mm}${dd}${hh}${mi}${ss}Z`));
   };
   const validity = derWrap(0x30, Buffer.concat([fmtDate(now), fmtDate(later)]));
 
