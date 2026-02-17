@@ -1,5 +1,7 @@
 const express = require('express');
 const http = require('http');
+const https = require('https');
+const fs = require('fs');
 const WebSocket = require('ws');
 const path = require('path');
 const { AdbManager } = require('./src/adb-manager');
@@ -9,10 +11,55 @@ const { DeviceStore } = require('./src/device-store');
 const { StreamManager } = require('./src/stream-manager');
 
 const PORT = process.env.PORT || 3000;
+const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
+
+// --- Auto-generate HTTPS certificate for WebCodecs support ---
+function getOrCreateCert() {
+  const certDir = path.join(__dirname, '.certs');
+  const certFile = path.join(certDir, 'cert.pem');
+  const keyFile = path.join(certDir, 'key.pem');
+
+  if (fs.existsSync(certFile) && fs.existsSync(keyFile)) {
+    return {
+      cert: fs.readFileSync(certFile),
+      key: fs.readFileSync(keyFile),
+    };
+  }
+
+  console.log('[HTTPS] Generating self-signed certificate...');
+  const selfsigned = require('selfsigned');
+  const attrs = [{ name: 'commonName', value: 'PICO VR Manager' }];
+  const pems = selfsigned.generate(attrs, {
+    days: 365,
+    keySize: 2048,
+    algorithm: 'sha256',
+  });
+
+  if (!fs.existsSync(certDir)) fs.mkdirSync(certDir, { recursive: true });
+  fs.writeFileSync(certFile, pems.cert);
+  fs.writeFileSync(keyFile, pems.private);
+  console.log('[HTTPS] Certificate generated');
+
+  return { cert: pems.cert, key: pems.private };
+}
 
 const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server, path: '/ws' });
+
+// Create both HTTP and HTTPS servers
+const httpServer = http.createServer(app);
+let httpsServer;
+try {
+  const certs = getOrCreateCert();
+  httpsServer = https.createServer(certs, app);
+  console.log(`[HTTPS] HTTPS server ready on port ${HTTPS_PORT}`);
+} catch (err) {
+  console.warn(`[HTTPS] Failed to create HTTPS server: ${err.message}`);
+  console.warn('[HTTPS] WebCodecs H.264 streaming requires HTTPS - falling back to MJPEG');
+}
+
+// WebSocket on both HTTP and HTTPS
+const wssHttp = new WebSocket.Server({ server: httpServer, path: '/ws' });
+const wssHttps = httpsServer ? new WebSocket.Server({ server: httpsServer, path: '/ws' }) : null;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -235,84 +282,101 @@ app.get('/api/devices/:ip/mjpeg', async (req, res) => {
 
 // --- WebSocket: H.264 real-time streaming + device status ---
 
-wss.on('connection', (ws) => {
-  console.log('[WS] Client connected');
-  const unsubscribers = new Map(); // ip -> unsubscribe function
+function setupWebSocket(wssInstance) {
+  if (!wssInstance) return;
 
-  ws.on('message', (message) => {
-    try {
-      const data = JSON.parse(message);
+  wssInstance.on('connection', (ws) => {
+    console.log('[WS] Client connected');
+    const unsubscribers = new Map();
 
-      switch (data.type) {
-        case 'start_stream': {
-          const ip = data.ip;
-          if (unsubscribers.has(ip)) break; // Already streaming
-          console.log(`[WS] Start H.264 stream for ${ip}`);
-          const unsub = streamManager.subscribe(ip, ws);
-          unsubscribers.set(ip, unsub);
-          break;
-        }
-        case 'stop_stream': {
-          const ip = data.ip;
-          const unsub = unsubscribers.get(ip);
-          if (unsub) {
-            unsub();
-            unsubscribers.delete(ip);
+    ws.on('message', (message) => {
+      try {
+        const data = JSON.parse(message);
+
+        switch (data.type) {
+          case 'start_stream': {
+            const ip = data.ip;
+            if (unsubscribers.has(ip)) break;
+            console.log(`[WS] Start H.264 stream for ${ip}`);
+            const unsub = streamManager.subscribe(ip, ws);
+            unsubscribers.set(ip, unsub);
+            break;
           }
-          break;
-        }
-        case 'start_all_streams': {
-          const devices = deviceStore.getConnectedDevices();
-          devices.forEach(device => {
-            if (!unsubscribers.has(device.ip)) {
-              const unsub = streamManager.subscribe(device.ip, ws);
-              unsubscribers.set(device.ip, unsub);
+          case 'stop_stream': {
+            const ip = data.ip;
+            const unsub = unsubscribers.get(ip);
+            if (unsub) {
+              unsub();
+              unsubscribers.delete(ip);
             }
-          });
-          break;
-        }
-        case 'stop_all_streams': {
-          for (const [ip, unsub] of unsubscribers) {
-            unsub();
+            break;
           }
-          unsubscribers.clear();
-          break;
+          case 'start_all_streams': {
+            const devices = deviceStore.getConnectedDevices();
+            devices.forEach(device => {
+              if (!unsubscribers.has(device.ip)) {
+                const unsub = streamManager.subscribe(device.ip, ws);
+                unsubscribers.set(device.ip, unsub);
+              }
+            });
+            break;
+          }
+          case 'stop_all_streams': {
+            for (const [ip, unsub] of unsubscribers) {
+              unsub();
+            }
+            unsubscribers.clear();
+            break;
+          }
         }
+      } catch (err) {
+        console.error('[WS] Error processing message:', err.message);
       }
-    } catch (err) {
-      console.error('[WS] Error processing message:', err.message);
-    }
-  });
+    });
 
-  ws.on('close', () => {
-    console.log('[WS] Client disconnected');
-    for (const [ip, unsub] of unsubscribers) {
-      unsub();
-    }
-    unsubscribers.clear();
+    ws.on('close', () => {
+      console.log('[WS] Client disconnected');
+      for (const [ip, unsub] of unsubscribers) {
+        unsub();
+      }
+      unsubscribers.clear();
+    });
   });
-});
+}
 
-// --- Status broadcast ---
+setupWebSocket(wssHttp);
+setupWebSocket(wssHttps);
+
+// --- Status broadcast (to all WS clients on both servers) ---
+
+function broadcastToAll(data) {
+  const msg = JSON.stringify(data);
+  [wssHttp, wssHttps].forEach(wss => {
+    if (!wss) return;
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(msg);
+      }
+    });
+  });
+}
 
 setInterval(() => {
-  const status = deviceStore.getAllDevices();
-  wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ type: 'device_status', devices: status }));
-    }
-  });
+  broadcastToAll({ type: 'device_status', devices: deviceStore.getAllDevices() });
 }, 5000);
 
-// --- Start server ---
+// --- Start servers ---
 
-server.listen(PORT, '0.0.0.0', () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
+  const httpsInfo = httpsServer ? `║  HTTPS: https://0.0.0.0:${HTTPS_PORT}  (use this!)    ║` : '';
   console.log(`
 ╔══════════════════════════════════════════════════╗
 ║          PICO 4 VR Manager                       ║
-║          http://0.0.0.0:${PORT}                     ║
+║  HTTP:  http://0.0.0.0:${PORT}                     ║
+${httpsInfo}
 ║                                                  ║
-║  Open this address in your tablet browser        ║
+║  Use HTTPS for real-time streaming (30 FPS)      ║
+║  Accept the certificate warning in your browser  ║
 ╚══════════════════════════════════════════════════╝
   `);
 
@@ -326,3 +390,7 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log('[Startup] Make sure ADB is installed and in PATH');
   });
 });
+
+if (httpsServer) {
+  httpsServer.listen(HTTPS_PORT, '0.0.0.0');
+}
