@@ -243,48 +243,53 @@ wss.on('connection', (ws) => {
 function startDeviceStream(ws, ip, fps, intervals) {
   if (intervals.has(ip)) return;
 
-  console.log(`[Stream] Starting stream for ${ip} at ${fps} FPS`);
-  const intervalMs = Math.max(200, Math.floor(1000 / fps));
+  console.log(`[Stream] Starting stream for ${ip}`);
+  let running = true;
   let frameCount = 0;
   let errorCount = 0;
 
-  const interval = setInterval(async () => {
-    if (ws.readyState !== WebSocket.OPEN) {
-      clearInterval(interval);
-      intervals.delete(ip);
-      return;
-    }
-    try {
-      const buffer = await screenCapture.captureScreenshot(ip);
-      if (buffer && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          type: 'frame',
-          ip: ip,
-          data: buffer.toString('base64'),
-          timestamp: Date.now()
-        }));
-        frameCount++;
-        if (frameCount === 1) console.log(`[Stream] First frame sent for ${ip} (${buffer.length} bytes)`);
+  // Use a continuous loop instead of fixed interval
+  // This way each frame is captured as soon as the previous one finishes
+  async function captureLoop() {
+    while (running && ws.readyState === WebSocket.OPEN) {
+      try {
+        const buffer = await screenCapture.captureScreenshot(ip);
+        if (buffer && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'frame',
+            ip: ip,
+            data: buffer.toString('base64'),
+            timestamp: Date.now()
+          }));
+          frameCount++;
+          errorCount = 0;
+          if (frameCount === 1) console.log(`[Stream] First frame sent for ${ip} (${buffer.length} bytes)`);
+          if (frameCount % 30 === 0) console.log(`[Stream] ${ip}: ${frameCount} frames sent`);
+        }
+      } catch (err) {
+        errorCount++;
+        if (errorCount <= 3) console.error(`[Stream] Screenshot error for ${ip}: ${err.message}`);
+        if (errorCount > 10) {
+          console.error(`[Stream] Too many errors for ${ip}, stopping stream`);
+          break;
+        }
+        // Wait a bit before retrying on error
+        await new Promise(r => setTimeout(r, 1000));
       }
-    } catch (err) {
-      errorCount++;
-      if (errorCount <= 3) console.error(`[Stream] Screenshot error for ${ip}: ${err.message}`);
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          type: 'stream_error',
-          ip: ip,
-          error: err.message
-        }));
-      }
+      // Small delay between frames to prevent CPU overload
+      await new Promise(r => setTimeout(r, 100));
     }
-  }, intervalMs);
+    intervals.delete(ip);
+  }
 
-  intervals.set(ip, interval);
+  // Store a stop function instead of interval ID
+  intervals.set(ip, { stop: () => { running = false; } });
+  captureLoop();
 }
 
 function stopDeviceStream(ip, intervals) {
   if (intervals.has(ip)) {
-    clearInterval(intervals.get(ip));
+    intervals.get(ip).stop();
     intervals.delete(ip);
   }
 }
@@ -301,7 +306,7 @@ function startAllStreams(ws, fps, intervals) {
 }
 
 function stopAllStreams(intervals) {
-  intervals.forEach((interval) => clearInterval(interval));
+  intervals.forEach((stream) => stream.stop());
   intervals.clear();
 }
 
