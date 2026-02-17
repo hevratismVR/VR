@@ -8,6 +8,7 @@ class ScreenCapture {
     this.deviceStore = deviceStore;
     this.captureInProgress = new Map();
     this._lastFrame = new Map();
+    this._useFileBased = new Map(); // Track which devices need file-based capture
   }
 
   /**
@@ -21,7 +22,23 @@ class ScreenCapture {
 
     this.captureInProgress.set(ip, true);
     try {
-      const buffer = await this.adbManager.screenshotFast(ip);
+      let buffer;
+
+      if (this._useFileBased.get(ip)) {
+        // Use reliable file-based method
+        buffer = await this.adbManager.screenshot(ip);
+      } else {
+        // Try fast method first
+        try {
+          buffer = await this.adbManager.screenshotFast(ip);
+        } catch (fastErr) {
+          // Fast method failed, switch to file-based for this device
+          console.log(`[Capture] exec-out failed for ${ip}, switching to file-based method`);
+          this._useFileBased.set(ip, true);
+          buffer = await this.adbManager.screenshot(ip);
+        }
+      }
+
       this._lastFrame.set(ip, buffer);
       return buffer;
     } catch (err) {

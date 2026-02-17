@@ -323,28 +323,30 @@ class AdbManager {
   }
 
   /**
-   * Take a screenshot from device and return as Buffer
+   * Take a screenshot from device and return as Buffer (file-based, reliable over WiFi)
    */
   async screenshot(ip) {
-    const tmpFile = `/tmp/screen_${ip.replace(/\./g, '_')}.png`;
-    await this.shell(ip, `screencap -p /sdcard/screen_tmp.png`);
-    await this.adbExec(`-s ${ip}:5555 pull /sdcard/screen_tmp.png ${tmpFile}`, 15000);
     const fs = require('fs');
+    const tmpDir = os.tmpdir();
+    const tmpFile = require('path').join(tmpDir, `pico_screen_${ip.replace(/\./g, '_')}.png`);
+    const remoteTmp = `/data/local/tmp/screen_${ip.replace(/\./g, '_')}.png`;
+
+    await this.shell(ip, `screencap -p ${remoteTmp}`, 15000);
+    await this.adbExec(`-s ${ip}:5555 pull ${remoteTmp} "${tmpFile}"`, 15000);
     const buffer = fs.readFileSync(tmpFile);
-    // Clean up
+    // Clean up local file (leave remote for next capture to overwrite)
     fs.unlink(tmpFile, () => {});
-    this.shell(ip, 'rm /sdcard/screen_tmp.png').catch(() => {});
     return buffer;
   }
 
   /**
-   * Fast screenshot using exec-out (no temp file)
+   * Fast screenshot using exec-out (no temp file, may not work over WiFi)
    */
   async screenshotFast(ip) {
     return new Promise((resolve, reject) => {
       const chunks = [];
       const proc = spawn(this.adbPath, ['-s', `${ip}:5555`, 'exec-out', 'screencap', '-p'], {
-        timeout: 8000
+        timeout: 12000
       });
 
       proc.stdout.on('data', (chunk) => chunks.push(chunk));
@@ -360,7 +362,7 @@ class AdbManager {
       setTimeout(() => {
         proc.kill();
         reject(new Error('Screenshot timeout'));
-      }, 8000);
+      }, 12000);
     });
   }
 }
