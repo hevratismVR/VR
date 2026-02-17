@@ -198,7 +198,7 @@ app.post('/api/all/volume', async (req, res) => {
 app.get('/api/devices/:ip/screenshot', async (req, res) => {
   try {
     const buffer = await screenCapture.captureScreenshot(req.params.ip);
-    res.set('Content-Type', 'image/png');
+    res.set('Content-Type', 'image/jpeg');
     res.send(buffer);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -228,7 +228,7 @@ app.get('/api/devices/:ip/mjpeg', async (req, res) => {
     try {
       const buffer = await screenCapture.captureScreenshot(ip);
       if (buffer && running) {
-        res.write(`--frame\r\nContent-Type: image/png\r\nContent-Length: ${buffer.length}\r\n\r\n`);
+        res.write(`--frame\r\nContent-Type: image/jpeg\r\nContent-Length: ${buffer.length}\r\n\r\n`);
         res.write(buffer);
         res.write('\r\n');
         frameCount++;

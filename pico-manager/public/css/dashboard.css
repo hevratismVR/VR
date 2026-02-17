@@ -344,14 +344,9 @@ body {
 }
 
 .device-screen img {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 200%;
+  width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: left center;
-  max-width: none;
+  object-fit: contain;
 }
 
 .screen-placeholder {
