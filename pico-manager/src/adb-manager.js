@@ -15,7 +15,8 @@ class AdbManager {
 
   _findAdb() {
     try {
-      const path = execSync('which adb', { encoding: 'utf8' }).trim();
+      const cmd = process.platform === 'win32' ? 'where adb' : 'which adb';
+      const path = execSync(cmd, { encoding: 'utf8' }).trim().split('\n')[0];
       return path || 'adb';
     } catch {
       return 'adb';
