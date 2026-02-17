@@ -12,7 +12,11 @@ class AdbManager {
   constructor(deviceStore) {
     this.deviceStore = deviceStore;
     this.adbPath = this._findAdb();
+    this.scrcpyPath = this._findScrcpy();
     console.log(`[ADB] Using adb at: ${this.adbPath}`);
+    if (this.scrcpyPath) {
+      console.log(`[ADB] Found scrcpy at: ${this.scrcpyPath}`);
+    }
   }
 
   _findAdb() {
@@ -45,6 +49,27 @@ class AdbManager {
     }
 
     return 'adb';
+  }
+
+  _findScrcpy() {
+    const locations = process.platform === 'win32'
+      ? ['C:\\scrcpy-win64-v3.2\\scrcpy.exe', 'C:\\scrcpy\\scrcpy.exe']
+      : ['/usr/bin/scrcpy', '/usr/local/bin/scrcpy'];
+
+    // Try where/which first
+    try {
+      const cmd = process.platform === 'win32' ? 'where scrcpy' : 'which scrcpy';
+      const found = execSync(cmd, { encoding: 'utf8' }).trim().split('\n')[0];
+      if (found) return found;
+    } catch {}
+
+    // Try known locations
+    const fs = require('fs');
+    for (const loc of locations) {
+      if (fs.existsSync(loc)) return loc;
+    }
+
+    return null;
   }
 
   /**

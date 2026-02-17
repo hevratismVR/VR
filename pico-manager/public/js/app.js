@@ -388,19 +388,34 @@ function toggleStream(ip) {
 }
 
 function startStream(ip) {
-  wsSend({ type: 'start_stream', ip, fps: 3 });
+  const ipId = ip.replace(/\./g, '-');
+  const img = document.getElementById(`screen-img-${ipId}`);
+  if (img) {
+    // Use MJPEG stream - browser natively handles multipart image updates
+    img.src = `/api/devices/${ip}/mjpeg?t=${Date.now()}`;
+    img.style.display = 'block';
+    const placeholder = img.parentElement.querySelector('.screen-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+  }
   streamingDevices.add(ip);
   toast(`שיקוף מופעל: ${ip}`, 'success');
 }
 
 function stopStream(ip) {
-  wsSend({ type: 'stop_stream', ip });
+  const ipId = ip.replace(/\./g, '-');
+  const img = document.getElementById(`screen-img-${ipId}`);
+  if (img) {
+    img.src = '';
+    img.style.display = 'none';
+    const placeholder = img.parentElement.querySelector('.screen-placeholder');
+    if (placeholder) placeholder.style.display = '';
+  }
   streamingDevices.delete(ip);
 }
 
 function toggleStreamAll() {
   if (streaming) {
-    wsSend({ type: 'stop_all_streams' });
+    devices.filter(d => d.connected).forEach(d => stopStream(d.ip));
     streamingDevices.clear();
     streaming = false;
     $('#btnStreamAll').innerHTML = `
@@ -411,8 +426,7 @@ function toggleStreamAll() {
     `;
     toast('שיקוף הופסק', 'info');
   } else {
-    wsSend({ type: 'start_all_streams', fps: 2 });
-    devices.filter(d => d.connected).forEach(d => streamingDevices.add(d.ip));
+    devices.filter(d => d.connected).forEach(d => startStream(d.ip));
     streaming = true;
     $('#btnStreamAll').innerHTML = `
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

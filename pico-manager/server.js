@@ -205,6 +205,48 @@ app.get('/api/devices/:ip/screenshot', async (req, res) => {
   }
 });
 
+// MJPEG live stream endpoint - much faster than WebSocket+base64
+app.get('/api/devices/:ip/mjpeg', async (req, res) => {
+  const ip = req.params.ip;
+  console.log(`[MJPEG] Starting stream for ${ip}`);
+
+  res.writeHead(200, {
+    'Content-Type': 'multipart/x-mixed-replace; boundary=frame',
+    'Cache-Control': 'no-cache, no-store',
+    'Pragma': 'no-cache',
+    'Connection': 'keep-alive',
+  });
+
+  let running = true;
+  let frameCount = 0;
+  req.on('close', () => {
+    running = false;
+    console.log(`[MJPEG] Stream closed for ${ip} after ${frameCount} frames`);
+  });
+
+  while (running) {
+    try {
+      const buffer = await screenCapture.captureScreenshot(ip);
+      if (buffer && running) {
+        res.write(`--frame\r\nContent-Type: image/png\r\nContent-Length: ${buffer.length}\r\n\r\n`);
+        res.write(buffer);
+        res.write('\r\n');
+        frameCount++;
+        if (frameCount === 1) console.log(`[MJPEG] First frame for ${ip} (${buffer.length} bytes)`);
+      }
+    } catch (err) {
+      if (frameCount === 0) console.error(`[MJPEG] Error for ${ip}: ${err.message}`);
+      await new Promise(r => setTimeout(r, 1000));
+    }
+    await new Promise(r => setTimeout(r, 50));
+  }
+});
+
+// Check scrcpy availability
+app.get('/api/scrcpy', (req, res) => {
+  res.json({ available: !!adbManager.scrcpyPath, path: adbManager.scrcpyPath });
+});
+
 // --- WebSocket for live streaming ---
 
 wss.on('connection', (ws) => {
