@@ -7,6 +7,7 @@ class ScreenCapture {
     this.adbManager = adbManager;
     this.deviceStore = deviceStore;
     this.captureInProgress = new Map();
+    this._lastFrame = new Map();
   }
 
   /**
@@ -21,12 +22,11 @@ class ScreenCapture {
     this.captureInProgress.set(ip, true);
     try {
       const buffer = await this.adbManager.screenshotFast(ip);
-      if (!this._lastFrame) this._lastFrame = new Map();
       this._lastFrame.set(ip, buffer);
       return buffer;
     } catch (err) {
       // Return last known frame if available
-      if (this._lastFrame && this._lastFrame.has(ip)) {
+      if (this._lastFrame.has(ip)) {
         return this._lastFrame.get(ip);
       }
       throw err;
