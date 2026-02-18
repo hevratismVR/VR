@@ -15,8 +15,13 @@ class DeviceStore {
 
   _loadDeviceNumbers() {
     try {
+      console.log(`[DeviceStore] Looking for device numbers at: ${this.deviceNumbersFile}`);
       if (fs.existsSync(this.deviceNumbersFile)) {
-        return JSON.parse(fs.readFileSync(this.deviceNumbersFile, 'utf8'));
+        const data = JSON.parse(fs.readFileSync(this.deviceNumbersFile, 'utf8'));
+        console.log(`[DeviceStore] Loaded device numbers:`, data);
+        return data;
+      } else {
+        console.log('[DeviceStore] device-numbers.json not found');
       }
     } catch (err) {
       console.error('[DeviceStore] Error loading device numbers:', err.message);
