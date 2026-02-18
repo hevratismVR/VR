@@ -120,6 +120,7 @@ function wsSend(data) {
 }
 
 // --- Binary Stream Data Handler ---
+let _binaryCount = 0;
 function handleBinaryData(buffer) {
   const view = new Uint8Array(buffer);
   if (view.length < 3) return;
@@ -132,11 +133,18 @@ function handleBinaryData(buffer) {
   const ip = new TextDecoder().decode(view.subarray(2, 2 + ipLen));
   const data = view.subarray(2 + ipLen);
 
+  _binaryCount++;
+  if (_binaryCount <= 5) {
+    console.log(`[WS] Binary #${_binaryCount}: type=0x${type.toString(16)}, ip=${ip}, data=${data.length}B, hasPlayer=${h264Players.has(ip)}`);
+  }
+
   if (type === 0x01) {
     // H.264 data - feed to H264Player
     const player = h264Players.get(ip);
     if (player) {
       player.feed(data);
+    } else if (_binaryCount <= 5) {
+      console.warn(`[WS] No H264Player for ${ip}! Players: ${[...h264Players.keys()].join(', ')}`);
     }
   } else if (type === 0x02) {
     // JPEG frame - render directly to canvas

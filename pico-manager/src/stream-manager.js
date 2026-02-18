@@ -70,15 +70,15 @@ class StreamManager {
     if (!ctx.running) return;
 
     if (ctx.h264Capable) {
-      // Strategy 1: Try scrcpy (best quality, uses device MediaCodec)
-      if (await this._tryScrcpy(ctx)) {
-        this._notifyMethod(ctx, 'scrcpy (H.264 30fps)');
+      // Strategy 1: Try screenrecord first (fast, reliable, raw H.264)
+      if (await this._tryScreenrecord(ctx)) {
+        this._notifyMethod(ctx, 'screenrecord (H.264)');
         return;
       }
 
-      // Strategy 2: Try screenrecord variants
-      if (await this._tryScreenrecord(ctx)) {
-        this._notifyMethod(ctx, 'screenrecord (H.264)');
+      // Strategy 2: Try scrcpy MKV demux (may not work on Windows)
+      if (await this._tryScrcpy(ctx)) {
+        this._notifyMethod(ctx, 'scrcpy (H.264 30fps)');
         return;
       }
 
@@ -402,6 +402,13 @@ class StreamManager {
       data.copy(packet, 2 + ipBuf.length);
     } else {
       packet.set(data, 2 + ipBuf.length);
+    }
+
+    // Debug: log first few sends and periodically
+    if (!ctx._h264SendCount) ctx._h264SendCount = 0;
+    ctx._h264SendCount++;
+    if (ctx._h264SendCount <= 5 || ctx._h264SendCount % 100 === 0) {
+      console.log(`[Stream] H.264 send #${ctx._h264SendCount} for ${ctx.ip}: ${data.length} bytes to ${ctx.clients.size} client(s)`);
     }
 
     for (const ws of ctx.clients) {
