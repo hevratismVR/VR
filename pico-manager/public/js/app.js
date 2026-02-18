@@ -229,9 +229,15 @@ function createDeviceCard(device) {
   const card = document.createElement('div');
   card.className = 'device-card';
   card.id = `card-${ipId}`;
+  const deviceNum = device.deviceNumber;
+  const numBadge = deviceNum
+    ? `<span class="device-number-badge" onclick="event.stopPropagation();setDeviceNumber('${device.ip}')" title="לחץ לשינוי מספר">#${deviceNum}</span>`
+    : `<span class="device-number-badge unset" onclick="event.stopPropagation();setDeviceNumber('${device.ip}')" title="הגדר מספר משקף">?</span>`;
+
   card.innerHTML = `
     <div class="device-header">
       <div class="device-info">
+        ${numBadge}
         <div class="status-dot ${device.connected ? 'connected' : ''}"></div>
         <div>
           <div class="device-name">${device.name || 'PICO 4'}</div>
@@ -257,6 +263,7 @@ function createDeviceCard(device) {
         <div>לחץ ▶ להפעלת שיקוף</div>
       </div>
       <div class="screen-overlay">
+        <span class="screen-badge device-num-overlay">${deviceNum ? '#' + deviceNum : ''}</span>
         <span class="screen-badge fps-badge">-- FPS</span>
       </div>
     </div>
@@ -370,6 +377,27 @@ async function scanDevices() {
   } finally {
     btn.disabled = false;
     document.body.classList.remove('scanning');
+  }
+}
+
+async function setDeviceNumber(ip) {
+  const num = prompt(`הכנס מספר משקף עבור ${ip} (1-5):`);
+  if (num === null) return;
+  const parsed = parseInt(num);
+  if (isNaN(parsed) || parsed < 1 || parsed > 99) {
+    toast('מספר לא תקין', 'error');
+    return;
+  }
+  try {
+    await api(`/devices/${ip}/number`, { method: 'POST', body: { number: parsed } });
+    toast(`משקף ${ip} הוגדר כ-#${parsed}`, 'success');
+    // Remove old card so it gets re-created with the new number
+    const ipId = ip.replace(/\./g, '-');
+    const oldCard = document.getElementById(`card-${ipId}`);
+    if (oldCard) oldCard.remove();
+    await refreshDevices();
+  } catch (err) {
+    toast('שגיאה בהגדרת מספר', 'error');
   }
 }
 

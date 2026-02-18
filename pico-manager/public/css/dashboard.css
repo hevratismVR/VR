@@ -376,6 +376,42 @@ body {
   color: var(--text-secondary);
 }
 
+.screen-badge.device-num-overlay {
+  background: rgba(0,100,255,0.8);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.device-number-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #2196F3, #1565C0);
+  color: white;
+  font-weight: bold;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  padding: 0 8px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: transform 0.15s;
+}
+
+.device-number-badge:hover {
+  transform: scale(1.1);
+}
+
+.device-number-badge.unset {
+  background: rgba(255,255,255,0.1);
+  border: 2px dashed rgba(255,255,255,0.3);
+  color: var(--text-secondary);
+}
+
 .device-screen.fullscreen-active {
   position: fixed;
   top: 0;

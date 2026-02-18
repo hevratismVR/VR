@@ -387,10 +387,32 @@ app.post('/api/all/volume', async (req, res) => {
   }
 });
 
+// --- Device Number Management ---
+
+app.get('/api/devices/:ip/number', (req, res) => {
+  const num = deviceStore.getDeviceNumber(req.params.ip);
+  res.json({ success: true, ip: req.params.ip, deviceNumber: num });
+});
+
+app.post('/api/devices/:ip/number', (req, res) => {
+  const { number } = req.body;
+  if (!number || isNaN(number)) {
+    return res.status(400).json({ success: false, error: 'Invalid number' });
+  }
+  deviceStore.setDeviceNumber(req.params.ip, parseInt(number));
+  console.log(`[Config] Device ${req.params.ip} assigned number #${number}`);
+  res.json({ success: true, ip: req.params.ip, deviceNumber: parseInt(number) });
+});
+
+app.get('/api/device-numbers', (req, res) => {
+  res.json({ success: true, numbers: deviceStore.deviceNumbers });
+});
+
 // --- Scrcpy window management ---
 
 // Track running scrcpy windows
 const scrcpyWindows = new Map(); // ip -> child process
+const overlayWindows = new Map(); // ip -> overlay child process
 
 app.post('/api/devices/:ip/mirror', async (req, res) => {
   const ip = req.params.ip;
@@ -411,6 +433,10 @@ app.post('/api/devices/:ip/mirror', async (req, res) => {
   const idx = allDevices.findIndex(d => d.ip === ip);
   const pos = getWindowPosition(idx >= 0 ? idx : scrcpyWindows.size, allDevices.length);
 
+  // Get persistent device number
+  const deviceNum = deviceStore.getDeviceNumber(ip);
+  const titleLabel = deviceNum ? `[ #${deviceNum} ]` : `PICO ${idx + 1}`;
+
   const args = [
     '-s', `${ip}:5555`,
     '--display-id=0',
@@ -419,7 +445,7 @@ app.post('/api/devices/:ip/mirror', async (req, res) => {
     '--video-bit-rate=8000000',
     '--max-fps=30',
     '--no-audio',
-    `--window-title=PICO ${idx + 1} (${ip})`,
+    `--window-title=${titleLabel} (${ip})`,
     `--window-x=${pos.x}`,
     `--window-y=${pos.y}`,
     `--window-width=${pos.w}`,
@@ -441,8 +467,14 @@ app.post('/api/devices/:ip/mirror', async (req, res) => {
 
   proc.on('close', () => {
     scrcpyWindows.delete(ip);
+    killOverlay(ip);
     console.log(`[Mirror] scrcpy window closed for ${ip}`);
   });
+
+  // Launch number overlay on the scrcpy window
+  if (deviceNum) {
+    launchOverlay(ip, deviceNum, pos);
+  }
 
   res.json({ success: true, position: pos });
 });
@@ -466,6 +498,10 @@ app.post('/api/mirror/all', async (req, res) => {
       const idx = devices.indexOf(device);
       const pos = getWindowPosition(idx, devices.length);
 
+      // Get persistent device number
+      const deviceNum = deviceStore.getDeviceNumber(device.ip);
+      const titleLabel = deviceNum ? `[ #${deviceNum} ]` : `PICO ${idx + 1}`;
+
       const args = [
         '-s', `${device.ip}:5555`,
         '--display-id=0',
@@ -474,7 +510,7 @@ app.post('/api/mirror/all', async (req, res) => {
         '--video-bit-rate=8000000',
         '--max-fps=30',
         '--no-audio',
-        `--window-title=PICO ${idx + 1} (${device.ip})`,
+        `--window-title=${titleLabel} (${device.ip})`,
         `--window-x=${pos.x}`,
         `--window-y=${pos.y}`,
         `--window-width=${pos.w}`,
@@ -492,7 +528,13 @@ app.post('/api/mirror/all', async (req, res) => {
       scrcpyWindows.set(device.ip, proc);
       proc.on('close', () => {
         scrcpyWindows.delete(device.ip);
+        killOverlay(device.ip);
       });
+
+      // Launch number overlay
+      if (deviceNum) {
+        launchOverlay(device.ip, deviceNum, pos);
+      }
 
       results.push({ ip: device.ip, success: true });
       console.log(`[Mirror] Launched scrcpy for ${device.ip} at ${pos.x},${pos.y}`);
@@ -510,11 +552,46 @@ app.post('/api/mirror/all', async (req, res) => {
 app.post('/api/mirror/stop', (req, res) => {
   for (const [ip, proc] of scrcpyWindows) {
     try { proc.kill(); } catch {}
+    killOverlay(ip);
   }
   scrcpyWindows.clear();
   console.log('[Mirror] All scrcpy windows closed');
   res.json({ success: true });
 });
+
+// --- Overlay management ---
+function launchOverlay(ip, deviceNum, pos) {
+  killOverlay(ip); // kill existing overlay for this IP
+
+  const overlayScript = path.join(__dirname, 'overlay.ps1');
+  const args = [
+    '-ExecutionPolicy', 'Bypass',
+    '-File', overlayScript,
+    '-Number', String(deviceNum),
+    '-X', String(pos.x),
+    '-Y', String(pos.y),
+  ];
+
+  try {
+    const proc = require('child_process').spawn('powershell.exe', args, {
+      detached: true,
+      stdio: 'ignore',
+    });
+    proc.unref();
+    overlayWindows.set(ip, proc);
+    proc.on('close', () => overlayWindows.delete(ip));
+    console.log(`[Overlay] Launched #${deviceNum} overlay for ${ip} at ${pos.x},${pos.y}`);
+  } catch (err) {
+    console.error(`[Overlay] Failed to launch for ${ip}:`, err.message);
+  }
+}
+
+function killOverlay(ip) {
+  if (overlayWindows.has(ip)) {
+    try { overlayWindows.get(ip).kill(); } catch {}
+    overlayWindows.delete(ip);
+  }
+}
 
 // Calculate grid position for scrcpy windows (1920x1080 screen)
 function getWindowPosition(index, total) {
