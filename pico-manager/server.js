@@ -387,6 +387,169 @@ app.post('/api/all/volume', async (req, res) => {
   }
 });
 
+// --- Scrcpy window management ---
+
+// Track running scrcpy windows
+const scrcpyWindows = new Map(); // ip -> child process
+
+app.post('/api/devices/:ip/mirror', async (req, res) => {
+  const ip = req.params.ip;
+
+  // Kill existing window for this device
+  if (scrcpyWindows.has(ip)) {
+    try { scrcpyWindows.get(ip).kill(); } catch {}
+    scrcpyWindows.delete(ip);
+  }
+
+  const scrcpyPath = adbManager.scrcpyPath;
+  if (!scrcpyPath) {
+    return res.status(500).json({ success: false, error: 'scrcpy not found' });
+  }
+
+  // Calculate window position in grid (up to 5 devices)
+  const allDevices = deviceStore.getConnectedDevices();
+  const idx = allDevices.findIndex(d => d.ip === ip);
+  const pos = getWindowPosition(idx >= 0 ? idx : scrcpyWindows.size, allDevices.length);
+
+  const args = [
+    '-s', `${ip}:5555`,
+    '--display-id=0',
+    '--crop=1920:1080:120:540',
+    '--video-codec=h264',
+    '--video-bit-rate=8000000',
+    '--max-fps=30',
+    '--no-audio',
+    `--window-title=PICO ${idx + 1} (${ip})`,
+    `--window-x=${pos.x}`,
+    `--window-y=${pos.y}`,
+    `--window-width=${pos.w}`,
+    `--window-height=${pos.h}`,
+  ];
+
+  console.log(`[Mirror] Launching scrcpy window for ${ip} at ${pos.x},${pos.y} (${pos.w}x${pos.h})`);
+  const scrcpyDir = require('path').dirname(scrcpyPath);
+
+  const proc = require('child_process').spawn(scrcpyPath, args, {
+    cwd: scrcpyDir,
+    env: { ...process.env, ADB: adbManager.adbPath },
+    detached: true,
+    stdio: 'ignore',
+  });
+
+  proc.unref();
+  scrcpyWindows.set(ip, proc);
+
+  proc.on('close', () => {
+    scrcpyWindows.delete(ip);
+    console.log(`[Mirror] scrcpy window closed for ${ip}`);
+  });
+
+  res.json({ success: true, position: pos });
+});
+
+app.post('/api/mirror/all', async (req, res) => {
+  const devices = deviceStore.getConnectedDevices();
+  if (devices.length === 0) {
+    return res.json({ success: false, error: 'No connected devices' });
+  }
+
+  const results = [];
+  for (const device of devices) {
+    try {
+      // Kill existing
+      if (scrcpyWindows.has(device.ip)) {
+        try { scrcpyWindows.get(device.ip).kill(); } catch {}
+        scrcpyWindows.delete(device.ip);
+      }
+
+      const scrcpyPath = adbManager.scrcpyPath;
+      const idx = devices.indexOf(device);
+      const pos = getWindowPosition(idx, devices.length);
+
+      const args = [
+        '-s', `${device.ip}:5555`,
+        '--display-id=0',
+        '--crop=1920:1080:120:540',
+        '--video-codec=h264',
+        '--video-bit-rate=8000000',
+        '--max-fps=30',
+        '--no-audio',
+        `--window-title=PICO ${idx + 1} (${device.ip})`,
+        `--window-x=${pos.x}`,
+        `--window-y=${pos.y}`,
+        `--window-width=${pos.w}`,
+        `--window-height=${pos.h}`,
+      ];
+
+      const scrcpyDir = require('path').dirname(scrcpyPath);
+      const proc = require('child_process').spawn(scrcpyPath, args, {
+        cwd: scrcpyDir,
+        env: { ...process.env, ADB: adbManager.adbPath },
+        detached: true,
+        stdio: 'ignore',
+      });
+      proc.unref();
+      scrcpyWindows.set(device.ip, proc);
+      proc.on('close', () => {
+        scrcpyWindows.delete(device.ip);
+      });
+
+      results.push({ ip: device.ip, success: true });
+      console.log(`[Mirror] Launched scrcpy for ${device.ip} at ${pos.x},${pos.y}`);
+
+      // Small delay between launches to avoid ADB congestion
+      await new Promise(r => setTimeout(r, 1000));
+    } catch (err) {
+      results.push({ ip: device.ip, success: false, error: err.message });
+    }
+  }
+
+  res.json({ success: true, results });
+});
+
+app.post('/api/mirror/stop', (req, res) => {
+  for (const [ip, proc] of scrcpyWindows) {
+    try { proc.kill(); } catch {}
+  }
+  scrcpyWindows.clear();
+  console.log('[Mirror] All scrcpy windows closed');
+  res.json({ success: true });
+});
+
+// Calculate grid position for scrcpy windows (1920x1080 screen)
+function getWindowPosition(index, total) {
+  const screenW = 1920, screenH = 1080;
+  const padding = 5;
+
+  if (total <= 1) {
+    return { x: 50, y: 50, w: screenW - 100, h: screenH - 100 };
+  }
+  if (total <= 2) {
+    const w = Math.floor(screenW / 2) - padding * 2;
+    const h = screenH - padding * 2;
+    return { x: index * (w + padding * 2) + padding, y: padding, w, h };
+  }
+  if (total <= 4) {
+    const cols = 2, rows = 2;
+    const w = Math.floor(screenW / cols) - padding * 2;
+    const h = Math.floor(screenH / rows) - padding * 2;
+    const col = index % cols, row = Math.floor(index / cols);
+    return { x: col * (w + padding * 2) + padding, y: row * (h + padding * 2) + padding, w, h };
+  }
+  // 5 devices: 3 top, 2 bottom centered
+  if (index < 3) {
+    const w = Math.floor(screenW / 3) - padding * 2;
+    const h = Math.floor(screenH / 2) - padding * 2;
+    return { x: index * (w + padding * 2) + padding, y: padding, w, h };
+  } else {
+    const w = Math.floor(screenW / 3) - padding * 2;
+    const h = Math.floor(screenH / 2) - padding * 2;
+    const bottomIdx = index - 3;
+    const offsetX = Math.floor(screenW / 6); // center 2 under 3
+    return { x: offsetX + bottomIdx * (w + padding * 2) + padding, y: h + padding * 2 + padding, w, h };
+  }
+}
+
 // --- Single screenshot (uses screencap + sharp) ---
 
 app.get('/api/devices/:ip/screenshot', async (req, res) => {

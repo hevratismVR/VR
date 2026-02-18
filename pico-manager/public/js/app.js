@@ -263,15 +263,9 @@ function createDeviceCard(device) {
 
     <div class="device-controls">
       ${device.connected ? `
-        <button class="btn-icon" title="שיקוף מסך" onclick="toggleStream('${device.ip}')">
+        <button class="btn-icon" title="שיקוף scrcpy (חלון נפרד)" onclick="mirrorDevice('${device.ip}')" style="background:var(--success);color:white">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="5 3 19 12 5 21 5 3"/>
-          </svg>
-        </button>
-        <button class="btn-icon" title="מסך מלא" onclick="toggleFullscreen('${device.ip}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
-            <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
           </svg>
         </button>
         <button class="btn-icon" title="אפליקציות" onclick="showApps('${device.ip}')">
@@ -408,6 +402,40 @@ async function refreshDevices() {
     devices = await api('/devices');
     renderDevices();
     updateDeviceCount();
+  } catch {}
+}
+
+// --- Scrcpy Mirror (native window, flat VR view) ---
+
+async function mirrorDevice(ip) {
+  toast(`מפעיל שיקוף scrcpy עבור ${ip}...`, 'info');
+  try {
+    const result = await api(`/devices/${ip}/mirror`, { method: 'POST' });
+    if (result.success) {
+      toast(`שיקוף scrcpy מופעל: ${ip}`, 'success');
+    }
+  } catch (err) {
+    toast(`שגיאת שיקוף: ${err.message}`, 'error');
+  }
+}
+
+async function mirrorAll() {
+  toast('מפעיל שיקוף לכל המכשירים...', 'info');
+  try {
+    const result = await api('/mirror/all', { method: 'POST' });
+    if (result.success) {
+      const ok = result.results.filter(r => r.success).length;
+      toast(`שיקוף מופעל ל-${ok} מכשירים`, 'success');
+    }
+  } catch (err) {
+    toast(`שגיאה: ${err.message}`, 'error');
+  }
+}
+
+async function stopMirrorAll() {
+  try {
+    await api('/mirror/stop', { method: 'POST' });
+    toast('שיקוף הופסק', 'info');
   } catch {}
 }
 
@@ -659,7 +687,6 @@ async function manualConnect() {
 // --- Event Listeners ---
 
 $('#btnScan').addEventListener('click', scanDevices);
-$('#btnStreamAll').addEventListener('click', toggleStreamAll);
 $('#btnBulkLaunch').addEventListener('click', bulkLaunch);
 $('#btnBulkStop').addEventListener('click', bulkStop);
 $('#btnBulkVolume').addEventListener('click', bulkVolume);
