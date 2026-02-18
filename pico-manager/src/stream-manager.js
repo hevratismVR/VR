@@ -70,15 +70,15 @@ class StreamManager {
     if (!ctx.running) return;
 
     if (ctx.h264Capable) {
-      // Strategy 1: Try screenrecord first (fast, reliable, raw H.264)
-      if (await this._tryScreenrecord(ctx)) {
-        this._notifyMethod(ctx, 'screenrecord (H.264)');
+      // Strategy 1: scrcpy with display crop (flat 2D view, best for PICO VR)
+      if (await this._tryScrcpy(ctx)) {
+        this._notifyMethod(ctx, 'scrcpy (H.264 flat view)');
         return;
       }
 
-      // Strategy 2: Try scrcpy MKV demux (may not work on Windows)
-      if (await this._tryScrcpy(ctx)) {
-        this._notifyMethod(ctx, 'scrcpy (H.264 30fps)');
+      // Strategy 2: screenrecord fallback (shows raw VR stereo view)
+      if (await this._tryScreenrecord(ctx)) {
+        this._notifyMethod(ctx, 'screenrecord (H.264 VR view)');
         return;
       }
 
@@ -133,9 +133,10 @@ class StreamManager {
         '--no-playback',
         '--no-audio',
         '--no-control',
+        '--display-id=0',
+        '--crop=1920:1080:120:540',
         '--video-codec=h264',
-        '--video-bit-rate=4000000',
-        '--max-size=800',
+        '--video-bit-rate=8000000',
         '--max-fps=30',
         '--record=-',
         '--record-format=mkv',
@@ -144,6 +145,7 @@ class StreamManager {
       console.log(`[Stream] Running: scrcpy ${args.join(' ')}`);
 
       // Create MKV demuxer that converts MKV → raw H.264 Annex B
+      let stdoutBytes = 0;
       const demuxer = new MkvH264Demuxer((h264Data) => {
         if (!gotH264) {
           gotH264 = true;
@@ -164,18 +166,23 @@ class StreamManager {
         env: { ...process.env, ADB: this.adbManager.adbPath },
       });
 
-      // Give scrcpy 15 seconds to start producing demuxed H.264 data
+      // Give scrcpy 20 seconds to start producing demuxed H.264 data
       const timeout = setTimeout(() => {
         if (!gotH264 && !settled) {
           settled = true;
-          console.log(`[Stream] scrcpy timeout for ${ctx.ip} (no H.264 data in 15s)`);
+          console.log(`[Stream] scrcpy timeout for ${ctx.ip} (no H.264 data in 20s, stdout received: ${stdoutBytes} bytes)`);
           try { ctx.proc.kill(); } catch {}
           ctx.proc = null;
           resolve(false);
         }
-      }, 15000);
+      }, 20000);
 
       ctx.proc.stdout.on('data', (chunk) => {
+        stdoutBytes += chunk.length;
+        if (stdoutBytes <= chunk.length) {
+          // First chunk - log it
+          console.log(`[Stream] scrcpy stdout first data for ${ctx.ip}: ${chunk.length} bytes (first 16: ${chunk.subarray(0, 16).toString('hex')})`);
+        }
         // Feed raw MKV data into the demuxer
         demuxer.feed(chunk);
       });

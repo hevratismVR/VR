@@ -53,7 +53,7 @@ class AdbManager {
 
   _findScrcpy() {
     const locations = process.platform === 'win32'
-      ? ['C:\\scrcpy-win64-v3.2\\scrcpy.exe', 'C:\\scrcpy\\scrcpy.exe']
+      ? ['C:\\scrcpy-win64-v3.3.4\\scrcpy.exe', 'C:\\scrcpy-win64-v3.2\\scrcpy.exe', 'C:\\scrcpy\\scrcpy.exe']
       : ['/usr/bin/scrcpy', '/usr/local/bin/scrcpy'];
 
     // Try where/which first
