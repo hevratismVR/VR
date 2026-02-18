@@ -1,13 +1,15 @@
 const { spawn } = require('child_process');
 const path = require('path');
+const { MkvH264Demuxer } = require('./mkv-demuxer');
 
 /**
  * StreamManager - Multi-strategy real-time streaming from PICO devices
  *
  * Tries these approaches in order:
- * 1. scrcpy --record=- --record-format=h264  (best: uses MediaCodec, 30fps)
- * 2. screenrecord --output-format=h264        (may not work on all devices)
- * 3. WebSocket MJPEG (screencap + JPEG)       (slow fallback, 1-3 fps)
+ * 1. scrcpy --record=- --record-format=mkv  (best: uses MediaCodec, 30fps)
+ *    MKV output is demuxed to extract raw H.264 Annex B NAL units
+ * 2. screenrecord --output-format=h264      (may not work on all devices)
+ * 3. WebSocket MJPEG (screencap + JPEG)     (slow fallback, 1-3 fps)
  *
  * Binary packet format sent to browser:
  *   [1 byte type] [1 byte IP length] [IP string] [data]
@@ -56,6 +58,8 @@ class StreamManager {
       bytesSent: 0,
       startTime: Date.now(),
       mjpegRunning: false,
+      scrcpyRestarts: 0,       // track restart count
+      lastScrcpyStart: 0,      // detect rapid failures
     };
 
     this._startStream(ctx);
@@ -98,20 +102,30 @@ class StreamManager {
     }
   }
 
-  // --- Strategy 1: scrcpy with raw H.264 output ---
+  // --- Strategy 1: scrcpy with MKV output, demuxed to raw H.264 ---
 
   async _tryScrcpy(ctx) {
+    const MAX_RAPID_RESTARTS = 3;
+    const RAPID_FAILURE_MS = 5000; // if scrcpy dies within 5s, it's a rapid failure
+
     const scrcpyPath = this.adbManager.scrcpyPath;
     if (!scrcpyPath) {
       console.log(`[Stream] scrcpy not found, skipping`);
       return false;
     }
 
-    console.log(`[Stream] Trying scrcpy for ${ctx.ip}...`);
+    // Check restart limit (prevent infinite loop from repeated failures)
+    if (ctx.scrcpyRestarts >= MAX_RAPID_RESTARTS) {
+      console.log(`[Stream] scrcpy failed ${MAX_RAPID_RESTARTS} times for ${ctx.ip}, giving up`);
+      return false;
+    }
+
+    console.log(`[Stream] Trying scrcpy for ${ctx.ip} (attempt ${ctx.scrcpyRestarts + 1})...`);
     const scrcpyDir = path.dirname(scrcpyPath);
+    ctx.lastScrcpyStart = Date.now();
 
     return new Promise((resolve) => {
-      let gotData = false;
+      let gotH264 = false; // true once demuxer emits H.264 data
       let settled = false;
 
       const args = [
@@ -124,46 +138,51 @@ class StreamManager {
         '--max-size=800',
         '--max-fps=30',
         '--record=-',
-        '--record-format=h264',
+        '--record-format=mkv',
       ];
 
       console.log(`[Stream] Running: scrcpy ${args.join(' ')}`);
+
+      // Create MKV demuxer that converts MKV → raw H.264 Annex B
+      const demuxer = new MkvH264Demuxer((h264Data) => {
+        if (!gotH264) {
+          gotH264 = true;
+          clearTimeout(timeout);
+          if (!settled) {
+            settled = true;
+            ctx.method = 'scrcpy';
+            console.log(`[Stream] scrcpy producing H.264 for ${ctx.ip} via MKV demux (${h264Data.length} bytes)`);
+            resolve(true);
+          }
+        }
+        ctx.bytesSent += h264Data.length;
+        this._sendH264(ctx, h264Data);
+      });
 
       ctx.proc = spawn(scrcpyPath, args, {
         cwd: scrcpyDir, // so scrcpy finds scrcpy-server and SDL2.dll
         env: { ...process.env, ADB: this.adbManager.adbPath },
       });
 
-      // Give scrcpy 10 seconds to start producing data
+      // Give scrcpy 15 seconds to start producing demuxed H.264 data
       const timeout = setTimeout(() => {
-        if (!gotData && !settled) {
+        if (!gotH264 && !settled) {
           settled = true;
-          console.log(`[Stream] scrcpy timeout for ${ctx.ip} (no data in 10s)`);
+          console.log(`[Stream] scrcpy timeout for ${ctx.ip} (no H.264 data in 15s)`);
           try { ctx.proc.kill(); } catch {}
           ctx.proc = null;
           resolve(false);
         }
-      }, 10000);
+      }, 15000);
 
       ctx.proc.stdout.on('data', (chunk) => {
-        if (!gotData) {
-          gotData = true;
-          clearTimeout(timeout);
-          if (!settled) {
-            settled = true;
-            ctx.method = 'scrcpy';
-            console.log(`[Stream] scrcpy producing H.264 for ${ctx.ip} (first chunk: ${chunk.length} bytes)`);
-            resolve(true);
-          }
-        }
-        ctx.bytesSent += chunk.length;
-        this._sendH264(ctx, chunk);
+        // Feed raw MKV data into the demuxer
+        demuxer.feed(chunk);
       });
 
       ctx.proc.stderr.on('data', (d) => {
         const msg = d.toString().trim();
         if (msg) {
-          // Filter out common info messages
           for (const line of msg.split('\n')) {
             const l = line.trim();
             if (l && !l.startsWith('INFO:')) {
@@ -180,19 +199,36 @@ class StreamManager {
           console.log(`[Stream] scrcpy exited before producing data for ${ctx.ip} (code ${code})`);
           ctx.proc = null;
           resolve(false);
-        } else if (gotData && ctx.running && ctx.clients.size > 0) {
-          console.log(`[Stream] scrcpy ended for ${ctx.ip} (code ${code}), restarting in 1s...`);
+        } else if (gotH264 && ctx.running && ctx.clients.size > 0) {
           ctx.proc = null;
+          // Check if this was a rapid failure
+          const runTime = Date.now() - ctx.lastScrcpyStart;
+          if (runTime < RAPID_FAILURE_MS) {
+            ctx.scrcpyRestarts++;
+            console.log(`[Stream] scrcpy died quickly for ${ctx.ip} (${runTime}ms, code ${code}), restart ${ctx.scrcpyRestarts}/${MAX_RAPID_RESTARTS}`);
+            if (ctx.scrcpyRestarts >= MAX_RAPID_RESTARTS) {
+              console.log(`[Stream] scrcpy keeps failing for ${ctx.ip}, falling back to MJPEG`);
+              this._startMjpegWs(ctx);
+              this._notifyMethod(ctx, 'MJPEG (slow fallback)');
+              return;
+            }
+          } else {
+            // Long-running session ended normally, reset counter
+            ctx.scrcpyRestarts = 0;
+          }
+
+          console.log(`[Stream] scrcpy ended for ${ctx.ip} (code ${code}, ran ${runTime}ms), restarting in 2s...`);
           ctx.restartTimer = setTimeout(() => {
             if (ctx.running && ctx.clients.size > 0) {
               this._tryScrcpy(ctx).then(ok => {
                 if (!ok && ctx.running) {
                   console.log(`[Stream] scrcpy restart failed for ${ctx.ip}, falling back`);
                   this._startMjpegWs(ctx);
+                  this._notifyMethod(ctx, 'MJPEG (slow fallback)');
                 }
               });
             }
-          }, 1000);
+          }, 2000);
         }
       });
 
