@@ -89,7 +89,10 @@ class AdbManager {
    * Execute an ADB shell command on a specific device
    */
   async shell(ip, command, timeout = 10000) {
-    return this.adbExec(`-s ${ip}:5555 shell ${command}`, timeout);
+    // Check if device is USB-connected (use serial instead of IP:5555)
+    const device = this.deviceStore.getDevice(ip);
+    const target = (device && device.usb && device.serial) ? device.serial : `${ip}:5555`;
+    return this.adbExec(`-s ${target} shell ${command}`, timeout);
   }
 
   /**
@@ -182,10 +185,11 @@ class AdbManager {
       const devices = [];
 
       for (const line of lines) {
-        const match = line.match(/^([\d.]+):(\d+)\s+(\w+)/);
-        if (match) {
-          const ip = match[1];
-          const status = match[3];
+        // Match network devices (IP:port)
+        const networkMatch = line.match(/^([\d.]+):(\d+)\s+(\w+)/);
+        if (networkMatch) {
+          const ip = networkMatch[1];
+          const status = networkMatch[3];
           devices.push({
             ip,
             connected: status === 'device',
@@ -195,6 +199,35 @@ class AdbManager {
             connected: status === 'device',
             status: status === 'device' ? 'connected' : status
           });
+          continue;
+        }
+
+        // Match USB devices (serial number)
+        const usbMatch = line.match(/^(\S+)\s+(device|unauthorized|offline)/);
+        if (usbMatch) {
+          const serial = usbMatch[1];
+          const status = usbMatch[2];
+          // Try to get IP from device for wireless switching later
+          let ip = serial; // use serial as identifier
+          try {
+            const ipOutput = await this.adbExec(`-s ${serial} shell ip route`);
+            const ipMatch = ipOutput.match(/src\s+([\d.]+)/);
+            if (ipMatch) ip = ipMatch[1];
+          } catch { /* ignore */ }
+          devices.push({
+            ip,
+            serial,
+            usb: true,
+            connected: status === 'device',
+            status: status === 'device' ? 'connected' : status
+          });
+          this.deviceStore.addDevice(ip, {
+            serial,
+            usb: true,
+            connected: status === 'device',
+            status: status === 'device' ? 'connected' : status
+          });
+          console.log(`[ADB] Found USB device: ${serial} (IP: ${ip})`);
         }
       }
       return devices;
