@@ -442,6 +442,7 @@ app.post('/api/devices/:ip/mirror', async (req, res) => {
   const args = [
     '-s', `${ip}:5555`,
     '--video-codec=h265',
+    '--crop=2160:2160:0:0',
     '--video-bit-rate=8000000',
     '--max-fps=30',
     '--no-audio',
@@ -529,6 +530,7 @@ app.post('/api/mirror/all', async (req, res) => {
       const args = [
         '-s', `${device.ip}:5555`,
         '--video-codec=h265',
+        '--crop=2160:2160:0:0',
         '--video-bit-rate=8000000',
         '--max-fps=30',
         '--no-audio',
