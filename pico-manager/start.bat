@@ -25,6 +25,27 @@ if not exist "node_modules" (
     echo.
 )
 
+:: Check scrcpy (required for mirroring)
+where scrcpy >nul 2>&1
+if %errorlevel% neq 0 (
+    if not exist "scrcpy\scrcpy.exe" (
+        echo [INFO] scrcpy not found - downloading for mirror support...
+        echo.
+        powershell -Command "& { $url='https://github.com/Genymobile/scrcpy/releases/download/v3.1/scrcpy-win64-v3.1.zip'; $zip='scrcpy.zip'; Write-Host 'Downloading scrcpy...'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing; Write-Host 'Extracting...'; Expand-Archive -Path $zip -DestinationPath '.' -Force; Rename-Item 'scrcpy-win64-v3.1' 'scrcpy' -Force; Remove-Item $zip; Write-Host 'scrcpy installed successfully!' }"
+        if exist "scrcpy\scrcpy.exe" (
+            echo [OK] scrcpy ready!
+        ) else (
+            echo [WARNING] scrcpy download failed - mirroring will not work
+            echo          Download manually from: https://github.com/Genymobile/scrcpy/releases
+        )
+        echo.
+    ) else (
+        echo [OK] scrcpy found in project folder
+    )
+) else (
+    echo [OK] scrcpy found in PATH
+)
+
 :: Get local IP
 for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do (
     for /f "tokens=1" %%b in ("%%a") do set LOCAL_IP=%%b
