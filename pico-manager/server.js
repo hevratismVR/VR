@@ -779,11 +779,23 @@ ${httpsInfo}
 ╚══════════════════════════════════════════════════╝
   `);
 
-  adbManager.adbExec('version').then(output => {
+  adbManager.adbExec('version').then(async (output) => {
     console.log(`[Startup] ADB available: ${output.split('\n')[0]}`);
-    return adbManager.scanNetwork();
-  }).then(devices => {
-    console.log(`[Startup] Found ${devices.length} device(s) on network`);
+
+    // Phase 1: Try reconnecting to known/saved devices first (fast)
+    const savedIPs = Object.keys(deviceStore.deviceNumbers);
+    if (savedIPs.length > 0) {
+      console.log(`[Startup] Reconnecting to ${savedIPs.length} saved device(s): ${savedIPs.join(', ')}`);
+      const reconnectResults = await Promise.allSettled(
+        savedIPs.map(ip => adbManager.connectDevice(ip).catch(() => null))
+      );
+      const reconnected = reconnectResults.filter(r => r.status === 'fulfilled' && r.value).length;
+      console.log(`[Startup] Reconnected to ${reconnected}/${savedIPs.length} saved device(s)`);
+    }
+
+    // Phase 2: Full network scan to find any new devices
+    const devices = await adbManager.scanNetwork();
+    console.log(`[Startup] Total: ${devices.length} device(s) found`);
   }).catch(err => {
     console.error(`[Startup] ADB check/scan failed: ${err.message}`);
     console.log('[Startup] Make sure ADB is installed and in PATH');
