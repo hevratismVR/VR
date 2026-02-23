@@ -618,6 +618,7 @@ function launchOverlay(ip, deviceNum, pos) {
     '-Number', String(deviceNum),
     '-X', String(pos.x),
     '-Y', String(pos.y),
+    '-WinWidth', String(pos.w),
   ];
 
   try {

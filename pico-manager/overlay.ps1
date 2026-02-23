@@ -2,6 +2,7 @@ param(
     [int]$Number,
     [int]$X,
     [int]$Y,
+    [int]$WinWidth = 480,
     [int]$W = 70,
     [int]$H = 70
 )
@@ -15,7 +16,7 @@ $window.WindowStyle = "None"
 $window.AllowsTransparency = $true
 $window.Background = [System.Windows.Media.Brushes]::Transparent
 $window.Topmost = $true
-$window.Left = $X + 10
+$window.Left = $X + $WinWidth - $W - 10
 $window.Top = $Y + 10
 $window.Width = $W
 $window.Height = $H
