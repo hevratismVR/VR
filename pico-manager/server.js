@@ -242,6 +242,8 @@ app.get('/api/status', async (req, res) => {
     server: 'running',
     adb: adbAvailable,
     adbVersion,
+    scrcpy: !!adbManager.scrcpyPath,
+    scrcpyPath: adbManager.scrcpyPath || null,
     connectedDevices: deviceStore.getConnectedDevices().length,
     totalDevices: deviceStore.getAllDevices().length
   });

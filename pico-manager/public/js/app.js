@@ -441,6 +441,8 @@ async function mirrorDevice(ip) {
     const result = await api(`/devices/${ip}/mirror`, { method: 'POST' });
     if (result.success) {
       toast(`שיקוף scrcpy מופעל: ${ip}`, 'success');
+    } else {
+      toast(`שגיאת שיקוף: ${result.error || 'Unknown error'}`, 'error');
     }
   } catch (err) {
     toast(`שגיאת שיקוף: ${err.message}`, 'error');
@@ -453,7 +455,11 @@ async function mirrorAll() {
     const result = await api('/mirror/all', { method: 'POST' });
     if (result.success) {
       const ok = result.results.filter(r => r.success).length;
-      toast(`שיקוף מופעל ל-${ok} מכשירים`, 'success');
+      const fail = result.results.filter(r => !r.success).length;
+      if (ok > 0) toast(`שיקוף מופעל ל-${ok} מכשירים`, 'success');
+      if (fail > 0) toast(`שיקוף נכשל ב-${fail} מכשירים`, 'error');
+    } else {
+      toast(`שגיאת שיקוף: ${result.error || 'Unknown error'}`, 'error');
     }
   } catch (err) {
     toast(`שגיאה: ${err.message}`, 'error');
@@ -757,6 +763,13 @@ document.querySelectorAll('.modal').forEach(modal => {
     const status = await api('/status');
     if (!status.adb) {
       toast('ADB לא זמין - ודא ש-ADB מותקן ונגיש', 'error');
+    }
+    if (!status.scrcpy) {
+      toast('⚠ scrcpy לא נמצא - השיקוף לא יעבוד. הורד מ: github.com/Genymobile/scrcpy', 'error');
+      const btnMirror = document.getElementById('btnMirrorAll');
+      const btnStop = document.getElementById('btnStopMirror');
+      if (btnMirror) { btnMirror.disabled = true; btnMirror.title = 'scrcpy לא מותקן'; }
+      if (btnStop) { btnStop.disabled = true; }
     }
     if (typeof H264Player !== 'undefined' && H264Player.supported) {
       console.log('[Init] WebCodecs H.264 streaming available');

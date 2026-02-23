@@ -53,7 +53,15 @@ class AdbManager {
 
   _findScrcpy() {
     const locations = process.platform === 'win32'
-      ? ['C:\\scrcpy-win64-v3.3.4\\scrcpy.exe', 'C:\\scrcpy-win64-v3.2\\scrcpy.exe', 'C:\\scrcpy\\scrcpy.exe']
+      ? [
+          'C:\\scrcpy-win64-v3.3.4\\scrcpy.exe',
+          'C:\\scrcpy-win64-v3.2\\scrcpy.exe',
+          'C:\\scrcpy-win64-v3.1\\scrcpy.exe',
+          'C:\\scrcpy-win64-v3.0\\scrcpy.exe',
+          'C:\\scrcpy\\scrcpy.exe',
+          'C:\\Program Files\\scrcpy\\scrcpy.exe',
+          'C:\\Program Files (x86)\\scrcpy\\scrcpy.exe',
+        ]
       : ['/usr/bin/scrcpy', '/usr/local/bin/scrcpy'];
 
     // Try where/which first
@@ -65,10 +73,24 @@ class AdbManager {
 
     // Try known locations
     const fs = require('fs');
+    const path = require('path');
     for (const loc of locations) {
       if (fs.existsSync(loc)) return loc;
     }
 
+    // Try in project directory and parent
+    const projectDir = path.resolve(__dirname, '..');
+    const localPaths = [
+      path.join(projectDir, 'scrcpy', 'scrcpy.exe'),
+      path.join(projectDir, 'scrcpy.exe'),
+      path.join(projectDir, '..', 'scrcpy', 'scrcpy.exe'),
+    ];
+    for (const loc of localPaths) {
+      if (fs.existsSync(loc)) return loc;
+    }
+
+    console.warn('[ADB] scrcpy not found! Mirror functionality will not work.');
+    console.warn('[ADB] Download scrcpy from: https://github.com/Genymobile/scrcpy/releases');
     return null;
   }
 
