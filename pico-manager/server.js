@@ -441,9 +441,6 @@ app.post('/api/devices/:ip/mirror', async (req, res) => {
 
   const args = [
     '-s', `${ip}:5555`,
-    '--display-id=0',
-    '--crop=1920:1080:120:540',
-    '--video-codec=h264',
     '--video-bit-rate=8000000',
     '--max-fps=30',
     '--no-audio',
@@ -461,11 +458,15 @@ app.post('/api/devices/:ip/mirror', async (req, res) => {
     cwd: scrcpyDir,
     env: { ...process.env, ADB: adbManager.adbPath },
     detached: true,
-    stdio: 'ignore',
+    stdio: 'pipe',
   });
 
   proc.unref();
   scrcpyWindows.set(ip, proc);
+
+  // Log scrcpy output for debugging
+  if (proc.stderr) proc.stderr.on('data', d => console.log(`[scrcpy ${ip}] ${d.toString().trim()}`));
+  if (proc.stdout) proc.stdout.on('data', d => console.log(`[scrcpy ${ip}] ${d.toString().trim()}`));
 
   proc.on('close', (code) => {
     scrcpyWindows.delete(ip);
@@ -526,9 +527,6 @@ app.post('/api/mirror/all', async (req, res) => {
 
       const args = [
         '-s', `${device.ip}:5555`,
-        '--display-id=0',
-        '--crop=1920:1080:120:540',
-        '--video-codec=h264',
         '--video-bit-rate=8000000',
         '--max-fps=30',
         '--no-audio',
@@ -544,10 +542,15 @@ app.post('/api/mirror/all', async (req, res) => {
         cwd: scrcpyDir,
         env: { ...process.env, ADB: adbManager.adbPath },
         detached: true,
-        stdio: 'ignore',
+        stdio: 'pipe',
       });
       proc.unref();
       scrcpyWindows.set(device.ip, proc);
+
+      // Log scrcpy output for debugging
+      if (proc.stderr) proc.stderr.on('data', d => console.log(`[scrcpy ${device.ip}] ${d.toString().trim()}`));
+      if (proc.stdout) proc.stdout.on('data', d => console.log(`[scrcpy ${device.ip}] ${d.toString().trim()}`));
+
       proc.on('close', (code) => {
         scrcpyWindows.delete(device.ip);
         console.log(`[Mirror] scrcpy closed for ${device.ip} (code: ${code})`);
