@@ -96,37 +96,47 @@ class AdbManager {
   }
 
   /**
-   * Scan local network for PICO devices (subnet scan on port 5555)
+   * Scan local network for PICO devices (multiple methods)
    */
   async scanNetwork() {
     console.log('[ADB] Scanning network for devices...');
 
-    // First get already-connected devices from adb
+    // First get already-connected devices from adb (USB + previously paired)
     const knownDevices = await this._getAdbDevices();
 
     // Try to detect subnet from device IP or use common subnets
     const subnets = this._detectSubnets();
     console.log(`[ADB] Scanning subnets: ${subnets.join(', ')}`);
 
-    // Phase 1: Fast TCP port probe to find devices with port 5555 open
-    const openIPs = [];
+    // Phase 1: Get ARP table IPs (devices already seen on network) + TCP probe
+    const arpIPs = await this._getArpDevices(subnets);
+    console.log(`[ADB] ARP table has ${arpIPs.length} device(s) on our subnets`);
+
+    // Phase 2: Fast TCP port probe on all IPs in subnet
+    const openIPs = new Set();
     const tcpPromises = [];
     for (const subnet of subnets) {
       for (let i = 1; i <= 254; i++) {
         const ip = `${subnet}.${i}`;
-        tcpPromises.push(this._tcpProbe(ip, 5555, 800).then(open => {
+        tcpPromises.push(this._tcpProbe(ip, 5555, 1200).then(open => {
           if (open) {
             console.log(`[ADB] Port 5555 open on ${ip}`);
-            openIPs.push(ip);
+            openIPs.add(ip);
           }
         }));
       }
     }
     await Promise.allSettled(tcpPromises);
-    console.log(`[ADB] TCP probe found ${openIPs.length} device(s) with port 5555 open`);
+    console.log(`[ADB] TCP probe found ${openIPs.size} device(s) with port 5555 open`);
 
-    // Phase 2: Try ADB connect only on IPs with open port
-    const adbPromises = openIPs.map(ip => this._probeDevice(ip));
+    // Phase 3: Also try ADB connect on ARP devices (even if TCP probe missed them)
+    for (const ip of arpIPs) {
+      openIPs.add(ip);
+    }
+    console.log(`[ADB] Total candidates to try ADB connect: ${openIPs.size}`);
+
+    // Phase 4: Try ADB connect on all candidates
+    const adbPromises = [...openIPs].map(ip => this._probeDevice(ip));
     const results = await Promise.allSettled(adbPromises);
     const found = results
       .filter(r => r.status === 'fulfilled' && r.value)
@@ -146,6 +156,33 @@ class AdbManager {
 
     console.log(`[ADB] Found ${found.length} device(s)`);
     return found;
+  }
+
+  /**
+   * Get devices from ARP table (already seen on the network)
+   */
+  async _getArpDevices(subnets) {
+    try {
+      const cmd = process.platform === 'win32' ? 'arp -a' : 'arp -an';
+      const { stdout } = await execAsync(cmd, { timeout: 5000 });
+      const ips = [];
+      const subnetSet = new Set(subnets);
+
+      for (const line of stdout.split('\n')) {
+        const match = line.match(/([\d]+\.[\d]+\.[\d]+\.[\d]+)/);
+        if (match) {
+          const ip = match[1];
+          const subnet = ip.split('.').slice(0, 3).join('.');
+          if (subnetSet.has(subnet) && !ip.endsWith('.255') && !ip.endsWith('.1')) {
+            ips.push(ip);
+          }
+        }
+      }
+      return ips;
+    } catch (err) {
+      console.log(`[ADB] ARP scan failed: ${err.message}`);
+      return [];
+    }
   }
 
   /**
