@@ -133,7 +133,6 @@ class StreamManager {
         '--no-playback',
         '--no-audio',
         '--no-control',
-        '--crop=2160:2160:0:0',
         '--video-bit-rate=8000000',
         '--max-fps=30',
         '--record=-',
