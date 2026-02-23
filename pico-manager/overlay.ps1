@@ -8,6 +8,7 @@ param(
 
 Add-Type -AssemblyName PresentationFramework
 Add-Type -AssemblyName PresentationCore
+Add-Type -AssemblyName WindowsBase
 
 $window = New-Object System.Windows.Window
 $window.WindowStyle = "None"
@@ -47,4 +48,16 @@ $window.Content = $border
 # Allow dragging the overlay
 $window.Add_MouseLeftButtonDown({ $window.DragMove() })
 
-$window.ShowDialog() | Out-Null
+# Keep window always on top with a timer (prevents losing topmost)
+$timer = New-Object System.Windows.Threading.DispatcherTimer
+$timer.Interval = [TimeSpan]::FromSeconds(10)
+$timer.Add_Tick({
+    $window.Topmost = $false
+    $window.Topmost = $true
+})
+$timer.Start()
+
+# Run with a proper WPF Application to keep the message loop alive
+$app = New-Object System.Windows.Application
+$app.ShutdownMode = "OnMainWindowClose"
+$app.Run($window) | Out-Null

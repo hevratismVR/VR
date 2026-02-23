@@ -467,7 +467,7 @@ app.post('/api/devices/:ip/mirror', async (req, res) => {
 
   proc.on('close', () => {
     scrcpyWindows.delete(ip);
-    killOverlay(ip);
+    // Don't kill overlay when scrcpy closes - overlay stays visible independently
     console.log(`[Mirror] scrcpy window closed for ${ip}`);
   });
 
@@ -528,7 +528,7 @@ app.post('/api/mirror/all', async (req, res) => {
       scrcpyWindows.set(device.ip, proc);
       proc.on('close', () => {
         scrcpyWindows.delete(device.ip);
-        killOverlay(device.ip);
+        // Don't kill overlay when scrcpy closes - overlay stays visible independently
       });
 
       // Launch number overlay
