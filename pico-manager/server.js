@@ -467,10 +467,30 @@ app.post('/api/devices/:ip/mirror', async (req, res) => {
   proc.unref();
   scrcpyWindows.set(ip, proc);
 
-  proc.on('close', () => {
+  proc.on('close', (code) => {
     scrcpyWindows.delete(ip);
-    // Don't kill overlay when scrcpy closes - overlay stays visible independently
-    console.log(`[Mirror] scrcpy window closed for ${ip}`);
+    console.log(`[Mirror] scrcpy window closed for ${ip} (code: ${code})`);
+    // Auto-restart if scrcpy crashed (not manually stopped)
+    if (code !== 0 && code !== null && !proc._manualStop) {
+      console.log(`[Mirror] Auto-restarting scrcpy for ${ip} in 3 seconds...`);
+      setTimeout(() => {
+        if (!scrcpyWindows.has(ip)) {
+          const restartProc = require('child_process').spawn(scrcpyPath, args, {
+            cwd: scrcpyDir,
+            env: { ...process.env, ADB: adbManager.adbPath },
+            detached: true,
+            stdio: 'ignore',
+          });
+          restartProc.unref();
+          scrcpyWindows.set(ip, restartProc);
+          restartProc.on('close', (c) => {
+            scrcpyWindows.delete(ip);
+            console.log(`[Mirror] Restarted scrcpy closed for ${ip} (code: ${c})`);
+          });
+          console.log(`[Mirror] Restarted scrcpy for ${ip}`);
+        }
+      }, 3000);
+    }
   });
 
   // Launch number overlay on the scrcpy window
@@ -528,9 +548,30 @@ app.post('/api/mirror/all', async (req, res) => {
       });
       proc.unref();
       scrcpyWindows.set(device.ip, proc);
-      proc.on('close', () => {
+      proc.on('close', (code) => {
         scrcpyWindows.delete(device.ip);
-        // Don't kill overlay when scrcpy closes - overlay stays visible independently
+        console.log(`[Mirror] scrcpy closed for ${device.ip} (code: ${code})`);
+        // Auto-restart if scrcpy crashed (not manually stopped)
+        if (code !== 0 && code !== null && !proc._manualStop) {
+          console.log(`[Mirror] Auto-restarting scrcpy for ${device.ip} in 3 seconds...`);
+          setTimeout(() => {
+            if (!scrcpyWindows.has(device.ip)) {
+              const restartProc = require('child_process').spawn(scrcpyPath, args, {
+                cwd: scrcpyDir,
+                env: { ...process.env, ADB: adbManager.adbPath },
+                detached: true,
+                stdio: 'ignore',
+              });
+              restartProc.unref();
+              scrcpyWindows.set(device.ip, restartProc);
+              restartProc.on('close', (c) => {
+                scrcpyWindows.delete(device.ip);
+                console.log(`[Mirror] Restarted scrcpy closed for ${device.ip} (code: ${c})`);
+              });
+              console.log(`[Mirror] Restarted scrcpy for ${device.ip}`);
+            }
+          }, 3000);
+        }
       });
 
       // Launch number overlay
@@ -553,11 +594,11 @@ app.post('/api/mirror/all', async (req, res) => {
 
 app.post('/api/mirror/stop', (req, res) => {
   for (const [ip, proc] of scrcpyWindows) {
-    try { proc.kill(); } catch {}
+    try { proc._manualStop = true; proc.kill(); } catch {}
     killOverlay(ip);
   }
   scrcpyWindows.clear();
-  console.log('[Mirror] All scrcpy windows closed');
+  console.log('[Mirror] All scrcpy windows closed (manual stop)');
   res.json({ success: true });
 });
 
@@ -684,8 +725,24 @@ app.get('/api/devices/:ip/mjpeg', async (req, res) => {
 function setupWebSocket(wssInstance) {
   if (!wssInstance) return;
 
+  // Ping/pong keepalive - prevent timeout disconnects
+  const pingInterval = setInterval(() => {
+    wssInstance.clients.forEach(client => {
+      if (client.isAlive === false) {
+        console.log('[WS] Client not responding to ping, terminating');
+        return client.terminate();
+      }
+      client.isAlive = false;
+      client.ping();
+    });
+  }, 30000);
+
+  wssInstance.on('close', () => clearInterval(pingInterval));
+
   wssInstance.on('connection', (ws) => {
     console.log('[WS] Client connected');
+    ws.isAlive = true;
+    ws.on('pong', () => { ws.isAlive = true; });
     const unsubscribers = new Map();
 
     ws.on('message', (message) => {
