@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+.env
+*.egg-info/
+build/
+dist/
+
+# Runtime artifacts
+audio/out/*.wav
+logs/*.log
+
+# Keep empty dirs
+!audio/snippets/.gitkeep
+!audio/out/.gitkeep
+!logs/.gitkeep

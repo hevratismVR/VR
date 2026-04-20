@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mila"
+version = "0.0.1"
+description = "Hebrew VR chatbot for children with autism — runtime companion to TalkSphere"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Mila team" }]
+license = { text = "Proprietary" }
+dependencies = [
+    "numpy>=1.26,<3.0",
+    "soundfile>=0.12",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0"]
+
+[project.scripts]
+mila = "mila.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mila*"]
+exclude = ["tests*", "audio*", "logs*", "config*", "input*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

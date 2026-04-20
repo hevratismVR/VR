@@ -1,0 +1,11 @@
+# Mila runtime dependencies (walking-skeleton)
+numpy>=1.26,<3.0        # Sample-array math for audio weaving
+soundfile>=0.12         # 24 kHz WAV I/O via libsndfile (no ffmpeg needed)
+PyYAML>=6.0             # Config + character profile parsing
+
+# ---- Future deps (commented; add only when a real consumer needs them) ----
+# rapidfuzz>=3.0         # Accelerated fuzzy matching (skeleton uses pure Python)
+# librosa>=0.10          # Only if sources arrive at non-24kHz rates
+# faster-whisper>=1.0    # ASR — deferred to speech-input phase
+# scipy>=1.11            # Only for advanced filters; linear prosody for now
+# pydub>=0.25            # Requires ffmpeg; avoid unless mp3/ogg enter pipeline

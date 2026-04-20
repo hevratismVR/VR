@@ -1,0 +1,25 @@
+# Mila runtime defaults. Load via mila.config.load_config().
+# All paths are resolved relative to the Mila package root unless absolute.
+
+audio:
+  sample_rate: 24000          # Hz — non-negotiable; audio.io enforces this
+  channels: 1                 # mono
+  bit_depth: 16               # int16 PCM
+  crossfade_ms: 20            # between adjacent snippets
+  default_inter_word_pause_ms: 80
+  emphasis_gain_db: 3.0       # max boost for emphasis==1.0
+
+paths:
+  talksphere_root: "../TalkSphere"             # sibling checkout
+  talksphere_words_dir: "../TalkSphere/output/words"
+  snippets_dir: "audio/snippets"
+  out_dir: "audio/out"
+  lexicon_csv: "input/lexicon.csv"
+
+dialogue:
+  memory_window: 8            # turns kept in ShortTermMemory
+  asr_confidence_threshold: 0.55
+  fuzzy_match_top_k: 3
+
+character:
+  file: "config/mila_character.yaml"
